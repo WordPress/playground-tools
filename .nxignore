@@ -1,0 +1,6 @@
+node_modules
+dist
+__pycache__
+*.timestamp-1678999213403.mjs
+.local
+.vscode
