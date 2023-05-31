@@ -4,6 +4,7 @@ This repository contains the tools and applications built using [WordPress Playg
 
 -   [Interactive Code Block for Gutenberg](./packages/interactive-code-block/)
 -   [WordPress Playground for Visual Studio Code](./packages/vscode-extension/)
+-   [wp-now](./packages/wp-now/)
 
 If you were looking for the Playground itself, you can find it here: [WordPress Playground](https://developer.wordpress.org/playground/)
 
