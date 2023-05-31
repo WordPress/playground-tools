@@ -87,7 +87,10 @@ function getWpContentHomePath(projectPath: string, mode: string) {
 export default async function getWpNowConfig(
 	args: CliOptions
 ): Promise<WPNowOptions> {
-	const port = args.port || (await portFinder.getOpenPort());
+	if (args.port) {
+		portFinder.setPort(args.port);
+	}
+	const port = await portFinder.getOpenPort();
 	const optionsFromCli: WPNowOptions = {
 		phpVersion: args.php as SupportedPHPVersion,
 		projectPath: args.path as string,
