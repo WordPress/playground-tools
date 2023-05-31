@@ -7,6 +7,7 @@ import getWpNowConfig, { CliOptions } from './config';
 import { spawn, SpawnOptionsWithoutStdio } from 'child_process';
 import { executePHP } from './execute-php';
 import { output } from './output';
+import { isGitHubCodespace } from './github-codespaces';
 
 function startSpinner(message: string) {
 	process.stdout.write(`${message}...\n`);
@@ -123,6 +124,9 @@ export async function runCli() {
 }
 
 function openInDefaultBrowser(url: string) {
+	if (isGitHubCodespace) {
+		return;
+	}
 	let cmd: string, args: string[] | SpawnOptionsWithoutStdio;
 	switch (process.platform) {
 		case 'darwin':

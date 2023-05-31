@@ -3,6 +3,7 @@ import {
 	SupportedPHPVersionsList,
 } from '@php-wasm/universal';
 import crypto from 'crypto';
+import { getCodeSpaceURL, isGitHubCodespace } from './github-codespaces';
 import { inferMode } from './wp-now';
 import { portFinder } from './port-finder';
 import { isValidWordPressVersion } from './wp-playground-wordpress';
@@ -64,8 +65,8 @@ export interface WPEnvOptions {
 
 async function getAbsoluteURL() {
 	const port = await portFinder.getOpenPort();
-	if (process.env.CODESPACE_NAME) {
-		return `https://${process.env.CODESPACE_NAME}-${port}.preview.app.github.dev`;
+	if (isGitHubCodespace) {
+		return getCodeSpaceURL(port);
 	}
 	return `http://localhost:${port}`;
 }
