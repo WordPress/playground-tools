@@ -141,5 +141,7 @@ function openInDefaultBrowser(url: string) {
 			output?.log(`Platform '${process.platform}' not supported`);
 			return;
 	}
-	spawn(cmd, args);
+	spawn(cmd, args).on('error', function (err) {
+		console.error(err.message);
+	});
 }

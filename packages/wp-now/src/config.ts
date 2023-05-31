@@ -64,6 +64,9 @@ export interface WPEnvOptions {
 
 async function getAbsoluteURL() {
 	const port = await portFinder.getOpenPort();
+	if (process.env.CODESPACE_NAME) {
+		return `https://${process.env.CODESPACE_NAME}-${port}.github.dev`;
+	}
 	return `http://localhost:${port}`;
 }
 
