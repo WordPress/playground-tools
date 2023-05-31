@@ -2,11 +2,10 @@
 
 This repository contains the tools and applications built using [WordPress Playground](https://developer.wordpress.org/playground/):
 
-* Interactive Code Block for Gutenberg
+* [Interactive Code Block for Gutenberg](./packages/interactive-code-block/)
+* [WordPress Playground for Visual Studio Code](./packages/vscode-extension/)
 
 If you were looking for the Playground itself, you can find it here: [WordPress Playground](https://developer.wordpress.org/playground/)
-
-![Interactive code block screenshot](packages/interactive-code-block/demo.png)
 
 ## Getting started
 
@@ -20,7 +19,7 @@ npm run build
 # or `npm run dev` to watch for changes
 ```
 
-You'll find the built assets in the dist directory. You can make changes, install the interactive code plugin, and test them.
+You'll find the built assets in the dist directory. You can make changes, run the VS Code extension or install the interactive code plugin, and test them.
 
 ## Contributing
 

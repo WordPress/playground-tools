@@ -1,11 +1,5 @@
-# interactive-code-block
+# Interactive Code Block
 
-This library was generated with [Nx](https://nx.dev).
+![Interactive code block screenshot](./demo.png)
 
-## Building
-
-Run `nx build interactive-code-block` to build the library.
-
-## Running unit tests
-
-Run `nx test interactive-code-block` to execute the unit tests via [Jest](https://jestjs.io).
+No readme yet, but see the original Pull Request at https://github.com/WordPress/wordpress-playground/pull/168
