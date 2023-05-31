@@ -14,8 +14,7 @@ describe('Test GitHub Codespaces', () => {
 
 	test('getAbsoluteURL returns the localhost URL', async () => {
 		vi.spyOn(codespaces, 'isGitHubCodespace', 'get').mockReturnValue(false);
-		const port = 7777;
-		const options = await getWpNowConfig({ port });
+		const options = await getWpNowConfig({ port: 7777 });
 
 		expect(options.absoluteUrl).toBe('http://localhost:7777');
 		vi.resetAllMocks();
@@ -26,8 +25,7 @@ describe('Test GitHub Codespaces', () => {
 		process.env.CODESPACE_NAME = 'my-codespace-name';
 		process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN =
 			'preview.app.github.dev';
-		const port = 7777;
-		const options = await getWpNowConfig({ port });
+		const options = await getWpNowConfig({ port: 7777 });
 
 		expect(options.absoluteUrl).toBe(
 			'https://my-codespace-name-7777.preview.app.github.dev'
