@@ -13,11 +13,34 @@ Just install this extension, open the WordPress sidebar, and click the "Start Wo
 -   The extension currently expects that the command is run while within a file in the root directory of the plugin. A WordPress playground will still be created and mounted, but the plugin will not be functional if the command is run from an unintended directory.
 -   Some requests may not succeed. This is likely due to the fact that we have a minimally implemented server translation layer.
 
-## Development
+## Contributing
 
-1. Clone the WordPress Playground repository at https://github.com/WordPress/wordpress-playground
-2. Make a change in `packages/vscode-extension`
-3. Go to the Debug tab is your VS Code and run the "Debug Playground for VS Code" configuration. It will build the extension and start a new VS Code window with your changes reflected.
+We welcome contributions from the community!
+
+In order to contribute to the WordPress Playground VS Code Extension, you'll need to have Node.js version 16 or greater installed on your system.
+
+Once you have Node installed, you can start using the repo:
+
+```bash
+git clone git@github.com:WordPress/playground-tools.git
+cd playground-tools
+npm install
+```
+
+After the repo is configured, head back to your VS Code Editor:
+
+1. Enable the Activity Bar, if it isn't enabled already, under View -> Appearance.
+2. Within the Activity Bar, enable 'Run and Debug if it isn't enabled already.
+
+<img width="856" alt="Run and Debug in the Activity Bar" src="https://github.com/WordPress/playground-tools/assets/36432/81c230d9-ff42-461d-880e-53093319f163">
+
+'Run and Debug' is where the magic happens. First, feel free to make whatever changes to `packages/vscode-extension`. Then go to the Debug tab in your VS Code and run the "Debug Playground for VS Code" configuration. It will build the extension and start a new VS Code window with your changes reflected. The WordPress Playground VS Code Extension will appear as a new item in your Activity Bar.
+
+<img width="1290" alt="WordPress Playground VS Code Extension in the Activity Bar" src="https://github.com/WordPress/playground-tools/assets/36432/1f88edb9-ebf7-43c2-87d1-c438c6d6176b">
+
+Any time you make change to the the code, click the reload button at the top of your editor to apply the changes:
+
+<img width="630" alt="Reload button at the top of the editor" src="https://github.com/WordPress/playground-tools/assets/36432/3b9b512c-9b1e-4cb6-b36b-97cff4b2a8df">
 
 [vscode-webview-ui-toolkit](https://github.com/microsoft/vscode-webview-ui-toolkit/blob/main/docs/getting-started.md) is used for UI.
 

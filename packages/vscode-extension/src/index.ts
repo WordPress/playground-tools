@@ -54,9 +54,9 @@ async function startWordPressServer() {
 		worker.postMessage({
 			command: 'start-server',
 			config: {
-				phpVersion: stateManager.read().phpVersion,
-				wordPressVersion: stateManager.read().wordPressVersion,
-				projectPath: vscode.workspace.workspaceFolders[0].uri.fsPath,
+				php: stateManager.read().phpVersion,
+				wp: stateManager.read().wordPressVersion,
+				path: vscode.workspace.workspaceFolders[0].uri.fsPath,
 			},
 		});
 	} catch (e) {
