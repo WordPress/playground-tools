@@ -123,6 +123,13 @@ test('isWpContentDirectory detects a WordPress wp-content directory and infer WP
 	expect(inferMode(projectPath)).toBe(WPNowMode.WP_CONTENT);
 });
 
+test('isWpContentDirectory detects a wp-content directory as a subdirectory and infer WP_CONTENT mode', () => {
+	const projectPath = exampleDir + '/wp-content-sub-dir';
+	expect(inferMode(projectPath)).toBe(WPNowMode.WP_CONTENT);
+	expect(isWpContentDirectory(projectPath)).toBe(true);
+	expect(isWordPressDirectory(projectPath)).toBe(false);
+});
+
 test('isWpContentDirectory returns false for wp-content parent directory', () => {
 	const projectPath = exampleDir + '/index';
 	expect(isWpContentDirectory(projectPath)).toBe(false);

@@ -2,6 +2,7 @@ import fs from 'fs-extra';
 import { NodePHP, PHPLoaderOptions } from '@php-wasm/node';
 import path from 'path';
 import { SQLITE_FILENAME } from './constants';
+import { hasPluginOrThemeDirectory } from './wp-playground-wordpress/has-plugin-or-theme-directory';
 import {
 	downloadMuPlugins,
 	downloadSqliteIntegrationPlugin,
@@ -163,7 +164,11 @@ async function runWpContentMode(
 	await initWordPress(php, wordPressVersion, documentRoot, absoluteUrl);
 	fs.ensureDirSync(wpContentPath);
 
-	php.mount(projectPath, `${documentRoot}/wp-content`);
+	if (hasPluginOrThemeDirectory(projectPath)) {
+		php.mount(projectPath, `${documentRoot}/wp-content`);
+	} else {
+		php.mount(projectPath, documentRoot);
+	}
 
 	mountSqlitePlugin(php, documentRoot);
 	mountSqliteDatabaseDirectory(php, documentRoot, wpContentPath);
