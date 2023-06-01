@@ -10,7 +10,7 @@ import { hasPluginOrThemeDirectory } from './has-plugin-or-theme-directory';
  */
 export function isWpContentDirectory(projectPath: string): Boolean {
 	// Check the immediate directory first.
-	if (hasPluginOrThemeDirectory(projectPath)){
+	if (hasPluginOrThemeDirectory(projectPath)) {
 		return true;
 	}
 	if (fs.existsSync(path.join(projectPath, 'wp-content'))) {
