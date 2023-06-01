@@ -73,9 +73,17 @@ Any time you make change to the the code, click the reload button at the top of 
 
 ## Publishing
 
+The WordPress Playground VS Code Extension is published independently of the other projects in this repository. However, to ensure they're using the same codebase, a new version of `wp-now` should be released prior to publishing the VS Code Extension.
+
+[@adamziel](https://github.com/adamziel) and [@danielbachhuber](https://github.com/danielbachhuber/) have permissions to publish. The extension is managed in the [VS Code extension marketplace](https://marketplace.visualstudio.com/manage/publishers/wordpressplayground).
+
+Publish a new version by following these steps:
+
 1. Generate a Personal Access Token on https://dev.azure.com/wordpress-playground/_usersSettings/tokens
-1. Login with `vsce login WordPressPlayground` and the token you generated
-1. Build and publish the extension with `vsce publish`.
+2. Login with `vsce login WordPressPlayground` and the token you generated
+3. Build and publish the extension with `nx publish vscode-extension`.
+
+Once you've published the extension, please install it and verify the new version launches a WordPress server as expected.
 
 ## Release Notes
 
