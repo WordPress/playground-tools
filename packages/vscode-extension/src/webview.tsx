@@ -10,7 +10,13 @@ import {
 } from '@vscode/webview-ui-toolkit/react';
 
 // @TODO Move to @wp-playground/wordpress package
-const SupportedWordPressVersions = ['6.2', '6.1', '6.0', '5.9'] as const;
+const SupportedWordPressVersions = {
+	latest: 'Latest (auto-updated)',
+	'6.2': '6.2',
+	'6.1': '6.1',
+	'6.0': '6.0',
+	'5.9': '5.9',
+} as Record<string, string>;
 
 // @ts-ignore
 const vscode = acquireVsCodeApi();
@@ -110,12 +116,7 @@ const ServerState = ({ appState }: ServerStateProps) => {
 				{!['core', 'core-develop'].includes(appState.mode) ? (
 					<Dropdown
 						label="WordPress Version:"
-						options={Object.fromEntries(
-							SupportedWordPressVersions.map((version) => [
-								version,
-								version,
-							])
-						)}
+						options={SupportedWordPressVersions}
 						selected={appState.wordPressVersion!}
 						onChange={(value) => {
 							vscode.postMessage({
