@@ -54,22 +54,25 @@ describe('validate php execution', () => {
 		expect(output.substring(0, 16)).toBe('PHP Version: 8.2');
 	});
 
-	// test('php throws an error if the first element is not the string "php"', async () => {
-	// 	const options = await getWpNowConfig({
-	// 		path: exampleDir,
-	// 	});
-	// 	try {
-	// 		await executePHP(
-	// 			['word-different-to-php', path.join(exampleDir, 'php-version.php')],
-	// 			{
-	// 				...options,
-	// 				phpVersion: '7.4',
-	// 			}
-	// 		);
-	// 	} catch (error) {
-	// 		expect(error.message).toBe(
-	// 			'The first argument to executePHP must be the string "php".'
-	// 		);
-	// 	}
-	// });
+	test('php throws an error if the first element is not the string "php"', async () => {
+		const options = await getWpNowConfig({
+			path: exampleDir,
+		});
+		try {
+			await executePHP(
+				[
+					'word-different-to-php',
+					path.join(exampleDir, 'php-version.php'),
+				],
+				{
+					...options,
+					phpVersion: '7.4',
+				}
+			);
+		} catch (error) {
+			expect(error.message).toBe(
+				'The first argument to executePHP must be the string "php".'
+			);
+		}
+	});
 });
