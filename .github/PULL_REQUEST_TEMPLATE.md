@@ -1,4 +1,4 @@
-<!-- Thanks for contributing to WordPress Playground tools! -->
+<!-- Thanks for contributing to WordPress Playground Tools! -->
 
 ## What?
 
