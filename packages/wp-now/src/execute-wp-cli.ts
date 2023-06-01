@@ -4,6 +4,7 @@ import { disableOutput } from './output';
 import getWpCliPath from './get-wp-cli-path';
 import getWpNowConfig from './config';
 import { DEFAULT_PHP_VERSION, DEFAULT_WORDPRESS_VERSION } from './constants';
+import { dirname } from 'path';
 
 /**
  * This is an unstable API. Multiple wp-cli commands may not work due to a current limitation on php-wasm and pthreads.
@@ -24,10 +25,11 @@ export async function executeWPCli(args: string[]) {
 	const [, php] = phpInstances;
 
 	try {
-		php.useHostFilesystem();
+		const vfsWpCliPath = '/wp-cli/wp-cli.phar';
+		php.mount(dirname(getWpCliPath()), dirname(vfsWpCliPath));
 		await php.cli([
 			'php',
-			getWpCliPath(),
+			vfsWpCliPath,
 			`--path=${wpNowOptions.documentRoot}`,
 			...args,
 		]);
