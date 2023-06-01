@@ -9,5 +9,5 @@ export default function getWpCliPath() {
 	if (process.env.NODE_ENV !== 'test') {
 		return path.join(getWpNowPath(), 'wp-cli.phar');
 	}
-	return getWpCliTmpPath();
+	return path.join(getWpCliTmpPath(), 'wp-cli.phar');
 }
