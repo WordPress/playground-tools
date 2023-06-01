@@ -101,8 +101,7 @@ export async function startServer(
 			output?.trace(e);
 		}
 	});
-
-	const url = `http://localhost:${port}/`;
+	const url = options.absoluteUrl;
 	app.listen(port, () => {
 		output?.log(`Server running at ${url}`);
 	});

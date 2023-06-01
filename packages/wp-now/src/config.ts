@@ -3,6 +3,7 @@ import {
 	SupportedPHPVersionsList,
 } from '@php-wasm/universal';
 import crypto from 'crypto';
+import { getCodeSpaceURL, isGitHubCodespace } from './github-codespaces';
 import { inferMode } from './wp-now';
 import { portFinder } from './port-finder';
 import { isValidWordPressVersion } from './wp-playground-wordpress';
@@ -64,6 +65,9 @@ export interface WPEnvOptions {
 
 async function getAbsoluteURL() {
 	const port = await portFinder.getOpenPort();
+	if (isGitHubCodespace) {
+		return getCodeSpaceURL(port);
+	}
 	return `http://localhost:${port}`;
 }
 
@@ -83,7 +87,10 @@ function getWpContentHomePath(projectPath: string, mode: string) {
 export default async function getWpNowConfig(
 	args: CliOptions
 ): Promise<WPNowOptions> {
-	const port = args.port || (await portFinder.getOpenPort());
+	if (args.port) {
+		portFinder.setPort(args.port);
+	}
+	const port = await portFinder.getOpenPort();
 	const optionsFromCli: WPNowOptions = {
 		phpVersion: args.php as SupportedPHPVersion,
 		projectPath: args.path as string,
