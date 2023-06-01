@@ -19,6 +19,7 @@ import crypto from 'crypto';
 import getWpNowTmpPath from '../get-wp-now-tmp-path';
 import getWpCliTmpPath from '../get-wp-cli-tmp-path';
 import { executeWPCli } from '../execute-wp-cli';
+import { runCli } from '../run-cli';
 
 const exampleDir = __dirname + '/mode-examples';
 
@@ -511,6 +512,74 @@ describe('Test starting different modes', () => {
 		});
 
 		expect(themeName.text).toContain('Twenty Twenty-Three');
+	});
+
+	/**
+	 * Test PHP integration test executing runCli.
+	 */
+	describe('validate php comand arguments passed through yargs', () => {
+		const phpExampleDir = path.join(__dirname, 'execute-php');
+		const argv = process.argv;
+		let output = '';
+		let processExitMock;
+		beforeEach(() => {
+			vi.spyOn(console, 'log').mockImplementation((newLine: string) => {
+				output += `${newLine}\n`;
+			});
+			processExitMock = vi
+				.spyOn(process, 'exit')
+				.mockImplementation(() => null);
+		});
+
+		afterEach(() => {
+			output = '';
+			process.argv = argv;
+			vi.resetAllMocks();
+		});
+
+		test('php should receive the correct yargs arguments', async () => {
+			process.argv = ['node', 'wp-now', 'php', '--', '--version'];
+			await runCli();
+			expect(output).toMatch(/PHP 8\.0(.*)\(cli\)/i);
+			expect(processExitMock).toHaveBeenCalledWith(0);
+		});
+
+		test('wp-now should change the php version', async () => {
+			process.argv = [
+				'node',
+				'wp-now',
+				'php',
+				'--php=7.4',
+				'--',
+				'--version',
+			];
+			await runCli();
+			expect(output).toMatch(/PHP 7\.4(.*)\(cli\)/i);
+			expect(processExitMock).toHaveBeenCalledWith(0);
+		});
+
+		test('php should execute a file', async () => {
+			const filePath = path.join(phpExampleDir, 'php-version.php');
+			process.argv = ['node', 'wp-now', 'php', filePath];
+			await runCli();
+			expect(output).toMatch(/8\.0/i);
+			expect(processExitMock).toHaveBeenCalledWith(0);
+		});
+
+		test('php should execute a file and change php version', async () => {
+			const filePath = path.join(phpExampleDir, 'php-version.php');
+			process.argv = [
+				'node',
+				'wp-now',
+				'php',
+				'--php=7.4',
+				'--',
+				filePath,
+			];
+			await runCli();
+			expect(output).toMatch(/7\.4/i);
+			expect(processExitMock).toHaveBeenCalledWith(0);
+		});
 	});
 });
 
