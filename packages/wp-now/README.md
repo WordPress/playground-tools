@@ -43,7 +43,7 @@ wp-now php my-file.php
 -   **plugin**, **theme**, or **wp-content**: Loads the project files into a virtual filesytem with WordPress and a SQLite-based database. Everything (including WordPress core files, the database, `wp-config.php`, etc.) is stored in the user's home directory and loaded into the virtual filesystem. The latest version of WordPress will be used, unless the `--wp=<version>` argument is provided. Here are the heuristics for each mode:
     -   **plugin** mode: Presence of a PHP file with 'Plugin Name:' in its contents.
     -   **theme** mode: Presence of a `style.css` file with 'Theme Name:' in its contents.
-    -   **wp-content** mode: Presence of `plugins` and `themes` subdirectories.
+    -   **wp-content** mode: Presence of `plugins` or `themes` subdirectories in the immediate directory, or within a `wp-content` subdirectory.
 -   **wordpress**: Runs the directory as a WordPress installation when WordPress files are detected. An existing `wp-config.php` file will be used if it exists; if it doesn't exist, it will be created along with a SQLite database.
 -   **wordpress-develop**: Same as `wordpress` mode, except the `build` directory is served as the web root.
 -   **index**: When an `index.php` file is present, starts a PHP webserver in the working directory and simply passes requests to the `index.php`.
