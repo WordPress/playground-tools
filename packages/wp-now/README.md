@@ -121,7 +121,7 @@ In order to contribute to `wp-now`, you'll need to first install a few global de
 Once the global dependencies are installed, you can start using the repo:
 
 ```bash
-git clone git@github.com:playground-tools
+git clone git@github.com:WordPress/playground-tools.git
 cd playground-tools
 nvm use
 npm install
