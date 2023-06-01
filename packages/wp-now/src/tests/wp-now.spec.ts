@@ -514,40 +514,40 @@ describe('Test starting different modes', () => {
 	});
 });
 
-// /**
-//  * Test wp-cli command.
-//  */
-// describe('wp-cli command', () => {
-// 	let consoleSpy;
-// 	let output = '';
+/**
+ * Test wp-cli command.
+ */
+describe('wp-cli command', () => {
+	let consoleSpy;
+	let output = '';
 
-// 	beforeEach(() => {
-// 		function onStdout(outputLine: string) {
-// 			output += outputLine;
-// 		}
-// 		consoleSpy = vi.spyOn(console, 'log');
-// 		consoleSpy.mockImplementation(onStdout);
-// 	});
+	beforeEach(() => {
+		function onStdout(outputLine: string) {
+			output += outputLine;
+		}
+		consoleSpy = vi.spyOn(console, 'log');
+		consoleSpy.mockImplementation(onStdout);
+	});
 
-// 	afterEach(() => {
-// 		output = '';
-// 		consoleSpy.mockRestore();
-// 	});
+	afterEach(() => {
+		output = '';
+		consoleSpy.mockRestore();
+	});
 
-// 	beforeAll(async () => {
-// 		await downloadWithTimer('wp-cli', downloadWPCLI);
-// 	});
+	beforeAll(async () => {
+		await downloadWithTimer('wp-cli', downloadWPCLI);
+	});
 
-// 	afterAll(() => {
-// 		fs.removeSync(getWpCliTmpPath());
-// 	});
+	afterAll(() => {
+		fs.removeSync(getWpCliTmpPath());
+	});
 
-// 	/**
-// 	 * Test wp-cli displays the version.
-// 	 * We don't need the WordPress context for this test.
-// 	 */
-// 	test('wp-cli displays the version', async () => {
-// 		await executeWPCli(['cli', 'version']);
-// 		expect(output).toMatch(/WP-CLI (\d\.?)+/i);
-// 	});
-// });
+	/**
+	 * Test wp-cli displays the version.
+	 * We don't need the WordPress context for this test.
+	 */
+	test('wp-cli displays the version', async () => {
+		await executeWPCli(['cli', 'version']);
+		expect(output).toMatch(/WP-CLI (\d\.?)+/i);
+	});
+});
