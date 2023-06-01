@@ -1,8 +1,6 @@
-import fs from 'fs-extra';
 import path from 'path';
 import { executePHP } from '../execute-php';
 import getWpNowConfig from '../config';
-import { runCli } from '../run-cli';
 
 const exampleDir = path.join(__dirname, 'execute-php');
 
