@@ -167,7 +167,7 @@ async function runWpContentMode(
 	if (hasPluginOrThemeDirectory(projectPath)) {
 		php.mount(projectPath, `${documentRoot}/wp-content`);
 	} else {
-		php.mount(projectPath, documentRoot);
+		php.mount(`${projectPath}/wp-content`, `${documentRoot}/wp-content`);
 	}
 
 	mountSqlitePlugin(php, documentRoot);
