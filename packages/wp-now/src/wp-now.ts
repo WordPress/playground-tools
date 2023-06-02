@@ -22,7 +22,7 @@ import {
 	isWordPressDirectory,
 	isWordPressDevelopDirectory,
 	getPluginFile,
-    readFileHead,
+	readFileHead,
 } from './wp-playground-wordpress';
 import { output } from './output';
 import getWpNowPath from './get-wp-now-path';
