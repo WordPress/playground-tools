@@ -22,6 +22,7 @@ import {
 	isWordPressDirectory,
 	isWordPressDevelopDirectory,
 	getPluginFile,
+    readFileHead,
 } from './wp-playground-wordpress';
 import { output } from './output';
 import getWpNowPath from './get-wp-now-path';
@@ -236,6 +237,16 @@ async function runPluginOrThemeMode(
 		projectPath,
 		`${documentRoot}/wp-content/${directoryName}/${pluginName}`
 	);
+	if (mode === WPNowMode.THEME) {
+		const templateName = getThemeTemplate(projectPath);
+		if (templateName) {
+			// We assume that the theme template is in the parent directory
+			php.mount(
+				path.join(projectPath, '..', templateName),
+				`${documentRoot}/wp-content/${directoryName}/${templateName}`
+			);
+		}
+	}
 	mountSqlitePlugin(php, documentRoot);
 	mountMuPlugins(php, documentRoot);
 }
@@ -315,6 +326,15 @@ async function activatePluginOrTheme(
 	} else if (mode === WPNowMode.THEME) {
 		const themeFolderName = path.basename(projectPath);
 		await activateTheme(php, { themeFolderName });
+	}
+}
+
+function getThemeTemplate(projectPath: string) {
+	const themeTemplateRegex = /^(?:[ \t]*<\?php)?[ \t/*#@]*Template:(.*)$/im;
+	const styleCSS = readFileHead(path.join(projectPath, 'style.css'));
+	if (themeTemplateRegex.test(styleCSS)) {
+		const themeName = themeTemplateRegex.exec(styleCSS)[1].trim();
+		return themeName;
 	}
 }
 
