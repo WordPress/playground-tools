@@ -5,8 +5,11 @@
  */
 export function addTrailingSlash(path) {
 	return (req, res, next) => {
-		if (req.url === path) {
-			res.redirect(301, `${path}/`);
+		const urlParts = req.url.split('?');
+		const url = urlParts[0];
+		const queryString = req.url.substr(url.length);
+		if (url === path) {
+			res.redirect(301, `${path}/${queryString}`);
 		} else {
 			next();
 		}
