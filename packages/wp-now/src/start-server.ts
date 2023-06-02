@@ -3,6 +3,7 @@ import { WPNowOptions } from './config';
 import { HTTPMethod } from '@php-wasm/universal';
 import express from 'express';
 import compression from 'compression';
+import compressible from 'compressible';
 import fileUpload from 'express-fileupload';
 import { portFinder } from './port-finder';
 import { NodePHP } from '@php-wasm/node';
@@ -40,14 +41,11 @@ export interface WPNowServer {
 	options: WPNowOptions;
 }
 
-const compressTypes = [
-	'text/',
-	'application/javascript',
-	'application/x-javascript',
-	'application/json',
-	'application/xml',
-	'image/svg+xml',
-];
+function shouldCompress(_, res) {
+	const types = res.getHeader('content-type');
+	const type = Array.isArray(types) ? types[0] : types;
+	return type && compressible(type);
+}
 
 export async function startServer(
 	options: WPNowOptions = {}
@@ -59,14 +57,7 @@ export async function startServer(
 	}
 	const app = express();
 	app.use(fileUpload());
-	app.use(
-		compression({
-			filter: (_, res) => {
-				const ct = res.get('content-type')[0] || '';
-				return compressTypes.some((type) => ct.startsWith(type));
-			},
-		})
-	);
+	app.use(compression({ filter: shouldCompress }));
 	const port = await portFinder.getOpenPort();
 	const { php, options: wpNowOptions } = await startWPNow(options);
 
