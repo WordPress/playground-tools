@@ -2,6 +2,7 @@ import fs from 'fs';
 import { WPNowOptions } from './config';
 import { HTTPMethod } from '@php-wasm/universal';
 import express from 'express';
+import compression from 'compression';
 import fileUpload from 'express-fileupload';
 import { portFinder } from './port-finder';
 import { NodePHP } from '@php-wasm/node';
@@ -39,6 +40,15 @@ export interface WPNowServer {
 	options: WPNowOptions;
 }
 
+const compressTypes = [
+	'text/',
+	'application/javascript',
+	'application/x-javascript',
+	'application/json',
+	'application/xml',
+	'image/svg+xml',
+];
+
 export async function startServer(
 	options: WPNowOptions = {}
 ): Promise<WPNowServer> {
@@ -49,6 +59,14 @@ export async function startServer(
 	}
 	const app = express();
 	app.use(fileUpload());
+	app.use(
+		compression({
+			filter: (_, res) => {
+				const ct = res.get('content-type')[0] || '';
+				return compressTypes.some((type) => ct.startsWith(type));
+			},
+		})
+	);
 	const port = await portFinder.getOpenPort();
 	const { php, options: wpNowOptions } = await startWPNow(options);
 

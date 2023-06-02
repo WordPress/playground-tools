@@ -515,6 +515,42 @@ describe('Test starting different modes', () => {
 	});
 
 	/**
+	 * Test that startWPNow compresses the text files.
+	 */
+	test('startWPNow compresses the text files', async () => {
+		const projectPath = path.join(tmpExampleDirectory, 'theme-with-assets');
+		const config = await getWpNowConfig({ path: projectPath });
+		const { options } = await startWPNow(config);
+
+		const html = await fetch(options.absoluteUrl);
+		expect(html.headers.get('content-encoding')).toBe('gzip');
+
+		const style = await fetch(
+			`${options.absoluteUrl}/wp-content/themes/theme-with-assets/style.css`
+		);
+		expect(style.headers.get('content-encoding')).toBe('gzip');
+
+		const javascript = await fetch(
+			`${options.absoluteUrl}/wp-content/themes/theme-with-assets/javascript.js`
+		);
+		expect(javascript.headers.get('content-encoding')).toBe('gzip');
+	});
+
+	/**
+	 * Test that startWPNow doesn't compress non text files.
+	 */
+	test("startWPNow doesn't compress non text files", async () => {
+		const projectPath = path.join(tmpExampleDirectory, 'theme-with-assets');
+		const config = await getWpNowConfig({ path: projectPath });
+		const { options } = await startWPNow(config);
+
+		const image = await fetch(
+			`${options.absoluteUrl}/wp-content/themes/theme-with-assets/image.png`
+		);
+		expect(image.headers.get('content-encoding')).toBe('null');
+	});
+
+	/**
 	 * Test PHP integration test executing runCli.
 	 */
 	describe('validate php comand arguments passed through yargs', () => {
