@@ -33,6 +33,16 @@ const requestBodyToString = async (req) =>
 		});
 	});
 
+function addTrailingSlash(path) {
+	return (req, res, next) => {
+		if (req.url === path) {
+			res.redirect(301, `${path}/`);
+		} else {
+			next();
+		}
+	};
+}
+
 export interface WPNowServer {
 	url: string;
 	php: NodePHP;
@@ -49,6 +59,7 @@ export async function startServer(
 	}
 	const app = express();
 	app.use(fileUpload());
+	app.use(addTrailingSlash('/wp-admin'));
 	const port = await portFinder.getOpenPort();
 	const { php, options: wpNowOptions } = await startWPNow(options);
 
