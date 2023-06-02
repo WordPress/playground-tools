@@ -7,6 +7,7 @@ import { portFinder } from './port-finder';
 import { NodePHP } from '@php-wasm/node';
 import startWPNow from './wp-now';
 import { output } from './output';
+import { addTrailingSlash } from './add-trailing-slash';
 
 function requestBodyToMultipartFormData(json, boundary) {
 	let multipartData = '';
@@ -32,16 +33,6 @@ const requestBodyToString = async (req) =>
 			resolve(body);
 		});
 	});
-
-function addTrailingSlash(path) {
-	return (req, res, next) => {
-		if (req.url === path) {
-			res.redirect(301, `${path}/`);
-		} else {
-			next();
-		}
-	};
-}
 
 export interface WPNowServer {
 	url: string;
