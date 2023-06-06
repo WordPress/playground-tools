@@ -7,6 +7,7 @@ import { portFinder } from './port-finder';
 import { NodePHP } from '@php-wasm/node';
 import startWPNow from './wp-now';
 import { output } from './output';
+import { addTrailingSlash } from './add-trailing-slash';
 
 function requestBodyToMultipartFormData(json, boundary) {
 	let multipartData = '';
@@ -49,6 +50,7 @@ export async function startServer(
 	}
 	const app = express();
 	app.use(fileUpload());
+	app.use(addTrailingSlash('/wp-admin'));
 	const port = await portFinder.getOpenPort();
 	const { php, options: wpNowOptions } = await startWPNow(options);
 
