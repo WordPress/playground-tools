@@ -1,4 +1,4 @@
-import startWPNow, { inferMode } from '../wp-now';
+import startWPNow, { getThemeTemplate, inferMode } from '../wp-now';
 import getWpNowConfig, { CliOptions, WPNowMode } from '../config';
 import fs from 'fs-extra';
 import path from 'path';
@@ -99,6 +99,18 @@ test('isPluginDirectory returns false for non-plugin directory', () => {
 test('isThemeDirectory detects a WordPress theme and infer THEME mode', () => {
 	const projectPath = exampleDir + '/theme';
 	expect(isThemeDirectory(projectPath)).toBe(true);
+	expect(inferMode(projectPath)).toBe(WPNowMode.THEME);
+});
+
+test('getThemeTemplate detects if a WordPress theme has a parent template.', () => {
+	const projectPath = exampleDir + '/child-theme/child';
+	expect(getThemeTemplate(projectPath)).toBe('parent');
+	expect(inferMode(projectPath)).toBe(WPNowMode.THEME);
+});
+
+test('getThemeTemplate returns falsy value for themes without parent', () => {
+	const projectPath = exampleDir + '/theme';
+	expect(getThemeTemplate(projectPath)).toBe(undefined);
 	expect(inferMode(projectPath)).toBe(WPNowMode.THEME);
 });
 
@@ -487,6 +499,63 @@ describe('Test starting different modes', () => {
 		});
 
 		expect(themeName.text).toContain('Yolo Theme');
+	});
+
+	/**
+	 * Test that startWPNow in "theme" mode auto activates the theme.
+	 */
+	test('startWPNow auto installs mounts child and parent theme.', async () => {
+		const projectPath = path.join(tmpExampleDirectory, 'child-theme/child');
+		const options = await getWpNowConfig({ path: projectPath });
+		const { php } = await startWPNow(options);
+
+		const childThemePhp = `<?php
+		require_once('${php.documentRoot}/wp-load.php');
+		echo wp_get_theme()->get('Name');
+		`;
+
+		const parentThemePhp = `<?php
+		    require_once('${php.documentRoot}/wp-load.php');
+			$theme = wp_get_theme( 'parent' );
+			if ( $theme->exists() ) {
+				echo $theme->get('Name');
+			} else {
+				echo 'Not found';
+			}
+		`;
+
+		const childThemeName = await php.run({
+			code: childThemePhp,
+		});
+		const parentThemeName = await php.run({
+			code: parentThemePhp,
+		});
+
+		expect(childThemeName.text).toContain('Child Theme');
+		expect(parentThemeName.text).toContain('Parent Theme');
+	});
+
+	/**
+	 * Test that startWPNow in "theme" mode auto activates the theme.
+	 */
+	test('startWPNow auto handles child theme with missing parent.', async () => {
+		const projectPath = path.join(
+			tmpExampleDirectory,
+			'child-theme-missing-parent/child'
+		);
+		const options = await getWpNowConfig({ path: projectPath });
+		const { php } = await startWPNow(options);
+
+		const childThemePhp = `<?php
+		require_once('${php.documentRoot}/wp-load.php');
+		echo wp_get_theme()->get('Name');
+		`;
+
+		const childThemeName = await php.run({
+			code: childThemePhp,
+		});
+
+		expect(childThemeName.text).toContain('Child Theme');
 	});
 
 	/**
