@@ -353,7 +353,7 @@ function mountSqliteDatabaseDirectory(
 	fs.ensureDirSync(path.join(wpContentPath, 'database'));
 	php.mount(
 		path.join(wpContentPath, 'database'),
-		path.join(vfsDocumentRoot, 'wp-content', 'database')
+		`${vfsDocumentRoot}/wp-content/database`
 	);
 }
 
