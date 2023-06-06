@@ -536,6 +536,29 @@ describe('Test starting different modes', () => {
 	});
 
 	/**
+	 * Test that startWPNow in "theme" mode auto activates the theme.
+	 */
+	test('startWPNow auto handles child theme with missing parent.', async () => {
+		const projectPath = path.join(
+			tmpExampleDirectory,
+			'child-theme-missing-parent/child'
+		);
+		const options = await getWpNowConfig({ path: projectPath });
+		const { php } = await startWPNow(options);
+
+		const childThemePhp = `<?php
+		require_once('${php.documentRoot}/wp-load.php');
+		echo wp_get_theme()->get('Name');
+		`;
+
+		const childThemeName = await php.run({
+			code: childThemePhp,
+		});
+
+		expect(childThemeName.text).toContain('Child Theme');
+	});
+
+	/**
 	 * Test that startWPNow in "theme" mode does not auto activate the theme the second time.
 	 */
 	test('startWPNow auto installs the theme', async () => {

@@ -241,10 +241,17 @@ async function runPluginOrThemeMode(
 		const templateName = getThemeTemplate(projectPath);
 		if (templateName) {
 			// We assume that the theme template is in the parent directory
-			php.mount(
-				path.join(projectPath, '..', templateName),
-				`${documentRoot}/wp-content/${directoryName}/${templateName}`
-			);
+			const templatePath = path.join(projectPath, '..', templateName);
+			if (fs.existsSync(templatePath)) {
+				php.mount(
+					templatePath,
+					`${documentRoot}/wp-content/${directoryName}/${templateName}`
+				);
+			} else {
+				output?.error(
+					`Parent for child theme not found: ${templateName}`
+				);
+			}
 		}
 	}
 	mountSqlitePlugin(php, documentRoot);
