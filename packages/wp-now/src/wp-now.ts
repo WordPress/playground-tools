@@ -348,7 +348,9 @@ export function getThemeTemplate(projectPath: string) {
 function mountMuPlugins(php: NodePHP, vfsDocumentRoot: string) {
 	php.mount(
 		path.join(getWpNowPath(), 'mu-plugins'),
-		path.join(vfsDocumentRoot, 'wp-content', 'mu-plugins')
+		// VFS paths always use forward / slashes so
+		// we can't use path.join() for them
+		`${vfsDocumentRoot}/wp-content/mu-plugins`
 	);
 }
 
@@ -378,7 +380,7 @@ function mountSqliteDatabaseDirectory(
 	fs.ensureDirSync(path.join(wpContentPath, 'database'));
 	php.mount(
 		path.join(wpContentPath, 'database'),
-		path.join(vfsDocumentRoot, 'wp-content', 'database')
+		`${vfsDocumentRoot}/wp-content/database`
 	);
 }
 
