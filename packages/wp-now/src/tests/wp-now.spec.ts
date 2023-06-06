@@ -523,10 +523,32 @@ describe('Test starting different modes', () => {
 		const projectPath = path.join(tmpExampleDirectory, 'wordpress');
 		const options = await getWpNowConfig({ path: projectPath });
 		await startWPNow(options);
-		expect(fs.existsSync(path.join(projectPath, 'wp-content', 'mu-plugins', '0-allow-wp-org.php'))).toBe(false);
-		expect(fs.existsSync(path.join(projectPath, 'wp-content', 'database'))).toBe(false);
-		expect(fs.existsSync(path.join(projectPath, 'wp-content', 'plugins', 'sqlite-database-integration'))).toBe(false);
-		expect(fs.existsSync(path.join(projectPath, 'wp-content', 'db.php'))).toBe(false);
+		expect(
+			fs.existsSync(
+				path.join(
+					projectPath,
+					'wp-content',
+					'mu-plugins',
+					'0-allow-wp-org.php'
+				)
+			)
+		).toBe(false);
+		expect(
+			fs.existsSync(path.join(projectPath, 'wp-content', 'database'))
+		).toBe(false);
+		expect(
+			fs.existsSync(
+				path.join(
+					projectPath,
+					'wp-content',
+					'plugins',
+					'sqlite-database-integration'
+				)
+			)
+		).toBe(false);
+		expect(
+			fs.existsSync(path.join(projectPath, 'wp-content', 'db.php'))
+		).toBe(false);
 	});
 
 	/**
