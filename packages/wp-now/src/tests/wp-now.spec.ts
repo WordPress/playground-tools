@@ -515,6 +515,43 @@ describe('Test starting different modes', () => {
 	});
 
 	/**
+	 * Test that startWPNow doesn't leave dirty files.
+	 *
+	 * @see https://github.com/WordPress/playground-tools/issues/32
+	 */
+	test.skip('startWPNow does not leave dirty folders and files', async () => {
+		const projectPath = path.join(tmpExampleDirectory, 'wordpress');
+		const options = await getWpNowConfig({ path: projectPath });
+		await startWPNow(options);
+		expect(
+			fs.existsSync(
+				path.join(
+					projectPath,
+					'wp-content',
+					'mu-plugins',
+					'0-allow-wp-org.php'
+				)
+			)
+		).toBe(false);
+		expect(
+			fs.existsSync(path.join(projectPath, 'wp-content', 'database'))
+		).toBe(false);
+		expect(
+			fs.existsSync(
+				path.join(
+					projectPath,
+					'wp-content',
+					'plugins',
+					'sqlite-database-integration'
+				)
+			)
+		).toBe(false);
+		expect(
+			fs.existsSync(path.join(projectPath, 'wp-content', 'db.php'))
+		).toBe(false);
+	});
+
+	/**
 	 * Test PHP integration test executing runCli.
 	 */
 	describe('validate php comand arguments passed through yargs', () => {
