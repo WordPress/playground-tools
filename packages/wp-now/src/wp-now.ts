@@ -321,7 +321,9 @@ async function activatePluginOrTheme(
 function mountMuPlugins(php: NodePHP, vfsDocumentRoot: string) {
 	php.mount(
 		path.join(getWpNowPath(), 'mu-plugins'),
-		path.join(vfsDocumentRoot, 'wp-content', 'mu-plugins')
+		// VFS paths always use forward / slashes so
+		// we can't use path.join() for them
+		`${vfsDocumentRoot}/wp-content/mu-plugins`
 	);
 }
 
