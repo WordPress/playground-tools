@@ -329,7 +329,7 @@ async function activatePluginOrTheme(
 	}
 }
 
-function getThemeTemplate(projectPath: string) {
+export function getThemeTemplate(projectPath: string) {
 	const themeTemplateRegex = /^(?:[ \t]*<\?php)?[ \t/*#@]*Template:(.*)$/im;
 	const styleCSS = readFileHead(path.join(projectPath, 'style.css'));
 	if (themeTemplateRegex.test(styleCSS)) {
