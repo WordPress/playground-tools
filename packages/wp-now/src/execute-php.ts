@@ -30,7 +30,10 @@ export async function executePHP(
 
 	try {
 		php.useHostFilesystem();
-		phpArgs[1] = path.join(wpNowOptions.projectPath, path.basename(phpArgs[1]));
+		phpArgs[1] = path.join(
+			wpNowOptions.projectPath,
+			path.basename(phpArgs[1])
+		);
 		await php.cli(phpArgs);
 	} catch (resultOrError) {
 		const success =

@@ -55,10 +55,7 @@ describe('validate php execution', () => {
 		const options = await getWpNowConfig({
 			path: exampleDir,
 		});
-		await executePHP(
-			['php', 'hello-world.php'],
-			options
-		);
+		await executePHP(['php', 'hello-world.php'], options);
 
 		expect(output).toMatch(/Hello World!/);
 	});
