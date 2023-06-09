@@ -6,18 +6,9 @@ import {
 	WebPHPEndpoint,
 } from '@php-wasm/web';
 import { EmscriptenDownloadMonitor } from '@php-wasm/progress';
-import {
-	LatestSupportedPHPVersion,
-	SupportedPHPVersion,
-	SupportedPHPVersionsList,
-} from '@php-wasm/universal';
+import { SupportedPHPVersionsList } from '@php-wasm/universal';
 
-interface WorkerOptions extends Record<string, string> {
-	php: string;
-}
-const options = parseWorkerStartupOptions<WorkerOptions>();
-const phpVersion = (options?.php?.replace('_', '.') ||
-	LatestSupportedPHPVersion) as SupportedPHPVersion;
+const phpVersion = '7.4';
 if (!SupportedPHPVersionsList.includes(phpVersion)) {
 	throw new Error(`Unsupported PHP version ${phpVersion}`);
 }
