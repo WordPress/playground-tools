@@ -32,7 +32,10 @@ export async function executePHP(
 	try {
 		php.useHostFilesystem();
 		if (!path.isAbsolute(phpArgs[1])) {
-			const maybePhpFile = path.join(wpNowOptions.projectPath, phpArgs[1]);
+			const maybePhpFile = path.join(
+				wpNowOptions.projectPath,
+				phpArgs[1]
+			);
 			if (fs.existsSync(maybePhpFile)) {
 				phpArgs[1] = maybePhpFile;
 			}
