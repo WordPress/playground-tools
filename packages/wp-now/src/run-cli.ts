@@ -39,7 +39,7 @@ function commonParameters(yargs) {
 		})
 		.option('customport', {
 			describe:
-				"Custom port number. Needed if you're using a reverse proxy (e.g. ngrok), usually 80.",
+				"Custom port number. Needed if you're using a tunneling service (e.g. ngrok), usually 80.",
 			type: 'number',
 		});
 }
