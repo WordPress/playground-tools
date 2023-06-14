@@ -154,6 +154,7 @@ async function runWpContentMode(
 		wpContentPath,
 		projectPath,
 		absoluteUrl,
+		customSiteURL,
 	}: WPNowOptions
 ) {
 	const wordPressPath = path.join(
@@ -161,7 +162,12 @@ async function runWpContentMode(
 		wordPressVersion
 	);
 	php.mount(wordPressPath, documentRoot);
-	await initWordPress(php, wordPressVersion, documentRoot, absoluteUrl);
+	await initWordPress(
+		php,
+		wordPressVersion,
+		documentRoot,
+		customSiteURL || absoluteUrl
+	);
 	fs.ensureDirSync(wpContentPath);
 
 	php.mount(projectPath, `${documentRoot}/wp-content`);
@@ -173,18 +179,25 @@ async function runWpContentMode(
 
 async function runWordPressDevelopMode(
 	php: NodePHP,
-	{ documentRoot, projectPath, absoluteUrl }: WPNowOptions
+	{ documentRoot, projectPath, absoluteUrl, customSiteURL }: WPNowOptions
 ) {
 	await runWordPressMode(php, {
 		documentRoot,
 		projectPath: projectPath + '/build',
 		absoluteUrl,
+		customSiteURL,
 	});
 }
 
 async function runWordPressMode(
 	php: NodePHP,
-	{ documentRoot, wpContentPath, projectPath, absoluteUrl }: WPNowOptions
+	{
+		documentRoot,
+		wpContentPath,
+		projectPath,
+		absoluteUrl,
+		customSiteURL,
+	}: WPNowOptions
 ) {
 	php.mount(projectPath, documentRoot);
 
@@ -192,7 +205,7 @@ async function runWordPressMode(
 		php,
 		'user-provided',
 		documentRoot,
-		absoluteUrl
+		customSiteURL || absoluteUrl
 	);
 
 	if (
@@ -214,6 +227,7 @@ async function runPluginOrThemeMode(
 		projectPath,
 		wpContentPath,
 		absoluteUrl,
+		customSiteURL,
 		mode,
 	}: WPNowOptions
 ) {
@@ -222,7 +236,12 @@ async function runPluginOrThemeMode(
 		wordPressVersion
 	);
 	php.mount(wordPressPath, documentRoot);
-	await initWordPress(php, wordPressVersion, documentRoot, absoluteUrl);
+	await initWordPress(
+		php,
+		wordPressVersion,
+		documentRoot,
+		customSiteURL || absoluteUrl
+	);
 
 	fs.ensureDirSync(wpContentPath);
 	fs.copySync(
@@ -260,14 +279,25 @@ async function runPluginOrThemeMode(
 
 async function runWpPlaygroundMode(
 	php: NodePHP,
-	{ documentRoot, wordPressVersion, wpContentPath, absoluteUrl }: WPNowOptions
+	{
+		documentRoot,
+		wordPressVersion,
+		wpContentPath,
+		absoluteUrl,
+		customSiteURL,
+	}: WPNowOptions
 ) {
 	const wordPressPath = path.join(
 		getWordpressVersionsPath(),
 		wordPressVersion
 	);
 	php.mount(wordPressPath, documentRoot);
-	await initWordPress(php, wordPressVersion, documentRoot, absoluteUrl);
+	await initWordPress(
+		php,
+		wordPressVersion,
+		documentRoot,
+		customSiteURL || absoluteUrl
+	);
 
 	fs.ensureDirSync(wpContentPath);
 	fs.copySync(

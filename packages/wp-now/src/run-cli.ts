@@ -31,6 +31,16 @@ function commonParameters(yargs) {
 		.option('php', {
 			describe: 'PHP version to use.',
 			type: 'string',
+		})
+		.option('siteurl', {
+			describe:
+				"Custom site URL to access the site ('home' and 'siteurl' option values).",
+			type: 'string',
+		})
+		.option('customport', {
+			describe:
+				"Custom port number. Needed if you're using a reverse proxy (e.g. ngrok), usually 80.",
+			type: 'number',
 		});
 }
 
@@ -76,6 +86,8 @@ export async function runCli() {
 						php: argv.php as SupportedPHPVersion,
 						wp: argv.wp as string,
 						port: argv.port as number,
+						siteurl: argv.siteurl as string,
+						customport: argv.customport as number,
 					});
 					portFinder.setPort(options.port as number);
 					const { url } = await startServer(options);

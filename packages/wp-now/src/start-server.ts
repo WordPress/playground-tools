@@ -103,10 +103,14 @@ export async function startServer(
 			output?.trace(e);
 		}
 	});
-	const url = options.absoluteUrl;
+	const internalUrl = options.absoluteUrl;
+	const customSiteUrl = options.customSiteURL;
 	app.listen(port, () => {
-		output?.log(`Server running at ${url}`);
+		output?.log(`Server running at ${internalUrl}`);
+		customSiteUrl && output?.log(`Custom site URL: ${customSiteUrl}`);
 	});
+
+	const url = customSiteUrl || internalUrl;
 
 	return {
 		url,

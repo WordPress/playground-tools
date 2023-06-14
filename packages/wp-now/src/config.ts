@@ -18,6 +18,8 @@ export interface CliOptions {
 	path?: string;
 	wp?: string;
 	port?: number;
+	siteurl?: string;
+	customport?: number;
 }
 
 export const enum WPNowMode {
@@ -41,6 +43,8 @@ export interface WPNowOptions {
 	wpContentPath?: string;
 	wordPressVersion?: string;
 	numberOfPhpInstances?: number;
+	customSiteURL?: string;
+	customPort?: number;
 }
 
 export const DEFAULT_OPTIONS: WPNowOptions = {
@@ -50,6 +54,8 @@ export const DEFAULT_OPTIONS: WPNowOptions = {
 	projectPath: process.cwd(),
 	mode: WPNowMode.AUTO,
 	numberOfPhpInstances: 1,
+	customSiteURL: null,
+	customPort: null,
 };
 
 export interface WPEnvOptions {
@@ -96,6 +102,8 @@ export default async function getWpNowConfig(
 		projectPath: args.path as string,
 		wordPressVersion: args.wp as string,
 		port,
+		customSiteURL: args.siteurl as string,
+		customPort: args.customport as number,
 	};
 
 	const options: WPNowOptions = {} as WPNowOptions;
@@ -120,6 +128,15 @@ export default async function getWpNowConfig(
 	if (!options.absoluteUrl) {
 		options.absoluteUrl = await getAbsoluteURL();
 	}
+
+	if (options.customSiteURL) {
+		const customPort =
+			options.customPort || (await portFinder.getOpenPort());
+		if (customPort && customPort !== 80) {
+			options.customSiteURL += `:${customPort}`;
+		}
+	}
+
 	if (!isValidWordPressVersion(options.wordPressVersion)) {
 		throw new Error(
 			'Unrecognized WordPress version. Please use "latest" or numeric versions such as "6.2", "6.0.1", "6.2-beta1", or "6.2-RC1"'
