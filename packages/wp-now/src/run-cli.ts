@@ -32,7 +32,7 @@ function commonParameters(yargs) {
 			describe: 'PHP version to use.',
 			type: 'string',
 		})
-		.option('siteurl', {
+		.option('url', {
 			describe:
 				"Custom site URL to access the site ('home' and 'siteurl' option values).",
 			type: 'string',
@@ -86,7 +86,7 @@ export async function runCli() {
 						php: argv.php as SupportedPHPVersion,
 						wp: argv.wp as string,
 						port: argv.port as number,
-						siteurl: argv.siteurl as string,
+						url: argv.url as string,
 						customport: argv.customport as number,
 					});
 					portFinder.setPort(options.port as number);

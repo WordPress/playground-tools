@@ -18,7 +18,7 @@ export interface CliOptions {
 	path?: string;
 	wp?: string;
 	port?: number;
-	siteurl?: string;
+	url?: string;
 	customport?: number;
 }
 
@@ -102,7 +102,7 @@ export default async function getWpNowConfig(
 		projectPath: args.path as string,
 		wordPressVersion: args.wp as string,
 		port,
-		customSiteURL: args.siteurl as string,
+		customSiteURL: args.url as string,
 		customPort: args.customport as number,
 	};
 
