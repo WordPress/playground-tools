@@ -40,6 +40,7 @@ export interface WPNowServer {
 	url: string;
 	php: NodePHP;
 	options: WPNowOptions;
+	stopServer: () => Promise<void>;
 }
 
 function shouldCompress(_, res) {
@@ -113,7 +114,7 @@ export async function startServer(
 		}
 	});
 	const url = options.absoluteUrl;
-	app.listen(port, () => {
+	const server = app.listen(port, () => {
 		output?.log(`Server running at ${url}`);
 	});
 
@@ -121,5 +122,12 @@ export async function startServer(
 		url,
 		php,
 		options: wpNowOptions,
+		stopServer: () =>
+			new Promise((res) => {
+				server.close(() => {
+					output?.log(`Server stopped`);
+					res();
+				});
+			}),
 	};
 }
