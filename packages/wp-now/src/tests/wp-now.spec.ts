@@ -1,4 +1,5 @@
 import startWPNow, { getThemeTemplate, inferMode } from '../wp-now';
+import { startServer } from '../';
 import getWpNowConfig, { CliOptions, WPNowMode } from '../config';
 import fs from 'fs-extra';
 import path from 'path';
@@ -583,7 +584,7 @@ describe('Test starting different modes', () => {
 		expect(themeName.text).toContain('Twenty Twenty-Three');
 	});
 
-	/**
+	/*
 	 * Test that startWPNow doesn't leave dirty files.
 	 *
 	 * @see https://github.com/WordPress/playground-tools/issues/32
@@ -685,6 +686,55 @@ describe('Test starting different modes', () => {
 			await runCli();
 			expect(output).toMatch(/7\.4/i);
 			expect(processExitMock).toHaveBeenCalledWith(0);
+		});
+	});
+
+	/**
+	 * Test startServer.
+	 */
+	describe('startServer', () => {
+		let stopServer, options;
+
+		beforeEach(async () => {
+			const projectPath = path.join(
+				tmpExampleDirectory,
+				'theme-with-assets'
+			);
+			const config = await getWpNowConfig({ path: projectPath });
+			const server = await startServer(config);
+			stopServer = server.stopServer;
+			options = server.options;
+		});
+
+		afterEach(async () => {
+			options = null;
+			await stopServer();
+		});
+
+		/**
+		 * Test that startServer compresses the text files correctly.
+		 */
+		test.each([
+			['html', ''],
+			['css', '/wp-content/themes/theme-with-assets/style.css'],
+			[
+				'javascript',
+				'/wp-content/themes/theme-with-assets/javascript.js',
+			],
+		])('startServer compresses the %s file', async (_, file) => {
+			const req = await fetch(`${options.absoluteUrl}${file}`);
+			expect(req.headers.get('content-encoding')).toBe('gzip');
+		});
+
+		/**
+		 * Test that startServer doesn't compress non text files.
+		 */
+		test.each([
+			['png', '/wp-content/themes/theme-with-assets/image.png'],
+			['jpg', '/wp-content/themes/theme-with-assets/image.jpg'],
+		])("startServer doesn't compress the %s file", async (_, file) => {
+			const req = await fetch(`${options.absoluteUrl}${file}`);
+			expect(req.headers.get('content-encoding')).toBe(null);
 		});
 	});
 });
