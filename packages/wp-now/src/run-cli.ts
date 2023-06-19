@@ -67,6 +67,10 @@ export async function runCli() {
 					describe: 'Server port',
 					type: 'number',
 				});
+				yargs.option('blueprint', {
+					describe: 'Path to a blueprint file to be executed',
+					type: 'string',
+				});
 			},
 			async (argv) => {
 				const spinner = startSpinner('Starting the server...');
@@ -76,6 +80,7 @@ export async function runCli() {
 						php: argv.php as SupportedPHPVersion,
 						wp: argv.wp as string,
 						port: argv.port as number,
+						blueprint: argv.blueprint as string,
 					});
 					portFinder.setPort(options.port as number);
 					const { url } = await startServer(options);
