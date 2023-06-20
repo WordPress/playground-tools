@@ -127,7 +127,10 @@ export default async function startWPNow(
 		const compiled = compileBlueprint(options.blueprintObject, {
 			onStepCompleted: (result, step: StepDefinition) => {
 				output.log(`Blueprint step completed: ${step.step}`);
-				if (step.step === 'defineWpConfigConsts' && step.consts.WP_SITEURL) {
+				if (
+					step.step === 'defineWpConfigConsts' &&
+					step.consts.WP_SITEURL
+				) {
 					options.absoluteUrl = step.consts.WP_SITEURL as string;
 				}
 			},
