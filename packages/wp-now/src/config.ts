@@ -70,7 +70,11 @@ async function getAbsoluteURL() {
 	if (isGitHubCodespace) {
 		return getCodeSpaceURL(port);
 	}
-	return `http://localhost:${port}`;
+	const url = 'http://localhost';
+	if (port === 80) {
+		return url;
+	}
+	return `${url}:${port}`;
 }
 
 function getWpContentHomePath(projectPath: string, mode: string) {
