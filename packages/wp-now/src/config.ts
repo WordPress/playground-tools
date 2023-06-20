@@ -65,7 +65,7 @@ export interface WPEnvOptions {
 	mappings: Object;
 }
 
-let absoluteUrlFromBlueprint = ''
+let absoluteUrlFromBlueprint = '';
 
 async function getAbsoluteURL() {
 	const port = await portFinder.getOpenPort();
@@ -164,13 +164,13 @@ export default async function getWpNowConfig(
 			options.absoluteUrl = siteUrl;
 			absoluteUrlFromBlueprint = siteUrl;
 		}
-
 	}
 	return options;
 }
 
-
-function extractSiteUrlFromBlueprint(blueprintObject: Blueprint): string | false {
+function extractSiteUrlFromBlueprint(
+	blueprintObject: Blueprint
+): string | false {
 	for (const step of blueprintObject.steps) {
 		if (typeof step !== 'object') {
 			return false;
@@ -178,9 +178,9 @@ function extractSiteUrlFromBlueprint(blueprintObject: Blueprint): string | false
 
 		if (step.step === 'defineSiteUrl') {
 			return `${step.siteUrl}`;
-		}else if (
-				step.step === 'defineWpConfigConsts' &&
-				step.consts.WP_SITEURL
+		} else if (
+			step.step === 'defineWpConfigConsts' &&
+			step.consts.WP_SITEURL
 		) {
 			return `${step.consts.WP_SITEURL}`;
 		}
