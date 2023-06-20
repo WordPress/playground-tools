@@ -126,7 +126,10 @@ export default async function startWPNow(
 		output.log(`blueprint steps: ${options.blueprintObject.steps.length}`);
 		const compiled = compileBlueprint(options.blueprintObject, {
 			onStepCompleted: (result, step: StepDefinition) => {
-				output.log(`Blueprint Step completed: ${step.step}`);
+				output.log(`Blueprint step completed: ${step.step}`);
+				if (step.step === 'defineWpConfigConsts' && step.consts.WP_SITEURL) {
+					options.absoluteUrl = step.consts.WP_SITEURL as string;
+				}
 			},
 		});
 		await runBlueprintSteps(compiled, php);
