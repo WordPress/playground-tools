@@ -8,6 +8,7 @@ import {
 	downloadWordPress,
 } from './download';
 import {
+	Blueprint,
 	StepDefinition,
 	activatePlugin,
 	activateTheme,
@@ -126,15 +127,6 @@ export default async function startWPNow(
 		output.log(`blueprint steps: ${options.blueprintObject.steps.length}`);
 		const compiled = compileBlueprint(options.blueprintObject, {
 			onStepCompleted: (result, step: StepDefinition) => {
-				if (
-					step.step === 'defineWpConfigConsts' &&
-					step.consts.WP_SITEURL
-				) {
-					options.absoluteUrl = `${step.consts.WP_SITEURL}`;
-				} else if (step.step === 'defineSiteUrl') {
-					options.absoluteUrl = step.siteUrl;
-				}
-
 				output.log(`Blueprint step completed: ${step.step}`);
 			},
 		});

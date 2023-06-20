@@ -65,11 +65,18 @@ export interface WPEnvOptions {
 	mappings: Object;
 }
 
+let absoluteUrlFromBlueprint = ''
+
 async function getAbsoluteURL() {
 	const port = await portFinder.getOpenPort();
 	if (isGitHubCodespace) {
 		return getCodeSpaceURL(port);
 	}
+
+	if (absoluteUrlFromBlueprint) {
+		return absoluteUrlFromBlueprint;
+	}
+
 	const url = 'http://localhost';
 	if (port === 80) {
 		return url;
@@ -152,6 +159,31 @@ export default async function getWpNowConfig(
 		// TODO: blueprint schema validation
 
 		options.blueprintObject = blueprintObject;
+		const siteUrl = extractSiteUrlFromBlueprint(blueprintObject);
+		if (siteUrl) {
+			options.absoluteUrl = siteUrl;
+			absoluteUrlFromBlueprint = siteUrl;
+		}
+
 	}
 	return options;
+}
+
+
+function extractSiteUrlFromBlueprint(blueprintObject: Blueprint): string | false {
+	for (const step of blueprintObject.steps) {
+		if (typeof step !== 'object') {
+			return false;
+		}
+
+		if (step.step === 'defineSiteUrl') {
+			return `${step.siteUrl}`;
+		}else if (
+				step.step === 'defineWpConfigConsts' &&
+				step.consts.WP_SITEURL
+		) {
+			return `${step.consts.WP_SITEURL}`;
+		}
+	}
+	return false;
 }
