@@ -122,6 +122,16 @@ export default async function startWPNow(
 		}
 	});
 
+	if (options.blueprintObject) {
+		output.log(`blueprint steps: ${options.blueprintObject.steps.length}`);
+		const compiled = compileBlueprint(options.blueprintObject, {
+			onStepCompleted: (result, step: StepDefinition) => {
+				output.log(`Blueprint Step completed: ${step.step}`);
+			},
+		});
+		await runBlueprintSteps(compiled, php);
+	}
+
 	await installationStep2(php);
 	await login(php, {
 		username: 'admin',
@@ -133,16 +143,6 @@ export default async function startWPNow(
 		[WPNowMode.PLUGIN, WPNowMode.THEME].includes(options.mode)
 	) {
 		await activatePluginOrTheme(php, options);
-	}
-
-	if (options.blueprintObject) {
-		output.log(`blueprint steps: ${options.blueprintObject.steps.length}`);
-		const compiled = compileBlueprint(options.blueprintObject, {
-			onStepCompleted: (result, step: StepDefinition) => {
-				output.log(`Blueprint Step completed: ${step.step}`);
-			},
-		});
-		await runBlueprintSteps(compiled, php);
 	}
 
 	return {
