@@ -737,6 +737,21 @@ describe('Test starting different modes', () => {
 			expect(req.headers.get('content-encoding')).toBe(null);
 		});
 	});
+
+	/**
+	 * Test blueprints execution.
+	 */
+	describe('blueprints', () => {
+		const blueprintExamplesPath = path.join(__dirname, 'blueprints');
+		test('setting wp-config variables such as WP_SITEURL through blueprint', async () => {
+			const options = await getWpNowConfig({
+				blueprint: path.join(blueprintExamplesPath, 'wp-config.json'),
+			});
+			const { url, stopServer } = await startServer(options);
+			expect(url).toMatch('http://myurl.wpnow');
+			await stopServer();
+		});
+	});
 });
 
 /**

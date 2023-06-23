@@ -1,0 +1,12 @@
+{
+	"steps": [
+		{
+			"step": "defineWpConfigConsts",
+			"consts": {
+				"WP_HOME": "http://myurl.wpnow",
+				"WP_SITEURL": "http://myurl.wpnow"
+			},
+			"virtualize": true
+		}
+	]
+}
