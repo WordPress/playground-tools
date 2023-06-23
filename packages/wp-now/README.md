@@ -74,7 +74,7 @@ Blueprints are JSON files with a list of steps to execute after starting wp-now.
 
 Here is an example of a blueprint that defines custom URL constant. `wp-now` will automatically detect the blueprint and execute it after starting the server. In consequence, the site will be available at `http://myurl.wpnow`. Make sure myurl.wpnow is added to your hosts file.
 
-To execute this blueprint, create a file named `blueprint-example.json` and run `wp-now start --blueprint=path/to/blueprint-example.json`.
+To execute this blueprint, create a file named `blueprint-example.json` and run `wp-now start --blueprint=path/to/blueprint-example.json`. Note that the `virtualize` is set to `true` to avoid modifying the `wp-config.php` file that is shared between all the projects.
 
 ```json
 {
@@ -106,6 +106,45 @@ The Blueprint to listen on port `80` will look like this:
 			"consts": {
 				"WP_HOME": "http://myurl.wpnow",
 				"WP_SITEURL": "http://myurl.wpnow"
+			},
+			"virtualize": true
+		}
+	]
+}
+```
+
+## Debugging
+
+In the similar way we can define `WP_DEBUG` constants and read the debug logs.
+
+Run `wp-now start --blueprint=path/to/blueprint-example.json` where `blueprint-example.json` is:
+
+```json
+{
+	"steps": [
+		{
+			"step": "defineWpConfigConsts",
+			"consts": {
+				"WP_DEBUG": true,
+				"WP_DEBUG_LOG": true
+			},
+			"virtualize": true
+		}
+	]
+}
+```
+
+This will enable the debug logs and will create a `debug.log` file in the `~/wp-now/wp-content/${project}/debug.log` directory.
+If you prefer to set a custom path for the debug log file, you can set `WP_DEBUG_LOG` to be a directory. Remember that the `php-wasm` server runs udner a VFS (virtual file system) where the default documentRoot is always `/var/www/html`.
+For example, if you run `wp-now start --blueprint=path/to/blueprint-example.json` from a theme named `atlas` you could use this directory: `/var/www/html/wp-content/themes/atlas/example.log` and you will find the `example.log` file in your project directory.
+
+```json
+{
+	"steps": [
+		{
+			"step": "defineWpConfigConsts",
+			"consts": {
+				"WP_DEBUG_LOG": "/var/www/html/wp-content/themes/atlas/example.log"
 			},
 			"virtualize": true
 		}
