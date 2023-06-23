@@ -747,8 +747,18 @@ describe('Test starting different modes', () => {
 			const options = await getWpNowConfig({
 				blueprint: path.join(blueprintExamplesPath, 'wp-config.json'),
 			});
-			const { url, stopServer } = await startServer(options);
+			const { url, php, stopServer } = await startServer(options);
 			expect(url).toMatch('http://myurl.wpnow');
+
+			php.writeFile(
+				`${php.documentRoot}/print-constants.php`,
+				`<?php echo WP_SITEURL;`
+			);
+			const result = await php.request({
+				method: 'GET',
+				url: `${url}/print-constants.php`,
+			});
+			expect(result.text).toMatch('http://myurl.wpnow');
 			await stopServer();
 		});
 	});
