@@ -757,7 +757,9 @@ describe('Test starting different modes', () => {
 				method: 'GET',
 				url: '/print-constants.php',
 			});
-			expect(result.text).toMatch('/var/www/html/wp-content/themes/fake/example.log');
+			expect(result.text).toMatch(
+				'/var/www/html/wp-content/themes/fake/example.log'
+			);
 			await stopServer();
 		});
 
