@@ -124,10 +124,10 @@ export default async function startWPNow(
 	});
 
 	if (options.blueprintObject) {
-		output.log(`blueprint steps: ${options.blueprintObject.steps.length}`);
+		output?.log(`blueprint steps: ${options.blueprintObject.steps.length}`);
 		const compiled = compileBlueprint(options.blueprintObject, {
 			onStepCompleted: (result, step: StepDefinition) => {
-				output.log(`Blueprint step completed: ${step.step}`);
+				output?.log(`Blueprint step completed: ${step.step}`);
 			},
 		});
 		await runBlueprintSteps(compiled, php);
