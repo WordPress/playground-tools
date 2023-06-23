@@ -743,23 +743,30 @@ describe('Test starting different modes', () => {
 	 */
 	describe('blueprints', () => {
 		const blueprintExamplesPath = path.join(__dirname, 'blueprints');
-		test('setting wp-config variables such as WP_SITEURL through blueprint', async () => {
-			const options = await getWpNowConfig({
-				blueprint: path.join(blueprintExamplesPath, 'wp-config.json'),
-			});
-			const { url, php, stopServer } = await startServer(options);
-			expect(url).toMatch('http://myurl.wpnow');
 
+		test('setting wp-config variable WP_DEBUG_LOG through blueprint', async () => {
+			const options = await getWpNowConfig({
+				blueprint: path.join(blueprintExamplesPath, 'wp-debug.json'),
+			});
+			const { php, stopServer } = await startServer(options);
 			php.writeFile(
 				`${php.documentRoot}/print-constants.php`,
-				`<?php echo WP_SITEURL;`
+				`<?php echo WP_DEBUG_LOG;`
 			);
 			const result = await php.request({
 				method: 'GET',
-				url: `${url}/print-constants.php`,
+				url: '/print-constants.php',
 			});
-			expect(result.text).toMatch('http://myurl.wpnow');
+			expect(result.text).toMatch('/var/www/html/wp-content/themes/fake/example.log');
 			await stopServer();
+		});
+
+		// This must be the last blueprint test, because it changes the siteurl and the DNS won't resolve that custom URL.
+		test('setting wp-config variable WP_SITEURL through blueprint', async () => {
+			const options = await getWpNowConfig({
+				blueprint: path.join(blueprintExamplesPath, 'wp-config.json'),
+			});
+			expect(options.absoluteUrl).toMatch('http://myurl.wpnow');
 		});
 	});
 });
