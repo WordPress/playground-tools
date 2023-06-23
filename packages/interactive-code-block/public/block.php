@@ -19,6 +19,14 @@ add_action('init', function () {
             $deps,
             '' // Version is included in the file name
         );
+        // Add an empty inline script to prevent assets optimizers from concatenating
+        // this script with the other scripts. It wouldn't work because this script
+        // is loaded as an ES module.
+        wp_add_inline_script(
+            $script,
+            '"noop";',
+            'after'
+        );
     }
 
     // Load block scripts as ES modules
