@@ -57,6 +57,7 @@ wp-now php my-file.php
 -   `--php=<version>`: the version of PHP to use. This is optional and if not provided, it will use a default version which is `8.0`(example usage: `--php=7.4`);
 -   `--port=<port>`: the port number on which the server will listen. This is optional and if not provided, it will pick an open port number automatically. The default port number is set to `8881`(example of usage: `--port=3000`);
 -   `--wp=<version>`: the version of WordPress to use. This is optional and if not provided, it will use a default version. The default version is set to the [latest WordPress version](https://wordpress.org/download/releases/)(example usage: `--wp=5.8`)
+-   `--blueprint=<path>`: the path of a JSON file with the Blueprint steps. This is optional, if provided will execute the defined Blueprints. See [Using Blueprints](#using-blueprints) for more details.
 
 Of these, `wp-now php` currently supports the `--path=<path>` and `--php=<version>` arguments.
 
@@ -64,6 +65,92 @@ Of these, `wp-now php` currently supports the `--path=<path>` and `--php=<versio
 
 -   The `~/.wp-now` home directory is used to store the WP versions and the `wp-content` folders for projects using 'theme', 'plugin', 'wp-content', and 'playground' modes. The path to `wp-content` directory for the 'plugin', 'theme', and 'wp-content' modes is `~/.wp-now/wp-content/${projectName}-${directoryHash}`. 'playground' mode shares the same `~/.wp-now/wp-content/playground` directory, regardless of where it's started.
 -   For the database setup, `wp-now` is using [SQLite database integration plugin](https://wordpress.org/plugins/sqlite-database-integration/). The path to SQLite database is ` ~/.wp-now/wp-content/${projectName}-${directoryHash}/database/.ht.sqlite`
+
+## Using Blueprints
+
+Blueprints are JSON files with a list of steps to execute after starting wp-now. They can be used to automate the setup of a WordPress site, including defining wp-config constants, installing plugins, themes, and content.
+
+## Defining a custom URL
+
+Here is an example of a blueprint that defines custom URL constant. `wp-now` will automatically detect the blueprint and execute it after starting the server. In consequence, the site will be available at `http://myurl.wpnow`. Make sure myurl.wpnow is added to your hosts file.
+
+To execute this blueprint, create a file named `blueprint-example.json` and run `wp-now start --blueprint=path/to/blueprint-example.json`. Note that the `virtualize` is set to `true` to avoid modifying the `wp-config.php` file that is shared between all the projects.
+
+```json
+{
+	"steps": [
+		{
+			"step": "defineWpConfigConsts",
+			"consts": {
+				"WP_HOME": "http://myurl.wpnow:8881",
+				"WP_SITEURL": "http://myurl.wpnow:8881"
+			},
+			"virtualize": true
+		}
+	]
+}
+```
+
+This step can be also used along with `ngrok`, in this case you can run `ngrok http 8881`, copy the ngrok URL and replace `WP_HOME` and `WP_SITEURL` in the blueprint file.
+
+If you prefer to use a different port, you can use the `--port` argument when starting the server.
+`wp-now start --blueprint=path/to/blueprint-example.json --port=80`
+
+The Blueprint to listen on port `80` will look like this:
+
+```json
+{
+	"steps": [
+		{
+			"step": "defineWpConfigConsts",
+			"consts": {
+				"WP_HOME": "http://myurl.wpnow",
+				"WP_SITEURL": "http://myurl.wpnow"
+			},
+			"virtualize": true
+		}
+	]
+}
+```
+
+## Debugging
+
+In the similar way we can define `WP_DEBUG` constants and read the debug logs.
+
+Run `wp-now start --blueprint=path/to/blueprint-example.json` where `blueprint-example.json` is:
+
+```json
+{
+	"steps": [
+		{
+			"step": "defineWpConfigConsts",
+			"consts": {
+				"WP_DEBUG": true,
+				"WP_DEBUG_LOG": true
+			},
+			"virtualize": true
+		}
+	]
+}
+```
+
+This will enable the debug logs and will create a `debug.log` file in the `~/wp-now/wp-content/${project}/debug.log` directory.
+If you prefer to set a custom path for the debug log file, you can set `WP_DEBUG_LOG` to be a directory. Remember that the `php-wasm` server runs udner a VFS (virtual file system) where the default documentRoot is always `/var/www/html`.
+For example, if you run `wp-now start --blueprint=path/to/blueprint-example.json` from a theme named `atlas` you could use this directory: `/var/www/html/wp-content/themes/atlas/example.log` and you will find the `example.log` file in your project directory.
+
+```json
+{
+	"steps": [
+		{
+			"step": "defineWpConfigConsts",
+			"consts": {
+				"WP_DEBUG_LOG": "/var/www/html/wp-content/themes/atlas/example.log"
+			},
+			"virtualize": true
+		}
+	]
+}
+```
 
 ## Known Issues
 

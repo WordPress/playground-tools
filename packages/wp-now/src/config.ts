@@ -3,14 +3,14 @@ import {
 	SupportedPHPVersionsList,
 } from '@php-wasm/universal';
 import crypto from 'crypto';
+import fs from 'fs-extra';
+import path from 'path';
+import { Blueprint } from '@wp-playground/blueprints';
 import { getCodeSpaceURL, isGitHubCodespace } from './github-codespaces';
 import { inferMode } from './wp-now';
 import { portFinder } from './port-finder';
 import { isValidWordPressVersion } from './wp-playground-wordpress';
 import getWpNowPath from './get-wp-now-path';
-
-import path from 'path';
-
 import { DEFAULT_PHP_VERSION, DEFAULT_WORDPRESS_VERSION } from './constants';
 
 export interface CliOptions {
@@ -18,6 +18,7 @@ export interface CliOptions {
 	path?: string;
 	wp?: string;
 	port?: number;
+	blueprint?: string;
 }
 
 export const enum WPNowMode {
@@ -41,6 +42,7 @@ export interface WPNowOptions {
 	wpContentPath?: string;
 	wordPressVersion?: string;
 	numberOfPhpInstances?: number;
+	blueprintObject?: Blueprint;
 }
 
 export const DEFAULT_OPTIONS: WPNowOptions = {
@@ -63,12 +65,23 @@ export interface WPEnvOptions {
 	mappings: Object;
 }
 
+let absoluteUrlFromBlueprint = '';
+
 async function getAbsoluteURL() {
 	const port = await portFinder.getOpenPort();
 	if (isGitHubCodespace) {
 		return getCodeSpaceURL(port);
 	}
-	return `http://localhost:${port}`;
+
+	if (absoluteUrlFromBlueprint) {
+		return absoluteUrlFromBlueprint;
+	}
+
+	const url = 'http://localhost';
+	if (port === 80) {
+		return url;
+	}
+	return `${url}:${port}`;
 }
 
 function getWpContentHomePath(projectPath: string, mode: string) {
@@ -135,5 +148,41 @@ export default async function getWpNowConfig(
 			}. Supported versions: ${SupportedPHPVersionsList.join(', ')}`
 		);
 	}
+	if (args.blueprint) {
+		const blueprintPath = path.resolve(args.blueprint);
+		if (!fs.existsSync(blueprintPath)) {
+			throw new Error(`Blueprint file not found: ${blueprintPath}`);
+		}
+		const blueprintObject = JSON.parse(
+			fs.readFileSync(blueprintPath, 'utf8')
+		);
+
+		options.blueprintObject = blueprintObject;
+		const siteUrl = extractSiteUrlFromBlueprint(blueprintObject);
+		if (siteUrl) {
+			options.absoluteUrl = siteUrl;
+			absoluteUrlFromBlueprint = siteUrl;
+		}
+	}
 	return options;
+}
+
+function extractSiteUrlFromBlueprint(
+	blueprintObject: Blueprint
+): string | false {
+	for (const step of blueprintObject.steps) {
+		if (typeof step !== 'object') {
+			return false;
+		}
+
+		if (step.step === 'defineSiteUrl') {
+			return `${step.siteUrl}`;
+		} else if (
+			step.step === 'defineWpConfigConsts' &&
+			step.consts.WP_SITEURL
+		) {
+			return `${step.consts.WP_SITEURL}`;
+		}
+	}
+	return false;
 }

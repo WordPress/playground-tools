@@ -737,6 +737,59 @@ describe('Test starting different modes', () => {
 			expect(req.headers.get('content-encoding')).toBe(null);
 		});
 	});
+
+	/**
+	 * Test blueprints execution.
+	 */
+	describe('blueprints', () => {
+		const blueprintExamplesPath = path.join(__dirname, 'blueprints');
+
+		afterEach(() => {
+			// Clean the custom url from the SQLite database
+			fs.rmSync(
+				path.join(getWpNowTmpPath(), 'wp-content', 'playground'),
+				{ recursive: true }
+			);
+		});
+
+		test('setting wp-config variable WP_DEBUG_LOG through blueprint', async () => {
+			const options = await getWpNowConfig({
+				blueprint: path.join(blueprintExamplesPath, 'wp-debug.json'),
+			});
+			const { php, stopServer } = await startServer(options);
+			php.writeFile(
+				`${php.documentRoot}/print-constants.php`,
+				`<?php echo WP_DEBUG_LOG;`
+			);
+			const result = await php.request({
+				method: 'GET',
+				url: '/print-constants.php',
+			});
+			expect(result.text).toMatch(
+				'/var/www/html/wp-content/themes/fake/example.log'
+			);
+			await stopServer();
+		});
+
+		test('setting wp-config variable WP_SITEURL through blueprint', async () => {
+			const options = await getWpNowConfig({
+				blueprint: path.join(blueprintExamplesPath, 'wp-config.json'),
+			});
+			const { php, stopServer } = await startServer(options);
+			expect(options.absoluteUrl).toBe('http://127.0.0.1');
+
+			php.writeFile(
+				`${php.documentRoot}/print-constants.php`,
+				`<?php echo WP_SITEURL;`
+			);
+			const result = await php.request({
+				method: 'GET',
+				url: '/print-constants.php',
+			});
+			expect(result.text).toMatch('http://127.0.0.1');
+			await stopServer();
+		});
+	});
 });
 
 /**

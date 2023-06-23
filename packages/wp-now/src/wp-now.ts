@@ -8,10 +8,13 @@ import {
 	downloadWordPress,
 } from './download';
 import {
+	StepDefinition,
 	activatePlugin,
 	activateTheme,
+	compileBlueprint,
 	defineWpConfigConsts,
 	login,
+	runBlueprintSteps,
 } from '@wp-playground/blueprints';
 import { WPNowOptions, WPNowMode } from './config';
 import {
@@ -118,6 +121,16 @@ export default async function startWPNow(
 				break;
 		}
 	});
+
+	if (options.blueprintObject) {
+		output?.log(`blueprint steps: ${options.blueprintObject.steps.length}`);
+		const compiled = compileBlueprint(options.blueprintObject, {
+			onStepCompleted: (result, step: StepDefinition) => {
+				output?.log(`Blueprint step completed: ${step.step}`);
+			},
+		});
+		await runBlueprintSteps(compiled, php);
+	}
 
 	await installationStep2(php);
 	await login(php, {
