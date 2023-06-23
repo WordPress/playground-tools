@@ -156,7 +156,6 @@ export default async function getWpNowConfig(
 		const blueprintObject = JSON.parse(
 			fs.readFileSync(blueprintPath, 'utf8')
 		);
-		// TODO: blueprint schema validation
 
 		options.blueprintObject = blueprintObject;
 		const siteUrl = extractSiteUrlFromBlueprint(blueprintObject);
