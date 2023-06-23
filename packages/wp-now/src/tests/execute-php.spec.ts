@@ -51,6 +51,14 @@ describe('validate php execution', () => {
 		});
 		expect(output.substring(0, 16)).toBe('PHP Version: 8.2');
 	});
+	test('php file execution with non absolute path', async () => {
+		const options = await getWpNowConfig({
+			path: exampleDir,
+		});
+		await executePHP(['php', 'hello-world.php'], options);
+
+		expect(output).toMatch(/Hello World!/);
+	});
 
 	test('php throws an error if the first element is not the string "php"', async () => {
 		const options = await getWpNowConfig({

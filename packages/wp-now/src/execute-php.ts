@@ -1,6 +1,8 @@
 import startWPNow from './wp-now';
 import { WPNowOptions } from './config';
 import { disableOutput } from './output';
+import * as path from 'path';
+import fs from 'fs-extra';
 
 /**
  * Execute a PHP cli given its parameters.
@@ -21,7 +23,7 @@ export async function executePHP(
 		);
 	}
 	disableOutput();
-	const { phpInstances } = await startWPNow({
+	const { phpInstances, options: wpNowOptions } = await startWPNow({
 		...options,
 		numberOfPhpInstances: 2,
 	});
@@ -29,6 +31,15 @@ export async function executePHP(
 
 	try {
 		php.useHostFilesystem();
+		if (!path.isAbsolute(phpArgs[1])) {
+			const maybePhpFile = path.join(
+				wpNowOptions.projectPath,
+				phpArgs[1]
+			);
+			if (fs.existsSync(maybePhpFile)) {
+				phpArgs[1] = maybePhpFile;
+			}
+		}
 		await php.cli(phpArgs);
 	} catch (resultOrError) {
 		const success =
