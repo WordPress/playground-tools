@@ -8,7 +8,6 @@ import {
 	downloadWordPress,
 } from './download';
 import {
-	Blueprint,
 	StepDefinition,
 	activatePlugin,
 	activateTheme,
