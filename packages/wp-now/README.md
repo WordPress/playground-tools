@@ -68,13 +68,13 @@ Of these, `wp-now php` currently supports the `--path=<path>` and `--php=<versio
 
 ## Using Blueprints
 
-Blueprints are JSON files with a list of steps to execute after starting wp-now. They can be used to automate the setup of a WordPress site, including defining wp-config constants, installing plugins, themes, and content.
+Blueprints are JSON files with a list of steps to execute after starting wp-now. They can be used to automate the setup of a WordPress site, including defining wp-config constants, installing plugins, themes, and content. [Learn more about Blueprints.](https://wordpress.github.io/wordpress-playground/blueprints-api/index)
 
 ### Defining Custom URLs
 
-Here is an example of a blueprint that defines custom URL constant. `wp-now` will automatically detect the blueprint and execute it after starting the server. In consequence, the site will be available at `http://myurl.wpnow`. Make sure myurl.wpnow is added to your hosts file.
+Here is an example of a Blueprint that defines custom URL constant. `wp-now` will automatically detect the blueprint and execute it after starting the server. In consequence, the site will be available at `http://myurl.wpnow`. Make sure myurl.wpnow is added to your hosts file.
 
-To execute this blueprint, create a file named `blueprint-example.json` and run `wp-now start --blueprint=path/to/blueprint-example.json`. Note that the `virtualize` is set to `true` to avoid modifying the `wp-config.php` file that is shared between all the projects.
+To execute this Blueprint, create a file named `blueprint-example.json` and run `wp-now start --blueprint=path/to/blueprint-example.json`. Note that the `virtualize` is set to `true` to avoid modifying the `wp-config.php` file that is shared between all the projects.
 
 ```json
 {
