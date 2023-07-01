@@ -38,6 +38,7 @@
 		"@php-wasm/universal": "0.1.56",
 		"@php-wasm/web": "0.1.57",
 		"@wp-playground/blueprints": "0.1.56",
+		"@wp-playground/client": "0.2.0",
 		"classnames": "^2.3.2",
 		"comlink": "^4.4.1",
 		"compressible": "2.0.18",

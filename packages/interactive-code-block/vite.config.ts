@@ -30,11 +30,6 @@ export default defineConfig({
 		viteStaticCopy({
 			targets: [
 				{
-					src: path('../../dist/packages/playground/client/index.js'),
-					dest: 'assets/',
-					rename: () => 'playground-client.js',
-				},
-				{
 					src: new URL('src/lib/block/editor.css', import.meta.url)
 						.pathname,
 					dest: 'assets/',
@@ -78,6 +73,7 @@ export default defineConfig({
 			preserveEntrySignatures: 'strict',
 			plugins: [react()],
 			input: {
+				['playground-client']: '@wp-playground/client',
 				['comlink']: 'comlink/dist/esm/comlink.mjs',
 				['editor']: path('src/lib/block/editor.tsx'),
 				['view']: path('src/lib/block/view.ts'),
@@ -93,6 +89,8 @@ export default defineConfig({
 				entryFileNames: (entryInfo) => {
 					if (entryInfo.name.includes('comlink')) {
 						return 'assets/comlink.js';
+					} else if (entryInfo.name.includes('playground-client')) {
+						return 'assets/playground-client.js';
 					}
 					return 'assets/[name]-[hash].js';
 				},
