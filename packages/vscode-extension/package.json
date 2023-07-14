@@ -7,7 +7,7 @@
 	"version": "0.1.55",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/WordPress/wordpress-playground"
+		"url": "https://github.com/WordPress/playground-tools"
 	},
 	"icon": "public/icon.png",
 	"engines": {
