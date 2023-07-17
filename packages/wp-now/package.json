@@ -4,7 +4,7 @@
 	"description": "WordPress Playground CLI",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/WordPress/wordpress-playground"
+		"url": "https://github.com/WordPress/playground-tools"
 	},
 	"homepage": "https://developer.wordpress.org/playground",
 	"author": "The WordPress contributors",
