@@ -1,6 +1,6 @@
 import { runCli } from './run-cli';
 
-const requiredMajorVersion = 20;
+const requiredMajorVersion = 18;
 
 const currentNodeVersion = parseInt(process.versions?.node?.split('.')?.[0]);
 
