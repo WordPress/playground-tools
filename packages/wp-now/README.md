@@ -14,6 +14,8 @@ To install `wp-now` directly from `npm`:
 npm install -g @wp-now/wp-now
 ```
 
+Node 18 is the minimum supported version. Node 20 is required for Blueprint support.
+
 Alternatively, you can install `wp-now` via `git clone` if you'd like to hack on it too. See [Contributing](#contributing) for more details.
 
 Once installed, you can start a new server like so:
