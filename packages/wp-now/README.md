@@ -243,5 +243,6 @@ To initiate the publishing process for `wp-now`, execute the following commands:
 
 ```bash
 npm login # this is required only once and it will store the credentials in ~/.npmrc file.
+npm run build
 npm run release:wp-now
 ```
