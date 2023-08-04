@@ -12,11 +12,27 @@ const minimum = {
 const versionPattern = /^v(\d+)\.(\d+)\.(\d+)$/;
 const [major, minor, patch] = versionPattern.exec(process.version).slice(1, 4);
 
-const meetsMajor = major >= minimum.major;
-const meetsMinor = meetsMajor && minor >= minimum.minor;
-const meetsPatch = meetsMinor && patch >= minimum.patch;
+function meetsMinimumVersion(minimum, [major, minor, patch]) {
+	if (major > minimum.major) {
+		return true;
+	}
 
-if (!meetsPatch) {
+	if (major < minimum.major) {
+		return false;
+	}
+
+	if (minor > minimum.minor) {
+		return true;
+	}
+
+	if (minor < minimum.minor) {
+		return false;
+	}
+
+	return patch >= minimum.patch;
+}
+
+if (!meetsMinimumVersion(minimum, [major, minor, patch])) {
 	console.error(
 		`This script is requires node version v${minimum.major}.${minimum.minor}.${minimum.patch} or above; found ${process.version}`
 	);
