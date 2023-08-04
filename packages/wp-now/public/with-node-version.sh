@@ -11,17 +11,17 @@ MINOR=${VERSION[1]}
 PATCH=${VERSION[2]}
 
 if [ $MAJOR -lt $MIN_MAJOR ]; then
-	printf "This script is requires node version v$MIN_MAJOR.$MIN_MINOR.$MIN_PATCH or above; found v$MAJOR.$MINOR.$PATCH."
+	printf "This script is requires node version v$MIN_MAJOR.$MIN_MINOR.$MIN_PATCH or above; found v$MAJOR.$MINOR.$PATCH"
 	exit 1
 fi
 
 if [ $MINOR -lt $MIN_MINOR ]; then
-	printf "This script is requires node version v$MIN_MAJOR.$MIN_MINOR.$MIN_PATCH or above; found v$MAJOR.$MINOR.$PATCH."
+	printf "This script is requires node version v$MIN_MAJOR.$MIN_MINOR.$MIN_PATCH or above; found v$MAJOR.$MINOR.$PATCH"
 	exit 1
 fi
 
 if [ $PATCH -lt $MIN_PATCH ]; then
-	printf "This script is requires node version v$MIN_MAJOR.$MIN_MINOR.$MIN_PATCH or above; found v$MAJOR.$MINOR.$PATCH."
+	printf "This script is requires node version v$MIN_MAJOR.$MIN_MINOR.$MIN_PATCH or above; found v$MAJOR.$MINOR.$PATCH"
 	exit 1
 fi
 
