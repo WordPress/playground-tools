@@ -98,6 +98,11 @@ export default async function startWPNow(
 		downloadSqliteIntegrationPlugin(),
 		downloadMuPlugins(),
 	]);
+
+	if (options.reset) {
+		fs.removeSync(options.wpContentPath);
+	}
+
 	const isFirstTimeProject = !fs.existsSync(options.wpContentPath);
 	await applyToInstances(phpInstances, async (_php) => {
 		switch (options.mode) {

@@ -19,6 +19,7 @@ export interface CliOptions {
 	wp?: string;
 	port?: number;
 	blueprint?: string;
+	reset?: boolean;
 }
 
 export const enum WPNowMode {
@@ -43,6 +44,7 @@ export interface WPNowOptions {
 	wordPressVersion?: string;
 	numberOfPhpInstances?: number;
 	blueprintObject?: Blueprint;
+	reset?: boolean;
 }
 
 export const DEFAULT_OPTIONS: WPNowOptions = {
@@ -52,6 +54,7 @@ export const DEFAULT_OPTIONS: WPNowOptions = {
 	projectPath: process.cwd(),
 	mode: WPNowMode.AUTO,
 	numberOfPhpInstances: 1,
+	reset: false,
 };
 
 export interface WPEnvOptions {
@@ -109,6 +112,7 @@ export default async function getWpNowConfig(
 		projectPath: args.path as string,
 		wordPressVersion: args.wp as string,
 		port,
+		reset: args.reset as boolean,
 	};
 
 	const options: WPNowOptions = {} as WPNowOptions;
