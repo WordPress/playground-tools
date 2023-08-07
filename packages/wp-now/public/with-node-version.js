@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import child_process from 'child_process';
+import path from 'path';
 
 // Set the minimum required/supported version of node here.
 const minimum = {
@@ -40,6 +41,7 @@ if (!meetsMinimumVersion(minimum, [major, minor, patch])) {
 }
 
 // Launch the wp-now process and pipe output through this wrappers streams.
-child_process.spawn('node', process.argv.slice(2), {
+const dir = path.dirname(path.resolve(process.argv[1]));
+child_process.spawn('node', [dir+'/cli.js',...process.argv.slice(2)], {
 	stdio: ['inherit', 'inherit', 'inherit'],
 });
