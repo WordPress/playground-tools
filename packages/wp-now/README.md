@@ -31,6 +31,8 @@ Use the `--php=<version>` and `--wp=<version>` arguments to switch to different 
 wp-now start --wp=5.9 --php=7.4
 ```
 
+For the modes that support it, `wp-now` will create a persistent SQLite database and `wp-content` directory in `~/.wp-now`. Use the `--reset` argument to create a fresh project.
+
 Use `wp-now php <file>` to execute a specific PHP file:
 
 ```bash
