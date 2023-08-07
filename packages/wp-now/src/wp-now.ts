@@ -101,6 +101,9 @@ export default async function startWPNow(
 
 	if (options.reset) {
 		fs.removeSync(options.wpContentPath);
+		output?.log(
+			'Created a fresh SQLite database and wp-content directory.'
+		);
 	}
 
 	const isFirstTimeProject = !fs.existsSync(options.wpContentPath);
