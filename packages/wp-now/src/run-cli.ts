@@ -71,6 +71,11 @@ export async function runCli() {
 					describe: 'Path to a blueprint file to be executed',
 					type: 'string',
 				});
+				yargs.option('reset', {
+					describe:
+						'Create a new project environment, destroying the old project environment.',
+					type: 'boolean',
+				});
 			},
 			async (argv) => {
 				const spinner = startSpinner('Starting the server...');
@@ -81,6 +86,7 @@ export async function runCli() {
 						wp: argv.wp as string,
 						port: argv.port as number,
 						blueprint: argv.blueprint as string,
+						reset: argv.reset as boolean,
 					});
 					portFinder.setPort(options.port as number);
 					const { url } = await startServer(options);

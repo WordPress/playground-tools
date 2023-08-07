@@ -790,6 +790,37 @@ describe('Test starting different modes', () => {
 			await stopServer();
 		});
 	});
+
+	describe('reset', () => {
+		let removeSyncSpy;
+		beforeAll(() => {
+			removeSyncSpy = vi
+				.spyOn(fs, 'removeSync')
+				.mockImplementation(() => {});
+		});
+
+		afterAll(() => {
+			removeSyncSpy.mockRestore();
+		});
+
+		test('creates a new environment, destroying the old environment', async () => {
+			const mode = 'theme';
+			const projectPath = path.join(tmpExampleDirectory, mode);
+			const rawOptions: CliOptions = {
+				path: projectPath,
+				reset: true,
+			};
+			const options = await getWpNowConfig(rawOptions);
+			await startWPNow(options);
+			const wpContentPathRegExp = new RegExp(
+				`${getWpNowTmpPath()}\\/wp-content\\/${mode}-[\\w\\d]+`
+			);
+
+			expect(removeSyncSpy).toHaveBeenCalledWith(
+				expect.stringMatching(wpContentPathRegExp)
+			);
+		});
+	});
 });
 
 /**
