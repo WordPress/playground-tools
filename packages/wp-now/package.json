@@ -22,6 +22,6 @@
 	"license": "GPL-2.0-or-later",
 	"type": "module",
 	"main": "index.js",
-	"bin": "cli.js",
+	"bin": "with-node-version.js cli.js",
 	"gitHead": "dc3e3bd36d631cdc7b653f634439ad6c30384f41"
 }
