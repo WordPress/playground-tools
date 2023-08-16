@@ -59,6 +59,12 @@ const Webview = ({ initialState }: WebviewProps) => {
 				below to start the playground:
 			</p>
 			<ServerState appState={appState} />
+			<p>
+				This Extension is based on https://github.com/WordPress/playground-tools/wp-now
+				so the default storage location is ~/.wp-now if there are any problems you can 
+				fix them via the wp-now cli or if you do not depend on the state even delete 
+				the directory it gets recreated. 
+			</p>
 		</div>
 	);
 };
