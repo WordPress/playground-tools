@@ -6,11 +6,13 @@ import fs from 'fs';
 // Set the minimum required/supported version of node here.
 
 // Check if `--blueprint=` is passed in proccess.argv
-const hasBlueprint = process.argv.findIndex((arg) => arg.includes('--blueprint='));
+const hasBlueprint = process.argv.some((arg) =>
+	arg.startsWith('--blueprint=')
+);
 
 const minimum = {
 	// `--blueprint=` requires node v20
-	major: -1 !== hasBlueprint ? 20 : 18,
+	major: hasBlueprint ? 20 : 18,
 	minor: 0,
 	patch: 0,
 };
