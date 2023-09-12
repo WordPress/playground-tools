@@ -139,7 +139,7 @@ Run `wp-now start --blueprint=path/to/blueprint-example.json` where `blueprint-e
 }
 ```
 
-This will enable the debug logs and will create a `debug.log` file in the `~/wp-now/wp-content/${project}/debug.log` directory.
+This will enable the debug logs and will create a `debug.log` file in the `~/.wp-now/wp-content/${project}/debug.log` directory.
 
 If you prefer to set a custom path for the debug log file, you can set `WP_DEBUG_LOG` to be a directory. Remember that the `php-wasm` server runs udner a VFS (virtual file system) where the default documentRoot is always `/var/www/html`.
 
