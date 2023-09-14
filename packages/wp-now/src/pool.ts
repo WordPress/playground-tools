@@ -118,7 +118,7 @@ export class Pool {
 					this[Fatal](idleInstanceNext, error);
 				});
 
-				this.running.add(idleInstance);
+				this.running.add(idleInstanceNext);
 			};
 
 			const info = this.instances.get(idleInstance);
