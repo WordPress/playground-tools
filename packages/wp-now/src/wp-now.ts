@@ -107,9 +107,9 @@ export default async function startWPNow(
 	output?.log(`php: ${options.phpVersion}`);
 
 	const poolOptions = {
-		spawner:     spawnInstance,
+		spawner: spawnInstance,
 		maxRequests: options.maxRequests ?? 512,
-		maxJobs:     1,
+		maxJobs: 1,
 	};
 
 	if (options.mode === WPNowMode.INDEX) {

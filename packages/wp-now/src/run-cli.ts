@@ -76,10 +76,11 @@ export async function runCli() {
 						'Create a new project environment, destroying the old project environment.',
 					type: 'boolean',
 				});
-				yargs.option("maxRequests", {
-					describe: "Max number of requests before refreshing PHP instance.",
-					type: "number"
-				  });
+				yargs.option('maxRequests', {
+					describe:
+						'Max number of requests before refreshing PHP instance.',
+					type: 'number',
+				});
 			},
 			async (argv) => {
 				const spinner = startSpinner('Starting the server...');
