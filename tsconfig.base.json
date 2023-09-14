@@ -1,32 +1,42 @@
 {
-	"compileOnSave": false,
-	"compilerOptions": {
-		"rootDir": ".",
-		"sourceMap": true,
-		"declaration": false,
-		"moduleResolution": "node",
-		"esModuleInterop": true,
-		"emitDecoratorMetadata": true,
-		"experimentalDecorators": true,
-		"importHelpers": true,
-		"resolveJsonModule": true,
-		"jsx": "react",
-		"target": "ES2021",
-		"module": "esnext",
-		"lib": ["ES2022", "dom"],
-		"skipLibCheck": true,
-		"skipDefaultLibCheck": true,
-		"baseUrl": ".",
-		"paths": {
-			"@wp-now/wp-now": ["packages/wp-now/src/index.ts"],
-			"@wp-playground/interactive-code-block": [
-				"packages/interactive-code-block/src/index.ts"
-			],
-			"@wp-playground/vscode-extension": [
-				"packages/vscode-extension/src/index.ts"
-			],
-			"nx-extensions": ["packages/nx-extensions/src/index.ts"]
-		}
-	},
-	"exclude": ["node_modules", "tmp"]
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "resolveJsonModule": true,
+    "jsx": "react",
+    "target": "ES2021",
+    "module": "esnext",
+    "lib": [
+      "ES2022",
+      "dom"
+    ],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@wp-now/wp-now": [
+        "packages/wp-now/src/index.ts"
+      ],
+      "@wp-playground/interactive-code-block": [
+        "packages/interactive-code-block/src/index.ts"
+      ],
+      "@wp-playground/vscode-extension": [
+        "packages/vscode-extension/src/index.ts"
+      ],
+      "nx-extensions": [
+        "packages/nx-extensions/src/index.ts"
+      ]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "tmp"
+  ]
 }

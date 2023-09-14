@@ -73,12 +73,12 @@ export default async function startWPNow(
 			},
 		},
 	};
-	
+
 	const phpInstances = [await NodePHP.load(options.phpVersion, nodePHPOptions)];
-	
+
 	const spawnInstance = async () => {
 		const php = await NodePHP.load(options.phpVersion, nodePHPOptions);
-		
+
 		php.mkdirTree(documentRoot);
 		php.chdir(documentRoot);
 		php.writeFile(
@@ -107,8 +107,8 @@ export default async function startWPNow(
 	const poolOptions = {
 		spawner: spawnInstance,
 		maxRequests: 1000,
-		maxJobs:     1,
-		maxIdle:    -1,
+		maxJobs: 1,
+		maxIdle: -1,
 	};
 
 	if (options.mode === WPNowMode.INDEX) {
@@ -116,96 +116,95 @@ export default async function startWPNow(
 			const instance = await spawnInstance();
 			runIndexMode(instance, options);
 			return instance;
-		}
+		};
 
 		poolOptions.spawner = spawnAndSetup;
 
 		const pool = new Pool(poolOptions);
 
-		return {php, phpInstances, options, pool};
+		return { php, phpInstances, options, pool };
 	}
-	else
-	{
-		output?.log(`wp: ${options.wordPressVersion}`);
 	
-		await Promise.all([
-			downloadWordPress(options.wordPressVersion),
-			downloadSqliteIntegrationPlugin(),
-			downloadMuPlugins(),
-		]);
-	
-		if (options.reset) {
-			fs.removeSync(options.wpContentPath);
-			output?.log(
-				'Created a fresh SQLite database and wp-content directory.'
-			);
-		}
-	
-		const setUpWordPress = async (_php) => {
-			switch (options.mode) {
-				case WPNowMode.WP_CONTENT:
-					await runWpContentMode(_php, options);
-					break;
-				case WPNowMode.WORDPRESS_DEVELOP:
-					await runWordPressDevelopMode(_php, options);
-					break;
-				case WPNowMode.WORDPRESS:
-					await runWordPressMode(_php, options);
-					break;
-				case WPNowMode.PLUGIN:
-					await runPluginOrThemeMode(_php, options);
-					break;
-				case WPNowMode.THEME:
-					await runPluginOrThemeMode(_php, options);
-					break;
-				case WPNowMode.PLAYGROUND:
-					await runWpPlaygroundMode(_php, options);
-					break;
-			}
-		};
+	output?.log(`wp: ${options.wordPressVersion}`);
 
-		const spawnSetupAndLogin = async () => {
-			const instance = await spawnInstance();
-			await setUpWordPress(instance);
-			await login(instance, {username: 'admin', password: 'password'});
-			return instance;
-		}
+	await Promise.all([
+		downloadWordPress(options.wordPressVersion),
+		downloadSqliteIntegrationPlugin(),
+		downloadMuPlugins(),
+	]);
 
-		poolOptions.spawner = spawnSetupAndLogin;
+	if (options.reset) {
+		fs.removeSync(options.wpContentPath);
+		output?.log(
+			'Created a fresh SQLite database and wp-content directory.'
+		);
+	}
 
-		const pool = new Pool(poolOptions);
-		
-		await applyToInstances(phpInstances, setUpWordPress);
-	
-		if (options.blueprintObject) {
-			output?.log(`blueprint steps: ${options.blueprintObject.steps.length}`);
-			const compiled = compileBlueprint(options.blueprintObject, {
-				onStepCompleted: (result, step: StepDefinition) => {
-					output?.log(`Blueprint step completed: ${step.step}`);
-				},
-			});
-			await runBlueprintSteps(compiled, php);
+	const setUpWordPress = async (_php) => {
+		switch (options.mode) {
+			case WPNowMode.WP_CONTENT:
+				await runWpContentMode(_php, options);
+				break;
+			case WPNowMode.WORDPRESS_DEVELOP:
+				await runWordPressDevelopMode(_php, options);
+				break;
+			case WPNowMode.WORDPRESS:
+				await runWordPressMode(_php, options);
+				break;
+			case WPNowMode.PLUGIN:
+				await runPluginOrThemeMode(_php, options);
+				break;
+			case WPNowMode.THEME:
+				await runPluginOrThemeMode(_php, options);
+				break;
+			case WPNowMode.PLAYGROUND:
+				await runWpPlaygroundMode(_php, options);
+				break;
 		}
-	
-		await installationStep2(php);
-		
-		await login(php, {
-			username: 'admin',
-			password: 'password',
+	};
+
+	const spawnSetupAndLogin = async () => {
+		const instance = await spawnInstance();
+		await setUpWordPress(instance);
+		await login(instance, { username: 'admin', password: 'password' });
+		return instance;
+	};
+
+	poolOptions.spawner = spawnSetupAndLogin;
+
+	const pool = new Pool(poolOptions);
+
+	await applyToInstances(phpInstances, setUpWordPress);
+
+	if (options.blueprintObject) {
+		output?.log(
+			`blueprint steps: ${options.blueprintObject.steps.length}`
+		);
+		const compiled = compileBlueprint(options.blueprintObject, {
+			onStepCompleted: (result, step: StepDefinition) => {
+				output?.log(`Blueprint step completed: ${step.step}`);
+			},
 		});
-
-		const isFirstTimeProject = !fs.existsSync(options.wpContentPath);
-	
-		if (
-			isFirstTimeProject &&
-			[WPNowMode.PLUGIN, WPNowMode.THEME].includes(options.mode)
-		) {
-			await activatePluginOrTheme(php, options);
-		}
-	
-		return {php, phpInstances, options, pool};
+		await runBlueprintSteps(compiled, php);
 	}
 
+	await installationStep2(php);
+
+	await login(php, {
+		username: 'admin',
+		password: 'password',
+	});
+
+	const isFirstTimeProject = !fs.existsSync(options.wpContentPath);
+
+	if (
+		isFirstTimeProject &&
+		[WPNowMode.PLUGIN, WPNowMode.THEME].includes(options.mode)
+	) {
+		await activatePluginOrTheme(php, options);
+	}
+
+	return { php, phpInstances, options, pool };
 }
 
 async function runIndexMode(
