@@ -27,7 +27,7 @@ export async function executePHP(
 		...options,
 		numberOfPhpInstances: 2,
 	});
-	const [php] = phpInstances;
+	const [, php] = phpInstances;
 
 	try {
 		php.useHostFilesystem();

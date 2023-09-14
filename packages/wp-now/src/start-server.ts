@@ -50,7 +50,7 @@ function shouldCompress(_, res) {
 }
 
 export async function startServer(
-	options: WPNowOptions = { numberOfPhpInstances: 1 }
+	options: WPNowOptions = {}
 ): Promise<WPNowServer> {
 	if (!fs.existsSync(options.projectPath)) {
 		throw new Error(

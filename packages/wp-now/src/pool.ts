@@ -105,13 +105,13 @@ export class Pool {
 
 				request.finally(onCompleted);
 
-				request.then(ret => {
+				request.then((ret) => {
 					const notifier = this.notifiers.get(next);
 					this.notifiers.delete(next);
 					notifier[0](ret);
 				});
 
-				request.catch(error => {
+				request.catch((error) => {
 					const notifier = this.notifiers.get(next);
 					this.notifiers.delete(next);
 					notifier[1](error);

@@ -74,9 +74,11 @@ export default async function startWPNow(
 		},
 	};
 
-	const phpInstances = [
-		await NodePHP.load(options.phpVersion, nodePHPOptions),
-	];
+	const phpInstances = [];
+
+	while (phpInstances.length < options.numberOfPhpInstances) {
+		phpInstances.push(await NodePHP.load(options.phpVersion, nodePHPOptions));
+	}
 
 	const spawnInstance = async () => {
 		const php = await NodePHP.load(options.phpVersion, nodePHPOptions);
@@ -115,7 +117,7 @@ export default async function startWPNow(
 	if (options.mode === WPNowMode.INDEX) {
 		const spawnAndSetup = async () => {
 			const instance = await spawnInstance();
-			runIndexMode(instance, options);
+			await runIndexMode(instance, options);
 			return instance;
 		};
 

@@ -1,5 +1,8 @@
 import type { LoadingStatus } from '../../types';
-import { consumeAPI, spawnPHPWorkerThread } from '@php-wasm/web';
+import {
+	consumeAPI,
+	spawnPHPWorkerThread,
+} from '@php-wasm/web';
 
 import type { PHPClient } from '../../php-worker';
 
@@ -21,7 +24,9 @@ export class PHPLoader extends EventTarget {
 			/** @ts-ignore */
 			'../../php-worker.ts?url&worker'
 		);
-		const worker = await spawnPHPWorkerThread(workerScriptUrl);
+		const worker = await spawnPHPWorkerThread(
+			workerScriptUrl
+		);
 		const php = consumeAPI<PHPClient>(worker);
 		php?.onDownloadProgress((e) => {
 			const { loaded, total } = e.detail;
