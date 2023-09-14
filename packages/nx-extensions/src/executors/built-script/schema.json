@@ -10,6 +10,11 @@
 			"description": "Path of the script to run.",
 			"x-prompt": "What script would you like to run?"
 		},
+		"debug": {
+			"type": "boolean",
+			"description": "Use devtools as a debugger.",
+			"x-prompt": "Would you like to use devtools?"
+		},
 		"__unparsed__": {
 			"hidden": true,
 			"type": "array",

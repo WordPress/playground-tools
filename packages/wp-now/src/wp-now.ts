@@ -44,8 +44,15 @@ async function applyToInstances(phpInstances: NodePHP[], callback: Function) {
 
 export default async function startWPNow(
 	options: Partial<WPNowOptions> = {}
-): Promise<{ php: NodePHP; phpInstances: NodePHP[]; options: WPNowOptions }> {
+): Promise<{
+	php: NodePHP;
+	phpInstances: NodePHP[];
+	instanceMap: Map<NodePHP, {requests: number, started: number, initialized: boolean, active: boolean, busy: boolean}>;
+	options: WPNowOptions;
+	refresher: Function;
+}> {
 	const { documentRoot } = options;
+	
 	const nodePHPOptions: PHPLoaderOptions = {
 		requestHandler: {
 			documentRoot,
@@ -67,11 +74,32 @@ export default async function startWPNow(
 	};
 
 	const phpInstances = [];
-	for (let i = 0; i < Math.max(options.numberOfPhpInstances, 1); i++) {
-		phpInstances.push(
-			await NodePHP.load(options.phpVersion, nodePHPOptions)
-		);
-	}
+	const instanceMap = new Map;
+
+	const fillInstances = async () : Promise<Set<NodePHP>> => {
+		const newPHPs : Set<NodePHP> = new Set;
+		// for (let i = 0; i < Math.max(options.numberOfPhpInstances, 1); i++)
+		while (instanceMap.size < options.numberOfPhpInstances)  {
+			console.error('Respawning...');
+			const php = await NodePHP.load(options.phpVersion, nodePHPOptions);
+			phpInstances.push(php);
+			instanceMap.set(php, {requests: 0, started: Date.now(), initialized: false, active: true, busy: false});
+			newPHPs.add(php);
+		}
+		return newPHPs;
+	};
+
+	const clearInstances = async () => {
+		for (const [php, info] of instanceMap) {
+			if (info.requests > 20) {
+				info.active = false;
+				instanceMap.delete(php);
+			}
+		}
+	};
+
+	await fillInstances();
+
 	const php = phpInstances[0];
 
 	phpInstances.forEach((_php) => {
@@ -86,13 +114,25 @@ export default async function startWPNow(
 	output?.log(`directory: ${options.projectPath}`);
 	output?.log(`mode: ${options.mode}`);
 	output?.log(`php: ${options.phpVersion}`);
+	
 	if (options.mode === WPNowMode.INDEX) {
-		await applyToInstances(phpInstances, async (_php) => {
-			runIndexMode(_php, options);
-		});
-		return { php, phpInstances, options };
+
+		const refresher = async () => {
+			await clearInstances();
+			const newPHPs = await fillInstances();
+			await applyToInstances([...newPHPs.values()], async (_php) => {
+				instanceMap.get(php).initialized = true;
+				runIndexMode(_php, options);
+			});
+		};
+
+		await refresher();
+		
+		return { php, phpInstances, instanceMap, options, refresher };
 	}
+	
 	output?.log(`wp: ${options.wordPressVersion}`);
+	
 	await Promise.all([
 		downloadWordPress(options.wordPressVersion),
 		downloadSqliteIntegrationPlugin(),
@@ -107,7 +147,13 @@ export default async function startWPNow(
 	}
 
 	const isFirstTimeProject = !fs.existsSync(options.wpContentPath);
-	await applyToInstances(phpInstances, async (_php) => {
+
+	const setUpWordPress = async (_php) => {
+
+		const info = instanceMap.get(_php);
+
+		info.initialized = true;
+
 		switch (options.mode) {
 			case WPNowMode.WP_CONTENT:
 				await runWpContentMode(_php, options);
@@ -127,8 +173,24 @@ export default async function startWPNow(
 			case WPNowMode.PLAYGROUND:
 				await runWpPlaygroundMode(_php, options);
 				break;
-		}
-	});
+		}			
+	};
+
+	const refresher = async () => {
+		await clearInstances();
+		
+		const newPHPs = await fillInstances();
+
+		await applyToInstances([...newPHPs.values()], async _php => {
+			setUpWordPress(_php);
+			await login(_php, {
+				username: 'admin',
+				password: 'password',
+			});
+		});
+	};
+
+	await applyToInstances([...instanceMap.keys()], setUpWordPress);
 
 	if (options.blueprintObject) {
 		output?.log(`blueprint steps: ${options.blueprintObject.steps.length}`);
@@ -156,7 +218,9 @@ export default async function startWPNow(
 	return {
 		php,
 		phpInstances,
+		instanceMap,
 		options,
+		refresher,
 	};
 }
 
