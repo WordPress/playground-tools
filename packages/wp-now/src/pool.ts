@@ -119,6 +119,8 @@ export class Pool {
 				});
 
 				this.running.add(idleInstanceNext);
+
+				request.finally(() => this.running.delete(idleInstanceNext));
 			};
 
 			const info = this.instances.get(idleInstance);
