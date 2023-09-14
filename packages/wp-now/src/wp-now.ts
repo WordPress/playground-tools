@@ -77,7 +77,9 @@ export default async function startWPNow(
 	const phpInstances = [];
 
 	while (phpInstances.length < options.numberOfPhpInstances) {
-		phpInstances.push(await NodePHP.load(options.phpVersion, nodePHPOptions));
+		phpInstances.push(
+			await NodePHP.load(options.phpVersion, nodePHPOptions)
+		);
 	}
 
 	const spawnInstance = async () => {
@@ -120,6 +122,8 @@ export default async function startWPNow(
 			await runIndexMode(instance, options);
 			return instance;
 		};
+
+		await phpInstances.map(instance => runIndexMode(instance, options));
 
 		poolOptions.spawner = spawnAndSetup;
 
