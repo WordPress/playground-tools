@@ -50,7 +50,7 @@ function shouldCompress(_, res) {
 }
 
 export async function startServer(
-	options: WPNowOptions = {numberOfPhpInstances: 5}
+	options: WPNowOptions = { numberOfPhpInstances: 1 }
 ): Promise<WPNowServer> {
 	if (!fs.existsSync(options.projectPath)) {
 		throw new Error(
@@ -62,7 +62,7 @@ export async function startServer(
 	app.use(compression({ filter: shouldCompress }));
 	app.use(addTrailingSlash('/wp-admin'));
 	const port = await portFinder.getOpenPort();
-	const { php, instanceMap, options: wpNowOptions, refresher } = await startWPNow(options);
+	const {php, options: wpNowOptions, pool} = await startWPNow(options);
 
 	app.use('/', async (req, res) => {
 		try {
@@ -104,33 +104,13 @@ export async function startServer(
 				body: body as string,
 			};
 
-			await refresher();
-
-			const instanceMapSorted = [...instanceMap.entries()]
-			.sort((a, b) => a[1].requests - b[1].requests)
+			const resp = await pool.enqueue(php => php.request(data));
 			
-			for (const [php, info] of instanceMapSorted) {
-				if (!info.active || info.busy) {
-					continue;
-				}
-
-				info.requests++;
-				info.busy = true;
-
-				const resp = await php.request(data);
-
-				info.busy = false;
+			res.statusCode = resp.httpStatusCode;
 			
-				res.statusCode = resp.httpStatusCode;
-				
-				Object.keys(resp.headers).forEach((key) => {
-					res.setHeader(key, resp.headers[key]);
-				});
-				
-				res.end(resp.bytes);
-
-				break;
-			}
+			Object.keys(resp.headers).forEach((key) => res.setHeader(key, resp.headers[key]));
+			
+			res.end(resp.bytes);
 
 		} catch (e) {
 			output?.trace(e);

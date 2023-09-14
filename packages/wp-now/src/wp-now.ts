@@ -32,6 +32,8 @@ import getWpNowPath from './get-wp-now-path';
 import getWordpressVersionsPath from './get-wordpress-versions-path';
 import getSqlitePath from './get-sqlite-path';
 
+import { Pool } from './pool';
+
 function seemsLikeAPHPFile(path) {
 	return path.endsWith('.php') || path.includes('.php/');
 }
@@ -47,12 +49,11 @@ export default async function startWPNow(
 ): Promise<{
 	php: NodePHP;
 	phpInstances: NodePHP[];
-	instanceMap: Map<NodePHP, {requests: number, started: number, initialized: boolean, active: boolean, busy: boolean}>;
 	options: WPNowOptions;
-	refresher: Function;
+	pool: Pool;
 }> {
 	const { documentRoot } = options;
-	
+
 	const nodePHPOptions: PHPLoaderOptions = {
 		requestHandler: {
 			documentRoot,
@@ -72,33 +73,21 @@ export default async function startWPNow(
 			},
 		},
 	};
+	
+	const phpInstances = [await NodePHP.load(options.phpVersion, nodePHPOptions)];
+	
+	const spawnInstance = async () => {
+		const php = await NodePHP.load(options.phpVersion, nodePHPOptions);
+		
+		php.mkdirTree(documentRoot);
+		php.chdir(documentRoot);
+		php.writeFile(
+			`${documentRoot}/index.php`,
+			`<?php echo 'Hello wp-now!';`
+		);
 
-	const phpInstances = [];
-	const instanceMap = new Map;
-
-	const fillInstances = async () : Promise<Set<NodePHP>> => {
-		const newPHPs : Set<NodePHP> = new Set;
-		// for (let i = 0; i < Math.max(options.numberOfPhpInstances, 1); i++)
-		while (instanceMap.size < options.numberOfPhpInstances)  {
-			console.error('Respawning...');
-			const php = await NodePHP.load(options.phpVersion, nodePHPOptions);
-			phpInstances.push(php);
-			instanceMap.set(php, {requests: 0, started: Date.now(), initialized: false, active: true, busy: false});
-			newPHPs.add(php);
-		}
-		return newPHPs;
+		return php;
 	};
-
-	const clearInstances = async () => {
-		for (const [php, info] of instanceMap) {
-			if (info.requests > 20) {
-				info.active = false;
-				instanceMap.delete(php);
-			}
-		}
-	};
-
-	await fillInstances();
 
 	const php = phpInstances[0];
 
@@ -114,114 +103,109 @@ export default async function startWPNow(
 	output?.log(`directory: ${options.projectPath}`);
 	output?.log(`mode: ${options.mode}`);
 	output?.log(`php: ${options.phpVersion}`);
-	
-	if (options.mode === WPNowMode.INDEX) {
 
-		const refresher = async () => {
-			await clearInstances();
-			const newPHPs = await fillInstances();
-			await applyToInstances([...newPHPs.values()], async (_php) => {
-				instanceMap.get(php).initialized = true;
-				runIndexMode(_php, options);
-			});
+	const poolOptions = {
+		spawner: spawnInstance,
+		maxRequests: 1000,
+		maxJobs:     1,
+		maxIdle:    -1,
+	};
+
+	if (options.mode === WPNowMode.INDEX) {
+		const spawnAndSetup = async () => {
+			const instance = await spawnInstance();
+			runIndexMode(instance, options);
+			return instance;
+		}
+
+		poolOptions.spawner = spawnAndSetup;
+
+		const pool = new Pool(poolOptions);
+
+		return {php, phpInstances, options, pool};
+	}
+	else
+	{
+		output?.log(`wp: ${options.wordPressVersion}`);
+	
+		await Promise.all([
+			downloadWordPress(options.wordPressVersion),
+			downloadSqliteIntegrationPlugin(),
+			downloadMuPlugins(),
+		]);
+	
+		if (options.reset) {
+			fs.removeSync(options.wpContentPath);
+			output?.log(
+				'Created a fresh SQLite database and wp-content directory.'
+			);
+		}
+	
+		const setUpWordPress = async (_php) => {
+			switch (options.mode) {
+				case WPNowMode.WP_CONTENT:
+					await runWpContentMode(_php, options);
+					break;
+				case WPNowMode.WORDPRESS_DEVELOP:
+					await runWordPressDevelopMode(_php, options);
+					break;
+				case WPNowMode.WORDPRESS:
+					await runWordPressMode(_php, options);
+					break;
+				case WPNowMode.PLUGIN:
+					await runPluginOrThemeMode(_php, options);
+					break;
+				case WPNowMode.THEME:
+					await runPluginOrThemeMode(_php, options);
+					break;
+				case WPNowMode.PLAYGROUND:
+					await runWpPlaygroundMode(_php, options);
+					break;
+			}
 		};
 
-		await refresher();
+		const spawnSetupAndLogin = async () => {
+			const instance = await spawnInstance();
+			await setUpWordPress(instance);
+			await login(instance, {username: 'admin', password: 'password'});
+			return instance;
+		}
+
+		poolOptions.spawner = spawnSetupAndLogin;
+
+		const pool = new Pool(poolOptions);
 		
-		return { php, phpInstances, instanceMap, options, refresher };
-	}
+		await applyToInstances(phpInstances, setUpWordPress);
 	
-	output?.log(`wp: ${options.wordPressVersion}`);
-	
-	await Promise.all([
-		downloadWordPress(options.wordPressVersion),
-		downloadSqliteIntegrationPlugin(),
-		downloadMuPlugins(),
-	]);
-
-	if (options.reset) {
-		fs.removeSync(options.wpContentPath);
-		output?.log(
-			'Created a fresh SQLite database and wp-content directory.'
-		);
-	}
-
-	const isFirstTimeProject = !fs.existsSync(options.wpContentPath);
-
-	const setUpWordPress = async (_php) => {
-
-		const info = instanceMap.get(_php);
-
-		info.initialized = true;
-
-		switch (options.mode) {
-			case WPNowMode.WP_CONTENT:
-				await runWpContentMode(_php, options);
-				break;
-			case WPNowMode.WORDPRESS_DEVELOP:
-				await runWordPressDevelopMode(_php, options);
-				break;
-			case WPNowMode.WORDPRESS:
-				await runWordPressMode(_php, options);
-				break;
-			case WPNowMode.PLUGIN:
-				await runPluginOrThemeMode(_php, options);
-				break;
-			case WPNowMode.THEME:
-				await runPluginOrThemeMode(_php, options);
-				break;
-			case WPNowMode.PLAYGROUND:
-				await runWpPlaygroundMode(_php, options);
-				break;
-		}			
-	};
-
-	const refresher = async () => {
-		await clearInstances();
-		
-		const newPHPs = await fillInstances();
-
-		await applyToInstances([...newPHPs.values()], async _php => {
-			setUpWordPress(_php);
-			await login(_php, {
-				username: 'admin',
-				password: 'password',
+		if (options.blueprintObject) {
+			output?.log(`blueprint steps: ${options.blueprintObject.steps.length}`);
+			const compiled = compileBlueprint(options.blueprintObject, {
+				onStepCompleted: (result, step: StepDefinition) => {
+					output?.log(`Blueprint step completed: ${step.step}`);
+				},
 			});
+			await runBlueprintSteps(compiled, php);
+		}
+	
+		await installationStep2(php);
+		
+		await login(php, {
+			username: 'admin',
+			password: 'password',
 		});
-	};
 
-	await applyToInstances([...instanceMap.keys()], setUpWordPress);
-
-	if (options.blueprintObject) {
-		output?.log(`blueprint steps: ${options.blueprintObject.steps.length}`);
-		const compiled = compileBlueprint(options.blueprintObject, {
-			onStepCompleted: (result, step: StepDefinition) => {
-				output?.log(`Blueprint step completed: ${step.step}`);
-			},
-		});
-		await runBlueprintSteps(compiled, php);
+		const isFirstTimeProject = !fs.existsSync(options.wpContentPath);
+	
+		if (
+			isFirstTimeProject &&
+			[WPNowMode.PLUGIN, WPNowMode.THEME].includes(options.mode)
+		) {
+			await activatePluginOrTheme(php, options);
+		}
+	
+		return {php, phpInstances, options, pool};
 	}
 
-	await installationStep2(php);
-	await login(php, {
-		username: 'admin',
-		password: 'password',
-	});
-
-	if (
-		isFirstTimeProject &&
-		[WPNowMode.PLUGIN, WPNowMode.THEME].includes(options.mode)
-	) {
-		await activatePluginOrTheme(php, options);
-	}
-
-	return {
-		php,
-		phpInstances,
-		instanceMap,
-		options,
-		refresher,
-	};
 }
 
 async function runIndexMode(
