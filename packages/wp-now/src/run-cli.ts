@@ -76,6 +76,10 @@ export async function runCli() {
 						'Create a new project environment, destroying the old project environment.',
 					type: 'boolean',
 				});
+				yargs.option("maxRequests", {
+					describe: "Max number of requests before refreshing PHP instance.",
+					type: "number"
+				  });
 			},
 			async (argv) => {
 				const spinner = startSpinner('Starting the server...');
@@ -87,6 +91,7 @@ export async function runCli() {
 						port: argv.port as number,
 						blueprint: argv.blueprint as string,
 						reset: argv.reset as boolean,
+						maxRequests: argv.maxRequests as number,
 					});
 					portFinder.setPort(options.port as number);
 					const { url } = await startServer(options);

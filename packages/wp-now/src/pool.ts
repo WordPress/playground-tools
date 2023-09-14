@@ -1,7 +1,8 @@
 import { NodePHP } from '@php-wasm/node';
 
+const Fatal = Symbol('Fatal');
 const Spawn = Symbol('Spawn');
-const Reap = Symbol('Reap');
+const Reap  = Symbol('Reap');
 
 let childCount = 0;
 
@@ -10,7 +11,6 @@ export class PoolInfo {
 	requests = 0;
 	started = Date.now();
 	active = false;
-	busy = false;
 }
 
 /**
@@ -70,27 +70,17 @@ export class Pool {
 
 		if (!idleInstance) {
 			// Defer the callback if we don't have an idle instance available.
-
 			this.backlog.push(item);
 
-			// Split a promise open so it can be resolved
-			// later when the item is processed.
-			const notifier = new Promise((accept) => {
-				this.notifiers.set(item, accept);
-			});
+			// Split a promise open so it can be accepted or 
+			// rejected later when the item is processed.
+			const notifier = new Promise((accept, reject) => this.notifiers.set(item, [accept, reject]));
 
 			return notifier;
-		} else {
-			// If we've got an instance available, run the provided callback.
+		} else { // If we've got an instance available, run the provided callback.
 
-			const info = this.instances.get(idleInstance);
-
-			info.requests++;
-
-			this.running.add(idleInstance);
-
-			const wrapped = item(await idleInstance);
-
+			// When the provided callback completes, check to see if
+			// any more requests have been added to the pool
 			const onCompleted = async () => {
 				this.running.delete(idleInstance);
 
@@ -107,25 +97,47 @@ export class Pool {
 				const info = this.instances.get(idleInstanceNext);
 
 				info.requests++;
-
-				const wrapped = next(await idleInstanceNext);
-
-				wrapped.finally(onCompleted);
-
-				wrapped.then((ret) => {
+				
+				const request = next(await idleInstanceNext);
+				
+				request.finally(() => {
+					console.error(`Used PHP #${info.id} Requests: ${info.requests} / ${this.maxRequests}...`);
+					onCompleted();
+				});
+				
+				request.then(ret => {
 					const notifier = this.notifiers.get(next);
 					this.notifiers.delete(next);
-					notifier(ret);
+					notifier[0](ret);
 				});
-
+				
+				request.catch(err => {
+					const notifier = this.notifiers.get(next);
+					this.notifiers.delete(next);
+					notifier[1](err);
+					this[Fatal](idleInstanceNext, error);
+				});				
+				
 				this.running.add(idleInstance);
 			};
 
-			// When the provided callback completes, check to see if
-			// any more requests have been added to the pool
-			wrapped.finally(onCompleted);
+			const info = this.instances.get(idleInstance);
 
-			return wrapped;
+			info.requests++;
+			
+			this.running.add(idleInstance);
+
+			const request = item(await idleInstance);
+
+			request.catch(error => this[Fatal](idleInstance, error));
+
+			// Make sure onComplete runs no matter how the request resolves
+			request.finally(() => {
+				console.error(`Used PHP #${info.id} Requests: ${info.requests} / ${this.maxRequests}.`);
+				onCompleted();
+			});
+
+			return request;
 		}
 	}
 
@@ -153,6 +165,19 @@ export class Pool {
 				this.instances.delete(instance);
 				continue;
 			}
+		}
+	}
+
+	/**
+	 * PRIVATE
+	 * Handle fatal errors gracefully.
+	 */
+	[Fatal](instance, error) {
+		console.error(error);
+		if (this.instances.has(instance)) {
+			const info = this.instances.get(instance);
+			info.active = false;
+			this.instances.delete(instance);
 		}
 	}
 }
