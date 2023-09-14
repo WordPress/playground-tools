@@ -114,7 +114,6 @@ export class Pool {
 
 				wrapped.then((ret) => {
 					const notifier = this.notifiers.get(next);
-					console.log(notifier);
 					this.notifiers.delete(next);
 					notifier(ret);
 				});

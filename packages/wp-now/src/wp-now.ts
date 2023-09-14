@@ -74,7 +74,9 @@ export default async function startWPNow(
 		},
 	};
 
-	const phpInstances = [await NodePHP.load(options.phpVersion, nodePHPOptions)];
+	const phpInstances = [
+		await NodePHP.load(options.phpVersion, nodePHPOptions),
+	];
 
 	const spawnInstance = async () => {
 		const php = await NodePHP.load(options.phpVersion, nodePHPOptions);
@@ -124,7 +126,7 @@ export default async function startWPNow(
 
 		return { php, phpInstances, options, pool };
 	}
-	
+
 	output?.log(`wp: ${options.wordPressVersion}`);
 
 	await Promise.all([
@@ -177,9 +179,7 @@ export default async function startWPNow(
 	await applyToInstances(phpInstances, setUpWordPress);
 
 	if (options.blueprintObject) {
-		output?.log(
-			`blueprint steps: ${options.blueprintObject.steps.length}`
-		);
+		output?.log(`blueprint steps: ${options.blueprintObject.steps.length}`);
 		const compiled = compileBlueprint(options.blueprintObject, {
 			onStepCompleted: (result, step: StepDefinition) => {
 				output?.log(`Blueprint step completed: ${step.step}`);
