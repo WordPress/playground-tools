@@ -34,7 +34,9 @@ export class Pool {
 		maxRequests = 2000,
 		maxJobs = 5,
 	} = {}) {
-		Object.assign(this, { spawner, maxRequests, maxJobs });
+		this.spawner = spawner;
+		this.maxRequests = maxRequests;
+		this.maxJobs = maxJobs;
 		this[Reap]();
 		this[Spawn]();
 	}
@@ -85,7 +87,7 @@ export class Pool {
 			// Given an instance, create a new callback that will clean up
 			// after the instance processes a request, and optionally
 			// will also kick off the next request.
-			const onCompleted = instance => async () => {
+			const onCompleted = (instance) => async () => {
 				this.running.delete(instance);
 
 				this[Reap]();
@@ -102,10 +104,10 @@ export class Pool {
 				// ... but, if we've just spanwed a fresh
 				// instance, use that one instead.
 				if (newInstances.size)
-				for(const instance of newInstances) {
-					nextInstance = instance;
-					break;
-				}
+					for (const instance of newInstances) {
+						nextInstance = instance;
+						break;
+					}
 
 				const next = this.backlog.shift();
 				const info = this.instanceInfo.get(nextInstance);
@@ -120,7 +122,7 @@ export class Pool {
 				// Make sure onComplete & running.delete run
 				// no matter how the request resolves.
 				request.finally(() => {
-					this.running.delete(nextInstance)
+					this.running.delete(nextInstance);
 					completed();
 				});
 
@@ -168,7 +170,7 @@ export class Pool {
 	 * Returns a list of new instances.
 	 */
 	[Spawn]() {
-		const newInstances = new Set;
+		const newInstances = new Set();
 		while (this.maxJobs > 0 && this.instanceInfo.size < this.maxJobs) {
 			const info = new PoolInfo();
 			const instance = this.spawner();
