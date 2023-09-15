@@ -125,7 +125,7 @@ export class Pool {
 			// Split a promise open so it can be accepted or
 			// rejected later when the item is processed.
 			const notifier = new Promise((accept, reject) =>
-				this.notifiers.set(item, { accept, reject, notifier })
+				this.notifiers.set(item, { accept, reject })
 			);
 
 			// Return the notifier so async calling code
