@@ -18,9 +18,9 @@ class PoolInfo {
  * Spawns new instances if the pool is not full.
  * Returns a list of new instances.
  */
-const spawn = pool => {
+const spawn = (pool) => {
 	const newInstances = new Set();
-	
+
 	while (pool.maxJobs > 0 && pool.instanceInfo.size < pool.maxJobs) {
 		const info = new PoolInfo();
 		const instance = pool.spawner();
@@ -36,7 +36,7 @@ const spawn = pool => {
  * PRIVATE
  * Reaps children if they've passed the maxRequest count.
  */
-const reap = pool => {
+const reap = (pool) => {
 	for (const [instance, info] of pool.instanceInfo) {
 		if (pool.maxRequests > 0 && info.requests >= pool.maxRequests) {
 			info.active = false;
@@ -51,7 +51,6 @@ const reap = pool => {
  * Handle fatal errors gracefully.
  */
 const fatal = (pool, instance, error) => {
-
 	console.error(error);
 
 	if (pool.instanceInfo.has(instance)) {
@@ -65,7 +64,7 @@ const fatal = (pool, instance, error) => {
  * PRIVATE
  * Find the next available idle instance.
  */
-const getIdleInstance = pool => {
+const getIdleInstance = (pool) => {
 	const sorted = [...pool.instanceInfo].sort(
 		(a, b) => a[1].requests - b[1].requests
 	);
@@ -82,7 +81,7 @@ const getIdleInstance = pool => {
 	}
 
 	return false;
-}
+};
 
 /**
  * Maintains and refreshes a list of php instances
@@ -126,7 +125,7 @@ export class Pool {
 			// Split a promise open so it can be accepted or
 			// rejected later when the item is processed.
 			const notifier = new Promise((accept, reject) =>
-				this.notifiers.set(item, { accept, reject })
+				this.notifiers.set(item, { accept, reject, notifier })
 			);
 
 			// Return the notifier so async calling code
@@ -156,8 +155,7 @@ export class Pool {
 
 				// ... but, if we've just spanwed a fresh
 				// instance, use that one instead.
-				if (newInstances.size)
-				{
+				if (newInstances.size) {
 					for (const instance of newInstances) {
 						nextInstance = instance;
 						break;
@@ -185,10 +183,7 @@ export class Pool {
 					// Deactivate the instance.
 					fatal(this, nextInstance, error);
 
-					// Return the notifier so async calling code
-					// can still respond correctly when the item
-					// is finally processed.
-					return this.notifiers.get(next);
+					return;
 				}
 
 				const completed = onCompleted(nextInstance);
