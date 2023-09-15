@@ -116,6 +116,8 @@ export class Pool {
 				this.running.add(nextInstance);
 				info.requests++;
 
+				// Don't ACTUALLY do anything until the
+				// instance is done spawning.
 				const request = next(await nextInstance);
 
 				const completed = onCompleted(nextInstance);
@@ -152,6 +154,8 @@ export class Pool {
 			this.running.add(idleInstance);
 			info.requests++;
 
+			// Don't ACTUALLY do anything until the
+			// instance is done spawning.
 			const request = item(await idleInstance);
 
 			// Make sure onComplete runs no matter how the request resolves.
