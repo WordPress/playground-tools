@@ -103,7 +103,10 @@ export class Pool {
 
 				const request = next(await idleInstanceNext);
 
-				request.finally(onCompleted);
+				request.finally(() => {
+					this.running.delete(idleInstanceNext)
+					onCompleted();
+				});
 
 				request.then((ret) => {
 					const notifier = this.notifiers.get(next);
@@ -119,8 +122,6 @@ export class Pool {
 				});
 
 				this.running.add(idleInstanceNext);
-
-				request.finally(() => this.running.delete(idleInstanceNext));
 			};
 
 			const info = this.instances.get(idleInstance);
