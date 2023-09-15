@@ -93,6 +93,7 @@ export class Pool {
 				this[Reap]();
 				const newInstances = this[Spawn]();
 
+				// Break out here if the backlog is empty.
 				if (!this.backlog.length) {
 					return;
 				}
