@@ -19,7 +19,7 @@ export class PoolInfo {
  * before being discarded and replaced.
  */
 export class Pool {
-	instances = new Map(); // php => PoolInfo
+	instanceInfo = new Map(); // php => PoolInfo
 
 	spawner: () => Promise<any>; // Callback to create new instances.
 	maxRequests: number; // Max requests to feed each instance
@@ -43,7 +43,7 @@ export class Pool {
 	 * Find the next available idle instance.
 	 */
 	getIdleInstance() {
-		const sorted = [...this.instances].sort(
+		const sorted = [...this.instanceInfo].sort(
 			(a, b) => a[1].requests - b[1].requests
 		);
 
@@ -82,60 +82,81 @@ export class Pool {
 		} else {
 			// If we've got an instance available, run the provided callback.
 
-			// When the provided callback completes, check to see if
-			// any more requests have been added to the pool
-			const onCompleted = async () => {
-				this.running.delete(idleInstance);
+			// Given an instance, create a new callback that will clean up
+			// after the instance processes a request, and optionally
+			// will also kick off the next request.
+			const onCompleted = instance => async () => {
+				this.running.delete(instance);
 
 				this[Reap]();
-				this[Spawn]();
+				const newInstances = this[Spawn]();
 
 				if (!this.backlog.length) {
 					return;
 				}
 
-				const idleInstanceNext = this.getIdleInstance();
+				// This is the instance that completed
+				// so we can re-use it...
+				let nextInstance = instance;
+
+				// ... but, if we've just spanwed a fresh
+				// instance, use that one instead.
+				if (newInstances.size)
+				for(const instance of newInstances) {
+					nextInstance = instance;
+					break;
+				}
 
 				const next = this.backlog.shift();
-				const info = this.instances.get(idleInstanceNext);
+				const info = this.instanceInfo.get(nextInstance);
 
+				this.running.add(nextInstance);
 				info.requests++;
 
-				const request = next(await idleInstanceNext);
+				const request = next(await nextInstance);
 
+				const completed = onCompleted(nextInstance);
+
+				// Make sure onComplete & running.delete run
+				// no matter how the request resolves.
 				request.finally(() => {
-					this.running.delete(idleInstanceNext)
-					onCompleted();
+					this.running.delete(nextInstance)
+					completed();
 				});
 
+				// Grab the accept handler from the notfier
+				// promise and run it if the request resolves.
 				request.then((ret) => {
 					const notifier = this.notifiers.get(next);
 					this.notifiers.delete(next);
 					notifier[0](ret);
 				});
 
+				// Grab the reject handler from the notfier
+				// promise and run it if the request rejects.
 				request.catch((error) => {
 					const notifier = this.notifiers.get(next);
 					this.notifiers.delete(next);
 					notifier[1](error);
-					this[Fatal](idleInstanceNext, error);
+					// Catch any errors and log to the console.
+					// Deactivate the instance.
+					this[Fatal](nextInstance, error);
 				});
-
-				this.running.add(idleInstanceNext);
 			};
 
-			const info = this.instances.get(idleInstance);
-
-			info.requests++;
+			const info = this.instanceInfo.get(idleInstance);
 
 			this.running.add(idleInstance);
+			info.requests++;
 
 			const request = item(await idleInstance);
 
-			request.catch((error) => this[Fatal](idleInstance, error));
+			// Make sure onComplete runs no matter how the request resolves.
+			request.finally(onCompleted(idleInstance));
 
-			// Make sure onComplete runs no matter how the request resolves
-			request.finally(onCompleted);
+			// Catch any errors and log to the console.
+			// Deactivate the instance.
+			request.catch((error) => this[Fatal](idleInstance, error));
 
 			return request;
 		}
@@ -144,14 +165,18 @@ export class Pool {
 	/**
 	 * PRIVATE
 	 * Spawns new instances if the pool is not full.
+	 * Returns a list of new instances.
 	 */
 	[Spawn]() {
-		while (this.maxJobs > 0 && this.instances.size < this.maxJobs) {
+		const newInstances = new Set;
+		while (this.maxJobs > 0 && this.instanceInfo.size < this.maxJobs) {
 			const info = new PoolInfo();
 			const instance = this.spawner();
-			this.instances.set(instance, info);
+			this.instanceInfo.set(instance, info);
 			info.active = true;
+			newInstances.add(instance);
 		}
+		return newInstances;
 	}
 
 	/**
@@ -159,10 +184,11 @@ export class Pool {
 	 * Reaps children if they've passed the maxRequest count.
 	 */
 	[Reap]() {
-		for (const [instance, info] of this.instances) {
+		for (const [instance, info] of this.instanceInfo) {
 			if (this.maxRequests > 0 && info.requests >= this.maxRequests) {
 				info.active = false;
-				this.instances.delete(instance);
+				this.instanceInfo.delete(instance);
+				// instance.then(unwrapped => unwrapped.destroy());
 				continue;
 			}
 		}
@@ -174,10 +200,10 @@ export class Pool {
 	 */
 	[Fatal](instance, error) {
 		console.error(error);
-		if (this.instances.has(instance)) {
-			const info = this.instances.get(instance);
+		if (this.instanceInfo.has(instance)) {
+			const info = this.instanceInfo.get(instance);
 			info.active = false;
-			this.instances.delete(instance);
+			this.instanceInfo.delete(instance);
 		}
 	}
 }
