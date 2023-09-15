@@ -30,7 +30,7 @@ export class Pool {
 	backlog = []; // Set of request callbacks waiting to be run.
 
 	constructor({
-		spawner = async (): Promise<any> => {},
+		spawner = async (): Promise<any> => {}, 
 		maxRequests = 2000,
 		maxJobs = 5,
 	} = {}) {
@@ -77,9 +77,12 @@ export class Pool {
 			// Split a promise open so it can be accepted or
 			// rejected later when the item is processed.
 			const notifier = new Promise((accept, reject) =>
-				this.notifiers.set(item, [accept, reject])
+				this.notifiers.set(item, {accept, reject})
 			);
 
+			// Return the notifier so async calling code
+			// can still respond correctly when the item
+			// is finally processed.
 			return notifier;
 		} else {
 			// If we've got an instance available, run the provided callback.
@@ -116,9 +119,27 @@ export class Pool {
 				this.running.add(nextInstance);
 				info.requests++;
 
-				// Don't ACTUALLY do anything until the
-				// instance is done spawning.
-				const request = next(await nextInstance);
+				let request;
+
+				try {
+					// Don't ACTUALLY do anything until the
+					// instance is done spawning.
+					request = next(await nextInstance);
+				}
+				catch(error) {
+					// Re-queue the request if the instance
+					// failed initialization.
+					this.backlog.unshift(next);
+					
+					// Catch any errors and log to the console.
+					// Deactivate the instance.
+					this[Fatal](nextInstance, error);
+					
+					// Return the notifier so async calling code
+					// can still respond correctly when the item
+					// is finally processed.
+					return this.notifiers.get(next);
+				}
 
 				const completed = onCompleted(nextInstance);
 
@@ -134,7 +155,7 @@ export class Pool {
 				request.then((ret) => {
 					const notifier = this.notifiers.get(next);
 					this.notifiers.delete(next);
-					notifier[0](ret);
+					notifier.accept(ret);
 				});
 
 				// Grab the reject handler from the notfier
@@ -142,7 +163,7 @@ export class Pool {
 				request.catch((error) => {
 					const notifier = this.notifiers.get(next);
 					this.notifiers.delete(next);
-					notifier[1](error);
+					notifier.reject(error);
 					// Catch any errors and log to the console.
 					// Deactivate the instance.
 					this[Fatal](nextInstance, error);
@@ -154,9 +175,33 @@ export class Pool {
 			this.running.add(idleInstance);
 			info.requests++;
 
-			// Don't ACTUALLY do anything until the
-			// instance is done spawning.
-			const request = item(await idleInstance);
+			let request;
+
+			try {
+				// Don't ACTUALLY do anything until the
+				// instance is done spawning.
+				request = item(await idleInstance);
+			}
+			catch(error) {
+				// Re-queue the request if the instance
+				// failed initialization.
+				this.backlog.unshift(item);
+				
+				// Catch any errors and log to the console.
+				// Deactivate the instance.
+				this[Fatal](idleInstance, error);
+				
+				// Split a promise open so it can be accepted or
+				// rejected later when the item is processed.
+				const notifier = new Promise((accept, reject) =>
+					this.notifiers.set(item, {accept, reject})
+				);
+
+				// Return the notifier so async calling code
+				// can still respond correctly when the item
+				// is finally processed.
+				return notifier;
+			}
 
 			// Make sure onComplete runs no matter how the request resolves.
 			request.finally(onCompleted(idleInstance));
