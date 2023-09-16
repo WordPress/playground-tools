@@ -1,6 +1,6 @@
 export interface BuiltScriptExecutorSchema {
 	scriptPath: string;
-	'inspect': boolean;
+	inspect: boolean;
 	'inspect-brk': boolean;
 	'trace-exit': boolean;
 	'trace-uncaught': boolean;

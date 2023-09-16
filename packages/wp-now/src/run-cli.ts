@@ -82,8 +82,7 @@ export async function runCli() {
 					type: 'number',
 				});
 				yargs.option('inspect', {
-					describe:
-						'Use Node debugging client.',
+					describe: 'Use Node debugging client.',
 					type: 'number',
 				});
 				yargs.option('inspect-brk', {
