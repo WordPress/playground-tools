@@ -170,17 +170,6 @@ export default async function startWPNow(
 		}
 	};
 
-	const spawnSetupAndLogin = async () => {
-		const instance = await spawnInstance();
-		await setUpWordPress(instance);
-		await login(instance, { username: 'admin', password: 'password' });
-		return instance;
-	};
-
-	poolOptions.spawner = spawnSetupAndLogin;
-
-	const pool = new Pool(poolOptions);
-
 	await applyToInstances(phpInstances, setUpWordPress);
 
 	if (options.blueprintObject) {
@@ -199,6 +188,20 @@ export default async function startWPNow(
 		username: 'admin',
 		password: 'password',
 	});
+
+	const initialCookies = php.requestHandler.serializeCookies().split(';');
+
+	const spawnSetupAndLogin = async () => {
+		const instance = await spawnInstance();
+		await setUpWordPress(instance);
+		instance.requestHandler.setCookies(initialCookies);
+		// await login(instance, { username: 'admin', password: 'password' });
+		return instance;
+	};
+
+	poolOptions.spawner = spawnSetupAndLogin;
+
+	const pool = new Pool(poolOptions);
 
 	const isFirstTimeProject = !fs.existsSync(options.wpContentPath);
 
