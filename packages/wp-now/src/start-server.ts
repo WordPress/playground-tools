@@ -28,9 +28,11 @@ function requestBodyToMultipartFormData(json, boundary) {
 const requestBodyToString = async (req) =>
 	await new Promise((resolve) => {
 		let body = '';
+		
 		req.on('data', (chunk) => {
 			body += chunk.toString(); // convert Buffer to string
 		});
+		
 		req.on('end', () => {
 			resolve(body);
 		});

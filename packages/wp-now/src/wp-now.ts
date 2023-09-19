@@ -123,7 +123,7 @@ export default async function startWPNow(
 			return instance;
 		};
 
-		await phpInstances.map((instance) => runIndexMode(instance, options));
+		await Promise.all(phpInstances.map((instance) => runIndexMode(instance, options)));
 
 		poolOptions.spawner = spawnAndSetup;
 
