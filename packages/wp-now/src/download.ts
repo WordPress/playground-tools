@@ -11,6 +11,45 @@ import getWpNowPath from './get-wp-now-path';
 import getWordpressVersionsPath from './get-wordpress-versions-path';
 import getSqlitePath from './get-sqlite-path';
 import getWpCliPath from './get-wp-cli-path';
+import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
+
+function httpsGet(url: string, callback: Function) {
+	const isBehindHttpProxy =
+		(process.env.http_proxy && process.env.http_proxy !== '') ||
+		(process.env.HTTP_PROXY && process.env.HTTP_PROXY !== '');
+
+	const isBehindHttpsProxy =
+		(process.env.https_proxy && process.env.https_proxy !== '') ||
+		(process.env.HTTPS_PROXY && process.env.HTTPS_PROXY !== '');
+
+	let agent;
+
+	if (isBehindHttpProxy || isBehindHttpsProxy) {
+		const urlParts = new URL(url);
+
+		let Agent;
+
+		if (urlParts.protocol === 'https:') {
+			Agent = HttpsProxyAgent;
+		} else if (urlParts.protocol === 'http:') {
+			Agent = HttpProxyAgent;
+		}
+
+		let proxy;
+
+		if (isBehindHttpsProxy) {
+			proxy = process.env.https_proxy ?? process.env.HTTPS_PROXY;
+		} else if (isBehindHttpProxy) {
+			proxy = process.env.http_proxy ?? process.env.HTTP_PROXY;
+		}
+
+		if (Agent && proxy) {
+			agent = new Agent({ proxy });
+		}
+	}
+
+	https.get(url, { agent }, callback);
+}
 
 function getWordPressVersionUrl(version = DEFAULT_WORDPRESS_VERSION) {
 	if (!isValidWordPressVersion(version)) {
@@ -41,7 +80,7 @@ async function downloadFile({
 		}
 		fs.ensureDirSync(path.dirname(destinationFilePath));
 		const response = await new Promise<IncomingMessage>((resolve) =>
-			https.get(url, (response) => resolve(response))
+			httpsGet(url, (response) => resolve(response))
 		);
 		statusCode = response.statusCode;
 		if (response.statusCode !== 200) {
@@ -96,7 +135,7 @@ async function downloadFileAndUnzip({
 
 		output?.log(`Downloading ${itemName}...`);
 		const response = await new Promise<IncomingMessage>((resolve) =>
-			https.get(url, (response) => resolve(response))
+			httpsGet(url, (response) => resolve(response))
 		);
 		statusCode = response.statusCode;
 
