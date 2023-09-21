@@ -14,38 +14,19 @@ import { output } from './output';
 import { isValidWordPressVersion } from './wp-playground-wordpress';
 
 function httpsGet(url: string, callback: Function) {
-	const isBehindHttpProxy =
-		(process.env.http_proxy && process.env.http_proxy !== '') ||
-		(process.env.HTTP_PROXY && process.env.HTTP_PROXY !== '');
+	const proxy =
+		process.env.https_proxy ||
+		process.env.HTTPS_PROXY ||
+		process.env.http_proxy ||
+		process.env.HTTP_PROXY;
 
-	const isBehindHttpsProxy =
-		(process.env.https_proxy && process.env.https_proxy !== '') ||
-		(process.env.HTTPS_PROXY && process.env.HTTPS_PROXY !== '');
+	let agent: HttpsProxyAgent | HttpProxyAgent | undefined;
 
-	let agent;
-
-	if (isBehindHttpProxy || isBehindHttpsProxy) {
+	if (proxy) {
 		const urlParts = new URL(url);
-
-		let Agent;
-
-		if (urlParts.protocol === 'https:') {
-			Agent = HttpsProxyAgent;
-		} else if (urlParts.protocol === 'http:') {
-			Agent = HttpProxyAgent;
-		}
-
-		let proxy;
-
-		if (isBehindHttpsProxy) {
-			proxy = process.env.https_proxy ?? process.env.HTTPS_PROXY;
-		} else if (isBehindHttpProxy) {
-			proxy = process.env.http_proxy ?? process.env.HTTP_PROXY;
-		}
-
-		if (Agent && proxy) {
-			agent = new Agent({ proxy });
-		}
+		const Agent =
+			urlParts.protocol === 'https:' ? HttpsProxyAgent : HttpProxyAgent;
+		agent = new Agent({ proxy });
 	}
 
 	https.get(url, { agent }, callback);
