@@ -1,16 +1,36 @@
-import fs from 'fs-extra';
-import path from 'path';
 import followRedirects from 'follow-redirects';
-import unzipper from 'unzipper';
-import os from 'os';
+import fs from 'fs-extra';
+import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
 import { IncomingMessage } from 'http';
+import os from 'os';
+import path from 'path';
+import unzipper from 'unzipper';
 import { DEFAULT_WORDPRESS_VERSION, SQLITE_URL, WP_CLI_URL } from './constants';
-import { isValidWordPressVersion } from './wp-playground-wordpress';
-import { output } from './output';
-import getWpNowPath from './get-wp-now-path';
-import getWordpressVersionsPath from './get-wordpress-versions-path';
 import getSqlitePath from './get-sqlite-path';
+import getWordpressVersionsPath from './get-wordpress-versions-path';
 import getWpCliPath from './get-wp-cli-path';
+import getWpNowPath from './get-wp-now-path';
+import { output } from './output';
+import { isValidWordPressVersion } from './wp-playground-wordpress';
+
+function httpsGet(url: string, callback: Function) {
+	const proxy =
+		process.env.https_proxy ||
+		process.env.HTTPS_PROXY ||
+		process.env.http_proxy ||
+		process.env.HTTP_PROXY;
+
+	let agent: HttpsProxyAgent | HttpProxyAgent | undefined;
+
+	if (proxy) {
+		const urlParts = new URL(url);
+		const Agent =
+			urlParts.protocol === 'https:' ? HttpsProxyAgent : HttpProxyAgent;
+		agent = new Agent({ proxy });
+	}
+
+	https.get(url, { agent }, callback);
+}
 
 function getWordPressVersionUrl(version = DEFAULT_WORDPRESS_VERSION) {
 	if (!isValidWordPressVersion(version)) {
@@ -41,7 +61,7 @@ async function downloadFile({
 		}
 		fs.ensureDirSync(path.dirname(destinationFilePath));
 		const response = await new Promise<IncomingMessage>((resolve) =>
-			https.get(url, (response) => resolve(response))
+			httpsGet(url, (response) => resolve(response))
 		);
 		statusCode = response.statusCode;
 		if (response.statusCode !== 200) {
@@ -96,7 +116,7 @@ async function downloadFileAndUnzip({
 
 		output?.log(`Downloading ${itemName}...`);
 		const response = await new Promise<IncomingMessage>((resolve) =>
-			https.get(url, (response) => resolve(response))
+			httpsGet(url, (response) => resolve(response))
 		);
 		statusCode = response.statusCode;
 
