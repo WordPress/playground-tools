@@ -112,7 +112,7 @@ export default async function startWPNow(
 
 	const poolOptions = {
 		spawner: spawnInstance,
-		maxRequests: options.maxRequests ?? 512,
+		maxRequests: options.maxRequests ?? 128,
 		maxJobs: 1,
 	};
 

@@ -56,7 +56,7 @@ export const DEFAULT_OPTIONS: WPNowOptions = {
 	projectPath: process.cwd(),
 	mode: WPNowMode.AUTO,
 	numberOfPhpInstances: 1,
-	maxRequests: 512,
+	maxRequests: 128,
 	reset: false,
 };
 
