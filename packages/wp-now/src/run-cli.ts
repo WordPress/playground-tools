@@ -81,6 +81,11 @@ export async function runCli() {
 						'Max number of requests before refreshing PHP instance.',
 					type: 'number',
 				});
+				yargs.option('maxJobs', {
+					describe:
+						'Max number of concurrent PHP instances.',
+					type: 'number',
+				});
 				yargs.option('inspect', {
 					describe: 'Use Node debugging client.',
 					type: 'number',
@@ -117,6 +122,7 @@ export async function runCli() {
 						blueprint: argv.blueprint as string,
 						reset: argv.reset as boolean,
 						maxRequests: argv.maxRequests as number,
+						maxJobs: argv.maxJobs as number,
 					});
 					portFinder.setPort(options.port as number);
 					const { url } = await startServer(options);

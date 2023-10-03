@@ -21,6 +21,7 @@ export interface CliOptions {
 	blueprint?: string;
 	reset?: boolean;
 	maxRequests?: number;
+	maxJobs?: number;
 }
 
 export const enum WPNowMode {
@@ -45,6 +46,7 @@ export interface WPNowOptions {
 	wordPressVersion?: string;
 	numberOfPhpInstances?: number;
 	maxRequests?: number;
+	maxJobs?: number;
 	blueprintObject?: Blueprint;
 	reset?: boolean;
 }
@@ -57,6 +59,7 @@ export const DEFAULT_OPTIONS: WPNowOptions = {
 	mode: WPNowMode.AUTO,
 	numberOfPhpInstances: 1,
 	maxRequests: 128,
+	maxJobs: 1,
 	reset: false,
 };
 
@@ -115,6 +118,7 @@ export default async function getWpNowConfig(
 		projectPath: args.path as string,
 		wordPressVersion: args.wp as string,
 		maxRequests: args.maxRequests as number,
+		maxJobs: args.maxJobs as number,
 		port,
 		reset: args.reset as boolean,
 	};
