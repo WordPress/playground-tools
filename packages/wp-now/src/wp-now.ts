@@ -198,7 +198,6 @@ export default async function startWPNow(
 		const instance = await spawnInstance();
 		await setUpWordPress(instance);
 		instance.requestHandler.setCookies(initialCookies);
-		// await login(instance, { username: 'admin', password: 'password' });
 		return instance;
 	};
 

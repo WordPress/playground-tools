@@ -19,14 +19,14 @@ class PoolInfo {
  * @param pool the pool object to work on
  * @private
  */
-const spawn = (pool: Pool) => {
+const spawn = async (pool: Pool) => {
 	const newInstances = new Set();
 
 	if (pool.maxJobs <= 0) return newInstances;
 
 	while (pool.instanceInfo.size < pool.maxJobs) {
 		const info = new PoolInfo();
-		const instance = pool.spawn();
+		const instance = await pool.spawn();
 		pool.instanceInfo.set(instance, info);
 		info.active = true;
 		newInstances.add(instance);
@@ -45,7 +45,7 @@ const reap = (pool: Pool) => {
 		if (pool.maxRequests > 0 && info.requests >= pool.maxRequests) {
 			info.active = false;
 			pool.instanceInfo.delete(instance);
-			instance.then((unwrapped) => unwrapped.exit()).catch(() => {});
+			instance.exit().catch(() => {});
 			continue;
 		}
 	}
@@ -116,7 +116,7 @@ const getIdleInstance = (pool) => {
 export class Pool {
 	instanceInfo = new Map(); // php => PoolInfo
 
-	spawn: () => Promise<any>; // Callback to create new instances.
+	spawn: () => Promise<any>; // Async callback to create new instances.
 	maxRequests: number; // Max requests to feed each instance
 	maxJobs: number; // Max number of instances to maintain at once.
 
@@ -174,7 +174,7 @@ export class Pool {
 			this.running.delete(instance);
 
 			reap(this);
-			const newInstances = spawn(this);
+			const newInstances = await spawn(this);
 
 			// Break out here if the backlog is empty.
 			if (!this.backlog.length) {
@@ -205,7 +205,7 @@ export class Pool {
 			try {
 				// Don't ACTUALLY do anything until the
 				// instance is done spawning.
-				request = next(await nextInstance);
+				request = next(nextInstance);
 			} catch (error) {
 				// Re-queue the request if the instance
 				// failed initialization.
@@ -257,7 +257,7 @@ export class Pool {
 		try {
 			// Don't ACTUALLY do anything until the
 			// instance is done spawning.
-			request = item(await idleInstance);
+			request = item(idleInstance);
 		} catch (error) {
 			// Re-queue the request if the instance
 			// failed initialization.
