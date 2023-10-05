@@ -3,8 +3,8 @@ import { NodePHP } from '@php-wasm/node';
 let childCount = 0;
 
 /**
- * PRIVATE
  * Tracks stats of instances in a pool.
+ * @private
  */
 class PoolInfo {
 	id = childCount++; // Unique ID for debugging purposes.
@@ -14,14 +14,15 @@ class PoolInfo {
 }
 
 /**
- * PRIVATE
  * Spawns new instances if the pool is not full.
  * Returns a list of new instances.
+ * @param pool the pool object to work on
+ * @private
  */
-const spawn = (pool) => {
+const spawn = (pool:Pool) => {
 	const newInstances = new Set();
 
-	if ( pool.maxJobs <= 0 ) return newInstances;
+	if (pool.maxJobs <= 0) return newInstances;
 
 	while (pool.instanceInfo.size < pool.maxJobs) {
 		const info = new PoolInfo();
@@ -35,25 +36,29 @@ const spawn = (pool) => {
 };
 
 /**
- * PRIVATE
  * Reaps children if they've passed the maxRequest count.
+ * @param pool the pool object to work on
+ * @private
  */
-const reap = (pool) => {
+const reap = (pool:Pool) => {
 	for (const [instance, info] of pool.instanceInfo) {
 		if (pool.maxRequests > 0 && info.requests >= pool.maxRequests) {
 			info.active = false;
 			pool.instanceInfo.delete(instance);
-			instance.then((unwrapped) => unwrapped.exit()).catch((error) => {});
+			instance.then((unwrapped) => unwrapped.exit()).catch(() => {});
 			continue;
 		}
 	}
 };
 
 /**
- * PRIVATE
  * Handle fatal errors gracefully.
+ * @param pool the pool object to work on
+ * @param instance the php instance to clean up
+ * @param error the actual error that got us here
+ * @private
  */
-const fatal = (pool, instance, error) => {
+const fatal = (pool:Pool, instance:NodePHP, error:Error) => {
 	console.error(error);
 
 	if (pool.instanceInfo.has(instance)) {
@@ -64,8 +69,8 @@ const fatal = (pool, instance, error) => {
 };
 
 /**
- * PRIVATE
  * Find the next available idle instance.
+ * @private
  */
 const getIdleInstance = (pool) => {
 	const sorted = [...pool.instanceInfo].sort(
@@ -90,6 +95,23 @@ const getIdleInstance = (pool) => {
  * Maintains and refreshes a list of php instances
  * such that each one will only be fed X number of requests
  * before being discarded and replaced.
+ *
+ * Since we're dealing with a linear, "physical" memory array, as opposed to a
+ * virtual memory system afforded by most modern OSes, we're prone to things
+ * like memory fragmentation. In that situation, we could have the entire
+ * gigabyte empty except for a few sparse allocations. If no contiguous region
+ * of memory exists for the length requested, memory allocations will fail.
+ * This tends to happen when a new request attempts to initialize a heap
+ * structure but cannot find a contiguous 2mb chunk of memory.
+ *
+ * We can go as far as debugging PHP itself, and contributing the fix upstream.
+ * But even in this case we cannot guarantee that a third party extension will
+ * not introduce a leak sometime in the future. Therefore, we should have a
+ * solution robust to memory leaks that come from upstream code. I think that
+ * following the native strategy is the best way.
+ *
+ * https://www.php.net/manual/en/install.fpm.configuration.php#pm.max-requests
+ *
  */
 export class Pool {
 	instanceInfo = new Map(); // php => PoolInfo
@@ -102,6 +124,10 @@ export class Pool {
 	running = new Set(); // Set of busy PHP instances.
 	backlog = []; // Set of request callbacks waiting to be run.
 
+	/**
+	 * Create a new pool.
+	 * @param options - {spawner, maxRequests, maxJobs}
+	 */
 	constructor({
 		spawner = async (): Promise<any> => {},
 		maxRequests = 128,
@@ -117,6 +143,8 @@ export class Pool {
 	/**
 	 * Queue up a callback that will make a request when an
 	 * instance becomes idle.
+	 * @param item Callback to run when intance becomes available. Should accept the instance as the first and only param, and return a promise that resolves when the request is complete.
+	 * @public
 	 */
 	async enqueue(item: (php: NodePHP) => Promise<any>) {
 		const idleInstance = getIdleInstance(this);
@@ -125,10 +153,10 @@ export class Pool {
 			// Defer the callback if we don't have an idle instance available.
 			this.backlog.push(item);
 
-			// Split a promise open so it can be accepted or
+			// Split a promise open so it can be resolved or
 			// rejected later when the item is processed.
-			const notifier = new Promise((accept, reject) =>
-				this.resolvers.set(item, { accept, reject })
+			const notifier = new Promise((resolve, reject) =>
+				this.resolvers.set(item, { resolve, reject })
 			);
 
 			// Return the notifier so async calling code
@@ -199,20 +227,20 @@ export class Pool {
 				completed();
 			});
 
-			// Grab the accept handler from the notfier
+			// Grab the resolve handler from the notfier
 			// promise and run it if the request resolves.
 			request.then((ret) => {
-				const notifier = this.resolvers.get(next);
+				const resolver = this.resolvers.get(next);
 				this.resolvers.delete(next);
-				notifier.accept(ret);
+				resolver.resolve(ret);
 			});
 
 			// Grab the reject handler from the notfier
 			// promise and run it if the request rejects.
 			request.catch((error) => {
-				const notifier = this.resolvers.get(next);
+				const resolver = this.resolvers.get(next);
 				this.resolvers.delete(next);
-				notifier.reject(error);
+				resolver.reject(error);
 				// Catch any errors and log to the console.
 				// Deactivate the instance.
 				fatal(this, nextInstance, error);
@@ -239,10 +267,10 @@ export class Pool {
 			// Deactivate the instance.
 			fatal(this, idleInstance, error);
 
-			// Split a promise open so it can be accepted or
+			// Split a promise open so it can be resolved or
 			// rejected later when the item is processed.
-			const notifier = new Promise((accept, reject) =>
-				this.resolvers.set(item, { accept, reject })
+			const notifier = new Promise((resolve, reject) =>
+				this.resolvers.set(item, { resolve, reject })
 			);
 
 			// Return the notifier so async calling code
