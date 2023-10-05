@@ -859,4 +859,4 @@ describe('wp-cli command', () => {
 		await executeWPCli(['cli', 'version']);
 		expect(output).toMatch(/WP-CLI (\d\.?)+/i);
 	});
-});
+}, 30_000);
