@@ -45,7 +45,8 @@ const reap = (pool: Pool) => {
 		if (pool.maxRequests > 0 && info.requests >= pool.maxRequests) {
 			info.active = false;
 			pool.instanceInfo.delete(instance);
-			instance.exit().catch(() => {});
+			try { instance.exit(); }
+			catch {}
 			continue;
 		}
 	}
@@ -136,8 +137,6 @@ export class Pool {
 		this.spawn = spawner;
 		this.maxRequests = maxRequests;
 		this.maxJobs = maxJobs;
-		reap(this);
-		spawn(this);
 	}
 
 	/**
@@ -147,6 +146,9 @@ export class Pool {
 	 * @public
 	 */
 	async enqueue(item: (php: NodePHP) => Promise<any>) {
+		reap(this);
+		await spawn(this);
+
 		const idleInstance = getIdleInstance(this);
 
 		if (!idleInstance) {
