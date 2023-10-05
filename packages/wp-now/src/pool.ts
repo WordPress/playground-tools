@@ -48,7 +48,7 @@ const reap = (pool: Pool) => {
 			try {
 				instance.exit();
 			} catch {
-				(() => {})();
+				() => void 0;
 			}
 			continue;
 		}
