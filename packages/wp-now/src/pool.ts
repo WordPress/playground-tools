@@ -45,8 +45,11 @@ const reap = (pool: Pool) => {
 		if (pool.maxRequests > 0 && info.requests >= pool.maxRequests) {
 			info.active = false;
 			pool.instanceInfo.delete(instance);
-			try { instance.exit(); }
-			catch {}
+			try {
+				instance.exit();
+			} catch {
+				(() => {})();
+			}
 			continue;
 		}
 	}
