@@ -19,7 +19,7 @@ class PoolInfo {
  * @param pool the pool object to work on
  * @private
  */
-const spawn = (pool:Pool) => {
+const spawn = (pool: Pool) => {
 	const newInstances = new Set();
 
 	if (pool.maxJobs <= 0) return newInstances;
@@ -40,7 +40,7 @@ const spawn = (pool:Pool) => {
  * @param pool the pool object to work on
  * @private
  */
-const reap = (pool:Pool) => {
+const reap = (pool: Pool) => {
 	for (const [instance, info] of pool.instanceInfo) {
 		if (pool.maxRequests > 0 && info.requests >= pool.maxRequests) {
 			info.active = false;
@@ -58,7 +58,7 @@ const reap = (pool:Pool) => {
  * @param error the actual error that got us here
  * @private
  */
-const fatal = (pool:Pool, instance:NodePHP, error:Error) => {
+const fatal = (pool: Pool, instance: NodePHP, error: Error) => {
 	console.error(error);
 
 	if (pool.instanceInfo.has(instance)) {

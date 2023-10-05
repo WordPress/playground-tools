@@ -82,8 +82,7 @@ export async function runCli() {
 					type: 'number',
 				});
 				yargs.option('maxJobs', {
-					describe:
-						'Max number of concurrent PHP instances.',
+					describe: 'Max number of concurrent PHP instances.',
 					type: 'number',
 				});
 				yargs.option('inspect', {
