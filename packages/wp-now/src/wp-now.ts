@@ -117,15 +117,15 @@ export default async function startWPNow(
 	};
 
 	if (options.mode === WPNowMode.INDEX) {
+		await applyToInstances(phpInstances, async (_php:NodePHP) => {
+			runIndexMode(_php, options);
+		});
+
 		const spawnAndSetup = async () => {
 			const instance = await spawnInstance();
 			await runIndexMode(instance, options);
 			return instance;
 		};
-
-		await Promise.all(
-			phpInstances.map((instance) => runIndexMode(instance, options))
-		);
 
 		poolOptions.spawner = spawnAndSetup;
 
@@ -149,7 +149,8 @@ export default async function startWPNow(
 		);
 	}
 
-	const setUpWordPress = async (_php) => {
+	const isFirstTimeProject = !fs.existsSync(options.wpContentPath);
+	const setUpWordPress = async (_php:NodePHP) => {
 		switch (options.mode) {
 			case WPNowMode.WP_CONTENT:
 				await runWpContentMode(_php, options);
@@ -204,8 +205,6 @@ export default async function startWPNow(
 	poolOptions.spawner = spawnSetupAndLogin;
 
 	const pool = new Pool(poolOptions);
-
-	const isFirstTimeProject = !fs.existsSync(options.wpContentPath);
 
 	if (
 		isFirstTimeProject &&
