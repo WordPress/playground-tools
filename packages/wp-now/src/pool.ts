@@ -4,10 +4,10 @@ type request = (instance: instance) => Promise<any>;
 
 export type poolOptions = {
 	spawn: () => Promise<instance>;
-	reap: (instance: instance) => void;
-	fatal: (instance: instance, error: any) => void;
-	maxRequests: number;
-	maxJobs: number;
+	reap?: (instance: instance) => void;
+	fatal?: (instance: instance, error: any) => any;
+	maxRequests?: number;
+	maxJobs?: number;
 };
 
 let childCount = 0;
@@ -145,10 +145,14 @@ export class Pool {
 	constructor({
 		maxRequests = 128,
 		maxJobs = 1,
-		spawn = async (): Promise<any> => {},
+		spawn = undefined,
 		fatal = (instance: instance, error: any) => error,
 		reap = (instance: instance) => {},
 	} = {}) {
+		if (!spawn) {
+			throw new Error('Spawn method is required for pool.');
+		}
+
 		Object.defineProperties(this, {
 			maxRequests: { value: maxRequests },
 			maxJobs: { value: maxJobs },

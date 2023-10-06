@@ -33,7 +33,7 @@ import getWordpressVersionsPath from './get-wordpress-versions-path';
 import getSqlitePath from './get-sqlite-path';
 
 import { Pool, poolOptions } from './pool';
-import { PHPResponse } from '@php-wasm/universal';
+import { NodePool, nodePoolOptions } from './node-pool';
 
 function seemsLikeAPHPFile(path) {
 	return path.endsWith('.php') || path.includes('.php/');
@@ -111,25 +111,8 @@ export default async function startWPNow(
 	output?.log(`mode: ${options.mode}`);
 	output?.log(`php: ${options.phpVersion}`);
 
-	const poolOptions: poolOptions = {
+	const poolOptions: nodePoolOptions = {
 		spawn: spawnInstance,
-		reap: (instance: NodePHP) => {
-			try {
-				instance.exit();
-			} catch {
-				void 0;
-			}
-		},
-		fatal: (instance: NodePHP, error: any) =>
-			new PHPResponse(
-				500,
-				{},
-				new TextEncoder().encode(
-					`500 Internal Server Error:\n\n${String(
-						error && error.stack ? error.stack : error
-					)}`
-				)
-			),
 		maxRequests: options.maxRequests ?? 128,
 		maxJobs: options.maxJobs ?? 1,
 	};
@@ -147,7 +130,7 @@ export default async function startWPNow(
 
 		poolOptions.spawn = spawnAndSetup;
 
-		const pool = new Pool(poolOptions);
+		const pool = new NodePool(poolOptions);
 
 		return { php, phpInstances, options, pool };
 	}
@@ -228,7 +211,7 @@ export default async function startWPNow(
 		await activatePluginOrTheme(php, options);
 	}
 
-	const pool = new Pool(poolOptions);
+	const pool = new NodePool(poolOptions);
 
 	return { php, phpInstances, options, pool };
 }
