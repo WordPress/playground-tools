@@ -32,7 +32,6 @@ import getWpNowPath from './get-wp-now-path';
 import getWordpressVersionsPath from './get-wordpress-versions-path';
 import getSqlitePath from './get-sqlite-path';
 
-import { Pool, poolOptions } from './pool';
 import { NodePool, nodePoolOptions } from './node-pool';
 
 function seemsLikeAPHPFile(path) {
@@ -51,7 +50,7 @@ export default async function startWPNow(
 	php: NodePHP;
 	phpInstances: NodePHP[];
 	options: WPNowOptions;
-	pool: Pool;
+	pool: NodePool;
 }> {
 	const { documentRoot } = options;
 
