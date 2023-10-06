@@ -69,9 +69,10 @@ const reap = (pool: Pool) => {
  * @private
  */
 const fatal = (pool: Pool, instance: instance, error: Error) => {
+
 	console.error(error);
 
-	if (pool.instanceInfo.has(instance)) {
+	if (instance && pool.instanceInfo.has(instance)) {
 		const info = pool.instanceInfo.get(instance);
 		info.active = false;
 		pool.instanceInfo.delete(instance);
@@ -170,12 +171,18 @@ export class Pool {
 	 */
 	async enqueue(item: request): Promise<any> {
 		reap(this);
-		await spawn(this);
 
-		const idleInstance = getIdleInstance(this);
+		let idleInstance;
 
+		try {
+			await spawn(this);
+			idleInstance = getIdleInstance(this);
+		} catch (error) {
+			return Promise.reject(fatal(this, idleInstance, error));
+		}
+
+		// Defer the callback if we don't have an idle instance available.
 		if (!idleInstance) {
-			// Defer the callback if we don't have an idle instance available.
 			this.backlog.push(item);
 
 			// Split a promise open so it can be resolved or
@@ -194,10 +201,10 @@ export class Pool {
 		// after the instance processes a request, and optionally
 		// will also kick off the next request.
 		const onCompleted = (instance) => async () => {
+
 			this.running.delete(instance);
 
 			reap(this);
-			const newInstances = await spawn(this);
 
 			// Break out here if the backlog is empty.
 			if (!this.backlog.length) {
@@ -208,15 +215,6 @@ export class Pool {
 			// so we can re-use it...
 			let nextInstance = instance;
 
-			// ... but, if we've just spanwed a fresh
-			// instance, use that one instead.
-			if (newInstances.size) {
-				for (const instance of newInstances) {
-					nextInstance = instance;
-					break;
-				}
-			}
-
 			const next = this.backlog.shift();
 			const info = this.instanceInfo.get(nextInstance);
 
@@ -226,6 +224,17 @@ export class Pool {
 			let request;
 
 			try {
+				const newInstances = await spawn(this);
+
+				// ... but, if we've just spanwed a fresh
+				// instance, use that one instead.
+				if (newInstances.size) {
+					for (const instance of newInstances) {
+						nextInstance = instance;
+						break;
+					}
+				}
+
 				request = next(nextInstance);
 			} catch (error) {
 				// Grab the reject handler from the notfier
@@ -270,7 +279,6 @@ export class Pool {
 		let request;
 
 		// If we've got an instance available, run the provided callback.
-
 		try {
 			request = item(idleInstance);
 		} catch (error) {
