@@ -32,7 +32,8 @@ import getWpNowPath from './get-wp-now-path';
 import getWordpressVersionsPath from './get-wordpress-versions-path';
 import getSqlitePath from './get-sqlite-path';
 
-import { Pool } from './pool';
+import { Pool, poolOptions } from './pool';
+import { PHPResponse } from '@php-wasm/universal';
 
 function seemsLikeAPHPFile(path) {
 	return path.endsWith('.php') || path.includes('.php/');
@@ -110,8 +111,22 @@ export default async function startWPNow(
 	output?.log(`mode: ${options.mode}`);
 	output?.log(`php: ${options.phpVersion}`);
 
-	const poolOptions = {
-		spawner: spawnInstance,
+	const poolOptions: poolOptions = {
+		spawn: spawnInstance,
+		reap: (instance:NodePHP) => {
+			try {
+				instance.exit();
+			} catch {
+				void 0;
+			}
+		},
+		fatal: (instance:NodePHP, error:any) => new PHPResponse(
+			500,
+			{},
+			new TextEncoder().encode(
+				`500 Internal Server Error:\n\n${String((error && error.stack) ? error.stack : error)}`
+			)
+		),
 		maxRequests: options.maxRequests ?? 128,
 		maxJobs: options.maxJobs ?? 1,
 	};
@@ -127,7 +142,7 @@ export default async function startWPNow(
 			return instance;
 		};
 
-		poolOptions.spawner = spawnAndSetup;
+		poolOptions.spawn = spawnAndSetup;
 
 		const pool = new Pool(poolOptions);
 
@@ -201,7 +216,7 @@ export default async function startWPNow(
 		return instance;
 	};
 
-	poolOptions.spawner = spawnSetupAndLogin;
+	poolOptions.spawn = spawnSetupAndLogin;
 
 	if (
 		isFirstTimeProject &&

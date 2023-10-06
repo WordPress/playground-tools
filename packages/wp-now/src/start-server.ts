@@ -106,7 +106,14 @@ export async function startServer(
 				body: body as string,
 			};
 
-			const resp = await pool.enqueue((php) => php.request(data));
+			let resp;
+
+			try {
+				resp = await pool.enqueue((php) => php.request(data));
+			}
+			catch (error) {
+				resp = error;
+			}
 
 			res.statusCode = resp.httpStatusCode;
 

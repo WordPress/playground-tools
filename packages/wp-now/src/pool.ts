@@ -1,4 +1,14 @@
-import { NodePHP } from '@php-wasm/node';
+type instance = any;
+
+type request = (instance: instance) => Promise<any>;
+
+export type poolOptions = {
+	spawn: () => Promise<instance>,
+	reap: (instance:instance) => void,
+	fatal: (instance:instance, error:any) => void,
+	maxRequests: number
+	maxJobs: number
+};
 
 let childCount = 0;
 
@@ -45,11 +55,7 @@ const reap = (pool: Pool) => {
 		if (pool.maxRequests > 0 && info.requests >= pool.maxRequests) {
 			info.active = false;
 			pool.instanceInfo.delete(instance);
-			try {
-				instance.exit();
-			} catch {
-				void 0;
-			}
+			pool.reap(instance);
 			continue;
 		}
 	}
@@ -62,7 +68,7 @@ const reap = (pool: Pool) => {
  * @param error the actual error that got us here
  * @private
  */
-const fatal = (pool: Pool, instance: NodePHP, error: Error) => {
+const fatal = (pool: Pool, instance: instance, error: Error) => {
 	console.error(error);
 
 	if (pool.instanceInfo.has(instance)) {
@@ -70,6 +76,8 @@ const fatal = (pool: Pool, instance: NodePHP, error: Error) => {
 		info.active = false;
 		pool.instanceInfo.delete(instance);
 	}
+
+	return pool.fatal(instance, error);
 };
 
 /**
@@ -121,6 +129,8 @@ export class Pool {
 	instanceInfo = new Map(); // php => PoolInfo
 
 	spawn: () => Promise<any>; // Async callback to create new instances.
+	fatal: (instance: instance, error: any) => any; // Async callback called on instance fatal errors.
+	reap:  (instance: instance) => void; // Async callback called on destroyed instances.
 	maxRequests: number; // Max requests to feed each instance
 	maxJobs: number; // Max number of instances to maintain at once.
 
@@ -130,16 +140,22 @@ export class Pool {
 
 	/**
 	 * Create a new pool.
-	 * @param options - {spawner, maxRequests, maxJobs}
+	 * @param options - {spawn, maxRequests, maxJobs}
 	 */
 	constructor({
-		spawner = async (): Promise<any> => {},
 		maxRequests = 128,
 		maxJobs = 1,
+		spawn = async (): Promise<any> => {},
+		fatal = (instance: instance, request: request) => {},
+		reap = (instance: instance) => {},
 	} = {}) {
-		this.spawn = spawner;
-		this.maxRequests = maxRequests;
-		this.maxJobs = maxJobs;
+		Object.defineProperties(this, {
+			maxRequests: {value: maxRequests},
+			maxJobs: {value: maxJobs},
+			spawn: {value: spawn},
+			fatal: {value: fatal},
+			reap: {value: reap},
+		});
 	}
 
 	/**
@@ -148,7 +164,7 @@ export class Pool {
 	 * @param item Callback to run when intance becomes available. Should accept the instance as the first and only param, and return a promise that resolves when the request is complete.
 	 * @public
 	 */
-	async enqueue(item: (php: NodePHP) => Promise<any>) {
+	async enqueue(item: request): Promise<any> {
 		reap(this);
 		await spawn(this);
 
@@ -169,8 +185,6 @@ export class Pool {
 			// is finally processed.
 			return notifier;
 		}
-
-		// If we've got an instance available, run the provided callback.
 
 		// Given an instance, create a new callback that will clean up
 		// after the instance processes a request, and optionally
@@ -208,18 +222,13 @@ export class Pool {
 			let request;
 
 			try {
-				// Don't ACTUALLY do anything until the
-				// instance is done spawning.
 				request = next(nextInstance);
 			} catch (error) {
-				// Re-queue the request if the instance
-				// failed initialization.
-				this.backlog.unshift(next);
-
-				// Catch any errors and log to the console.
-				// Deactivate the instance.
-				fatal(this, nextInstance, error);
-
+				// Grab the reject handler from the notfier
+				// promise and run it if there is an error.
+				const resolver = this.resolvers.get(next);
+				this.resolvers.delete(next);
+				resolver.reject(fatal(this, nextInstance, error));
 				return;
 			}
 
@@ -245,10 +254,7 @@ export class Pool {
 			request.catch((error) => {
 				const resolver = this.resolvers.get(next);
 				this.resolvers.delete(next);
-				resolver.reject(error);
-				// Catch any errors and log to the console.
-				// Deactivate the instance.
-				fatal(this, nextInstance, error);
+				resolver.reject(fatal(this, nextInstance, error));
 			});
 		};
 
@@ -259,29 +265,12 @@ export class Pool {
 
 		let request;
 
+		// If we've got an instance available, run the provided callback.
+
 		try {
-			// Don't ACTUALLY do anything until the
-			// instance is done spawning.
 			request = item(idleInstance);
 		} catch (error) {
-			// Re-queue the request if the instance
-			// failed initialization.
-			this.backlog.unshift(item);
-
-			// Catch any errors and log to the console.
-			// Deactivate the instance.
-			fatal(this, idleInstance, error);
-
-			// Split a promise open so it can be resolved or
-			// rejected later when the item is processed.
-			const notifier = new Promise((resolve, reject) =>
-				this.resolvers.set(item, { resolve, reject })
-			);
-
-			// Return the notifier so async calling code
-			// can still respond correctly when the item
-			// is finally processed.
-			return notifier;
+			return Promise.reject(fatal(this, idleInstance, error));
 		}
 
 		// Make sure onComplete runs no matter how the request resolves.
