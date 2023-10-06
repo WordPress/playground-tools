@@ -3,11 +3,11 @@ type instance = any;
 type request = (instance: instance) => Promise<any>;
 
 export type poolOptions = {
-	spawn: () => Promise<instance>,
-	reap: (instance:instance) => void,
-	fatal: (instance:instance, error:any) => void,
-	maxRequests: number
-	maxJobs: number
+	spawn: () => Promise<instance>;
+	reap: (instance: instance) => void;
+	fatal: (instance: instance, error: any) => void;
+	maxRequests: number;
+	maxJobs: number;
 };
 
 let childCount = 0;
@@ -130,7 +130,7 @@ export class Pool {
 
 	spawn: () => Promise<any>; // Async callback to create new instances.
 	fatal: (instance: instance, error: any) => any; // Async callback called on instance fatal errors.
-	reap:  (instance: instance) => void; // Async callback called on destroyed instances.
+	reap: (instance: instance) => void; // Async callback called on destroyed instances.
 	maxRequests: number; // Max requests to feed each instance
 	maxJobs: number; // Max number of instances to maintain at once.
 
@@ -146,15 +146,15 @@ export class Pool {
 		maxRequests = 128,
 		maxJobs = 1,
 		spawn = async (): Promise<any> => {},
-		fatal = (instance: instance, request: request) => {},
+		fatal = (instance: instance, error: any) => error,
 		reap = (instance: instance) => {},
 	} = {}) {
 		Object.defineProperties(this, {
-			maxRequests: {value: maxRequests},
-			maxJobs: {value: maxJobs},
-			spawn: {value: spawn},
-			fatal: {value: fatal},
-			reap: {value: reap},
+			maxRequests: { value: maxRequests },
+			maxJobs: { value: maxJobs },
+			spawn: { value: spawn },
+			fatal: { value: fatal },
+			reap: { value: reap },
 		});
 	}
 

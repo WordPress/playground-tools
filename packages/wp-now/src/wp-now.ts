@@ -113,20 +113,23 @@ export default async function startWPNow(
 
 	const poolOptions: poolOptions = {
 		spawn: spawnInstance,
-		reap: (instance:NodePHP) => {
+		reap: (instance: NodePHP) => {
 			try {
 				instance.exit();
 			} catch {
 				void 0;
 			}
 		},
-		fatal: (instance:NodePHP, error:any) => new PHPResponse(
-			500,
-			{},
-			new TextEncoder().encode(
-				`500 Internal Server Error:\n\n${String((error && error.stack) ? error.stack : error)}`
-			)
-		),
+		fatal: (instance: NodePHP, error: any) =>
+			new PHPResponse(
+				500,
+				{},
+				new TextEncoder().encode(
+					`500 Internal Server Error:\n\n${String(
+						error && error.stack ? error.stack : error
+					)}`
+				)
+			),
 		maxRequests: options.maxRequests ?? 128,
 		maxJobs: options.maxJobs ?? 1,
 	};

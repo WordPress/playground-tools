@@ -110,8 +110,7 @@ export async function startServer(
 
 			try {
 				resp = await pool.enqueue((php) => php.request(data));
-			}
-			catch (error) {
+			} catch (error) {
 				resp = error;
 			}
 
