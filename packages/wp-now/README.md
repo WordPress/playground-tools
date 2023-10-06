@@ -6,15 +6,38 @@ It uses automatic mode detection to provide a fast setup process, regardless of 
 
 ![Demo GIF of wp-now](https://github.com/WordPress/wordpress-playground/assets/36432/474ecb85-d789-4db9-b820-a19c25da79ad)
 
-## Getting Started
 
-To install `wp-now` directly from `npm`:
+## Table of Contents
+
+- [Requirements](#requirements)
+- [Usage](#usage)
+	- [Automatic Modes](#automatic-modes)
+	- [Arguments](#arguments)
+- [Technical Details](#technical-details)
+- [Using Blueprints](#using-blueprints)
+	- [Defining Custom URLs](#defining-custom-urls)
+	- [Defining Debugging Constants](#defining-debugging-constants)
+- [Known Issues](#known-issues)
+- [Comparisons](#comparisons)
+	- [Laravel Valet](#laravel-valet)
+	- [wp-env](#wp-env)
+- [Contributing](#contributing)
+- [Testing](#testing)
+- [Publishing](#publishing)
+
+## Requirements
+
+Node 18 is the minimum supported version. Node 20 is required for Blueprint support.
+
+## Usage
+
+<img src="../../assets/wp-now-basics-diagram.png" width="600">
+
+To run `wp-now` you can use [`npx`](https://docs.npmjs.com/cli/v10/commands/npx) `@wp-now/wp-now` or you can install `@wp-now/wp-now` globally to just run `wp-now` from any directory:
 
 ```bash
 npm install -g @wp-now/wp-now
 ```
-
-Node 18 is the minimum supported version. Node 20 is required for Blueprint support.
 
 Alternatively, you can install `wp-now` via `git clone` if you'd like to hack on it too. See [Contributing](#contributing) for more details.
 
