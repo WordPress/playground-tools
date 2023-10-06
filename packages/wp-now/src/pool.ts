@@ -129,8 +129,8 @@ export class Pool {
 	instanceInfo = new Map(); // php => PoolInfo
 
 	spawn: () => Promise<any>; // Async callback to create new instances.
-	fatal: (instance: instance, error: any) => any; // Async callback called on instance fatal errors.
-	reap: (instance: instance) => void; // Async callback called on destroyed instances.
+	fatal: (instance: instance, error: any) => any; // Callback called on instance fatal errors.
+	reap: (instance: instance) => void; // Callback called on destroyed instances.
 	maxRequests: number; // Max requests to feed each instance
 	maxJobs: number; // Max number of instances to maintain at once.
 
