@@ -69,7 +69,6 @@ const reap = (pool: Pool) => {
  * @private
  */
 const fatal = (pool: Pool, instance: instance, error: Error) => {
-
 	console.error(error);
 
 	if (instance && pool.instanceInfo.has(instance)) {
@@ -201,7 +200,6 @@ export class Pool {
 		// after the instance processes a request, and optionally
 		// will also kick off the next request.
 		const onCompleted = (instance) => async () => {
-
 			this.running.delete(instance);
 
 			reap(this);
