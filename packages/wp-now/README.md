@@ -33,13 +33,19 @@ Node 18 is the minimum supported version. Node 20 is required for Blueprint supp
 
 <img src="../../assets/wp-now-basics-diagram.png" width="600">
 
-To run `wp-now` you can use [`npx`](https://docs.npmjs.com/cli/v10/commands/npx) `@wp-now/wp-now` or you can install `@wp-now/wp-now` globally to just run `wp-now` from any directory:
+To run `wp-now` with one command, you can use [npx](https://docs.npmjs.com/cli/v10/commands/npx):
+
+```bash
+npx @wp-now/wp-now start
+```
+
+You can also install `@wp-now/wp-now` globally to just run `wp-now` from any directory:
 
 ```bash
 npm install -g @wp-now/wp-now
 ```
 
-Alternatively, you can install `wp-now` via `git clone` if you'd like to hack on it too. See [Contributing](#contributing) for more details.
+Lastly, you can install `wp-now` via `git clone` if you'd like to hack on it too. See [Contributing](#contributing) for more details.
 
 Once installed, you can start a new server like so:
 
