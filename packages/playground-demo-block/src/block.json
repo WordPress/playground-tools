@@ -1,0 +1,79 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "wordpress-playground/playground-demo",
+	"version": "1.0.0",
+	"title": "Playground Demo",
+	"category": "widgets",
+	"icon": "wordpress",
+	"description": "Display demo in WordPress Playground",
+	"attributes": {
+		"codeEditor": {
+			"type": "boolean",
+			"default": false
+		},
+		"codeEditorReadOnly": {
+			"type": "boolean",
+			"default": false
+		},
+		"codeEditorMultipleFiles": {
+			"type": "boolean",
+			"default": true
+		},
+		"codeEditorMode": {
+			"type": "string",
+			"default": "plugin"
+		},
+		"files": {
+			"type": "array",
+			"default": [
+				{
+					"name": "index.js",
+					"file": ""
+				}
+			]
+		},
+		"logInUser": {
+			"type": "boolean",
+			"default": true
+		},
+		"landingPageUrl": {
+			"type": "string"
+		},
+		"createNewPost": {
+			"type": "boolean",
+			"default": false
+		},
+		"createNewPostType": {
+			"type": "string",
+			"default": "post"
+		},
+		"createNewPostTitle": {
+			"type": "string",
+			"default": "New Post"
+		},
+		"createNewPostContent": {
+			"type": "string"
+		},
+		"redirectToPost": {
+			"type": "boolean",
+			"default": false
+		},
+		"redirectToPostType": {
+			"type": "string",
+			"default": "front"
+		},
+		"blueprint": {
+			"type": "string"
+		}
+	},
+	"supports": {
+		"html": false
+	},
+	"textdomain": "playground-demo",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"viewScript": [ "file:./view.js", "react", "react-dom", "wp-components" ],
+	"render": "file:./render.php"
+}

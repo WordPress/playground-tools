@@ -1,0 +1,33 @@
+{
+	"name": "playground-demo",
+	"version": "0.0.1",
+	"description": "WordPress Playground as a Gutenberg block.",
+	"author": "Dawid Urbański",
+	"license": "GPL-2.0-or-later",
+	"main": "build/index.js",
+	"scripts": {
+		"build": "wp-scripts build",
+		"format": "wp-scripts format",
+		"lint:css": "wp-scripts lint-style",
+		"lint:js": "wp-scripts lint-js",
+		"packages-update": "wp-scripts packages-update",
+		"plugin-zip": "wp-scripts plugin-zip",
+		"start": "wp-scripts start"
+	},
+	"devDependencies": {
+		"@types/wordpress__block-editor": "^11.5.7",
+		"@wordpress/block-editor": "^12.14.0",
+		"@wordpress/prettier-config": "^3.3.0",
+		"@wordpress/scripts": "^26.16.0"
+	},
+	"dependencies": {
+		"@codemirror/lang-javascript": "^6.2.1",
+		"@codemirror/lang-json": "^6.0.1",
+		"@codemirror/lang-php": "^6.0.1",
+		"@uiw/react-codemirror": "^4.21.20",
+		"@wp-playground/blueprints": "^0.3.1",
+		"@wp-playground/client": "^0.3.1",
+		"immer": "^10.0.3",
+		"use-immer": "^0.9.0"
+	}
+}
