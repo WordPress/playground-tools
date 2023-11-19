@@ -22,10 +22,10 @@ import { Icon, plus, cancelCircleFilled, edit } from '@wordpress/icons';
 export type PlaygroundDemoProps = Attributes & {
 	showAddNewFile: boolean;
 	showFileControls: boolean;
-	onStateChange?: ( state: any ) => void;
+	onStateChange?: (state: any) => void;
 };
 
-export default function PlaygroundDemo( {
+export default function PlaygroundDemo({
 	codeEditor,
 	codeEditorReadOnly,
 	codeEditorMode,
@@ -41,77 +41,76 @@ export default function PlaygroundDemo( {
 	showAddNewFile = false,
 	showFileControls = false,
 	onStateChange,
-}: PlaygroundDemoProps ) {
-	const [ files, setFiles ] = useImmer< File[] >( [] );
+}: PlaygroundDemoProps) {
+	const [files, setFiles] = useImmer<File[]>([]);
 
-	const languages = new Map( [
-		[ 'js', javascript() ],
-		[ 'jsx', javascript( { jsx: true } ) ],
-		[ 'json', json() ],
-		[ 'php', php() ],
-	] );
+	const languages = new Map([
+		['js', javascript()],
+		['jsx', javascript({ jsx: true })],
+		['json', json()],
+		['php', php()],
+	]);
 
-	const iframeRef = useRef< HTMLIFrameElement >( null );
-	const playgroundClientRef = useRef< PlaygroundClient | null >( null );
-	const [ lastInput, setLastInput ] = useState( '' );
-	const [ currentPostId, setCurrentPostId ] = useState( 0 );
+	const iframeRef = useRef<HTMLIFrameElement>(null);
+	const playgroundClientRef = useRef<PlaygroundClient | null>(null);
+	const [lastInput, setLastInput] = useState('');
+	const [currentPostId, setCurrentPostId] = useState(0);
 
-	const [ isEditFileNameModalOpen, setEditFileNameModalOpen ] =
-		useState( false );
-	const [ isNewFileModalOpen, setNewFileModalOpen ] = useState( false );
-	const [ newFileName, setNewFileName ] = useState( '' );
+	const [isEditFileNameModalOpen, setEditFileNameModalOpen] = useState(false);
+	const [isNewFileModalOpen, setNewFileModalOpen] = useState(false);
+	const [newFileName, setNewFileName] = useState('');
 
-	const [ currentFileIndex, setCurrentFileIndex ] = useState( 0 );
-	const [ currentFileName, setCurrentFileName ] = useState( '' );
+	const [currentFileIndex, setCurrentFileIndex] = useState(0);
+	const [currentFileName, setCurrentFileName] = useState('');
 
-	const currentFileExtension = currentFileName.split( '.' ).pop();
+	const currentFileExtension = currentFileName.split('.').pop();
 	const currentFileLanguage = currentFileExtension
-		? languages.get( currentFileExtension )
+		? languages.get(currentFileExtension)
 		: javascript();
-	const editorLanguage = currentFileLanguage ? [ currentFileLanguage ] : [];
+	const editorLanguage = currentFileLanguage ? [currentFileLanguage] : [];
 
-	const updateFileName = useCallback( ( index: number, newName: string ) => {
-		setFiles( ( draft ) => {
-			draft[ index ].name = newName;
-		} );
-	}, [] );
+	const updateFileName = useCallback((index: number, newName: string) => {
+		setFiles((draft) => {
+			draft[index].name = newName;
+		});
+	}, []);
 
 	const updateFileContent = useCallback(
-		( index: number, newContent: string ) => {
-			setFiles( ( draft ) => {
-				draft[ index ].file = newContent;
-			} );
+		(index: number, newContent: string) => {
+			setFiles((draft) => {
+				draft[index].file = newContent;
+			});
 		},
 		[]
 	);
 
-	const removeFile = useCallback( ( index: number ) => {
-		setFiles( ( draft ) => {
-			draft.splice( index, 1 );
-		} );
-	}, [] );
+	const removeFile = useCallback((index: number) => {
+		setFiles((draft) => {
+			draft.splice(index, 1);
+		});
+	}, []);
 
-	const addFile = useCallback( ( name: string, content?: string ) => {
-		setFiles( ( draft ) => {
-			draft.push( {
+	const addFile = useCallback((name: string, content?: string) => {
+		setFiles((draft) => {
+			draft.push({
 				name,
 				file: content || '',
-			} );
-		} );
-	}, [] );
+			});
+		});
+	}, []);
 
 	const handleCodeInjection = async (
 		client: PlaygroundClient,
 		newFiles: File[]
 	) => {
-		if ( codeEditorMode === 'editor-script' ) {
-			await handleScriptInjection( client );
-		} else if ( codeEditorMode === 'plugin' ) {
-			await handlePluginCreation( client, newFiles );
+		if (codeEditorMode === 'editor-script') {
+			await handleScriptInjection(client);
+		} else if (codeEditorMode === 'plugin') {
+			await handlePluginCreation(client, newFiles);
 		}
 	};
 
-	const handleScriptInjection = async ( client: PlaygroundClient ) => {
+	const handleScriptInjection = async (client: PlaygroundClient) => {
 		await client.writeFile(
 			'/wordpress/wp-content/mu-plugins/example-code.php',
 			"<?php add_action('admin_init',function(){wp_add_inline_script('wp-blocks','" +
@@ -124,66 +123,63 @@ export default function PlaygroundDemo( {
 		client: PlaygroundClient,
 		newFiles: File[]
 	) => {
-		if ( ! codeEditor ) {
+		if (!codeEditor) {
 			return;
 		}
 
-		await client.mkdirTree( '/wordpress/wp-content/plugins/demo-plugin' );
+		await client.mkdirTree('/wordpress/wp-content/plugins/demo-plugin');
 
-		if ( newFiles ) {
-			for ( const file of newFiles ) {
+		if (newFiles) {
+			for (const file of newFiles) {
 				await client.writeFile(
-					`/wordpress/wp-content/plugins/demo-plugin/${ file.name }`,
+					`/wordpress/wp-content/plugins/demo-plugin/${file.name}`,
 					file.file
 				);
 			}
 		}
 
-		await activatePlugin( client, {
+		await activatePlugin(client, {
 			pluginName: 'Demo plugin',
 			pluginPath: '/wordpress/wp-content/plugins/demo-plugin',
-		} );
+		});
 	};
 
-	const handleRedirect = async (
-		client: PlaygroundClient,
-		postId: number
-	) => {
-		if ( createNewPost && redirectToPost ) {
-			if ( redirectToPostType === 'front' ) {
-				await client.goTo( `/?p=${ postId }` );
+	const handleRedirect = async (client: PlaygroundClient, postId: number) => {
+		if (createNewPost && redirectToPost) {
+			if (redirectToPostType === 'front') {
+				await client.goTo(`/?p=${postId}`);
 				return;
-			} else if ( redirectToPostType === 'admin' ) {
+			} else if (redirectToPostType === 'admin') {
 				await client.goTo(
-					`/wp-admin/post.php?post=${ postId }&action=edit`
+					`/wp-admin/post.php?post=${postId}&action=edit`
 				);
 				return;
 			}
 		}
 
-		await client.goTo( landingPageUrl );
+		await client.goTo(landingPageUrl);
 	};
 
-	useEffect( () => {
-		if ( filesAttribute ) {
-			setFiles( () => {
+	useEffect(() => {
+		if (filesAttribute) {
+			setFiles(() => {
 				return filesAttribute;
-			} );
+			});
 
-			setLastInput( filesAttribute[ currentFileIndex ].file );
+			setLastInput(filesAttribute[currentFileIndex].file);
 		}
-	}, [ filesAttribute ] );
+	}, [filesAttribute]);
 
-	useEffect( () => {
+	useEffect(() => {
 		async function initPlayground() {
-			if ( ! iframeRef.current ) {
+			if (!iframeRef.current) {
 				return;
 			}
 
-			const client = await startPlaygroundWeb( {
+			const client = await startPlaygroundWeb({
 				iframe: iframeRef.current,
 				remoteUrl: 'https://playground.wordpress.net/remote.html',
-			} );
+			});
 
 			await client.isReady();
 
@@ -191,36 +187,36 @@ export default function PlaygroundDemo( {
 
 			let postId = 0;
 
-			if ( createNewPost ) {
-				const { text: newPostId } = await client.run( {
+			if (createNewPost) {
+				const { text: newPostId } = await client.run({
 					code: `<?php
 						require("/wordpress/wp-load.php");
 
 						$post_id = wp_insert_post([
-							'post_title' => '${ createNewPostTitle }',
-							'post_content' => '${ createNewPostContent }',
+							'post_title' => '${createNewPostTitle}',
+							'post_content' => '${createNewPostContent}',
 							'post_status' => 'publish',
-							'post_type' => '${ createNewPostType }',
+							'post_type' => '${createNewPostType}',
 						]);
 
 						echo $post_id;
 					`,
-				} );
+				});
 
-				setCurrentPostId( parseInt( newPostId ) );
-				postId = parseInt( newPostId );
+				setCurrentPostId(parseInt(newPostId));
+				postId = parseInt(newPostId);
 			}
 
-			await handleCodeInjection( client, files );
+			await handleCodeInjection(client, files);
 
-			if ( logInUser ) {
-				await login( client, {
+			if (logInUser) {
+				await login(client, {
 					username: 'admin',
 					password: 'password',
-				} );
+				});
 			}
 
-			await handleRedirect( client, postId );
+			await handleRedirect(client, postId);
 		}
 
 		initPlayground();
@@ -234,182 +230,175 @@ export default function PlaygroundDemo( {
 		createNewPostContent,
 		redirectToPost,
 		redirectToPostType,
-	] );
+	]);
 
-	useEffect( () => {
+	useEffect(() => {
 		async function update() {
-			if ( ! playgroundClientRef.current ) {
+			if (!playgroundClientRef.current) {
 				return;
 			}
 
-			if ( ! files ) {
+			if (!files) {
 				return;
 			}
 
 			const client = playgroundClientRef.current;
 
-			await handleCodeInjection( client, files );
-			await handleRedirect( client, currentPostId );
+			await handleCodeInjection(client, files);
+			await handleRedirect(client, currentPostId);
 
-			if ( onStateChange ) {
-				onStateChange( {
+			if (onStateChange) {
+				onStateChange({
 					client,
 					postId: currentPostId,
 					files,
-				} );
+				});
 			}
 		}
 
 		update();
-	}, [ playgroundClientRef.current, currentPostId, files ] );
+	}, [playgroundClientRef.current, currentPostId, files]);
 
 	return (
 		<main className="demo-container">
-			{ codeEditor && (
+			{codeEditor && (
 				<div className="code-container">
 					<div className="file-tabs">
-						{ files &&
-							files.map( ( file, index ) => (
+						{files &&
+							files.map((file, index) => (
 								<button
-									className={ `file-tab wp-element-button ${
+									className={`file-tab wp-element-button ${
 										index === currentFileIndex &&
 										'file-tab-active'
-									}` }
-									onClick={ () => {
-										setCurrentFileIndex( index );
-										setCurrentFileName( file.name );
-										setLastInput( file.file );
-									} }
+									}`}
+									onClick={() => {
+										setCurrentFileIndex(index);
+										setCurrentFileName(file.name);
+										setLastInput(file.file);
+									}}
 								>
-									{ file.name }
+									{file.name}
 								</button>
-							) ) }
-						{ showAddNewFile && (
+							))}
+						{showAddNewFile && (
 							<>
 								<button
 									className="file-tab file-tab-add-new wp-element-button"
-									onClick={ () =>
-										setNewFileModalOpen( true )
-									}
+									onClick={() => setNewFileModalOpen(true)}
 								>
-									<Icon icon={ plus } />
+									<Icon icon={plus} />
 								</button>
-								{ isNewFileModalOpen && (
+								{isNewFileModalOpen && (
 									<Modal
 										title="Create new file"
-										onRequestClose={ () =>
-											setNewFileModalOpen( false )
+										onRequestClose={() =>
+											setNewFileModalOpen(false)
 										}
 									>
 										<InputControl
 											placeholder="New file name"
-											onChange={ ( value ) => {
-												if ( value ) {
-													setNewFileName( value );
+											onChange={(value) => {
+												if (value) {
+													setNewFileName(value);
 												}
-											} }
+											}}
 										/>
 										<br />
 										<Button
 											variant="primary"
-											onClick={ () => {
-												addFile( newFileName, '' );
-												setNewFileModalOpen( false );
-											} }
+											onClick={() => {
+												addFile(newFileName, '');
+												setNewFileModalOpen(false);
+											}}
 										>
 											Create
 										</Button>
 									</Modal>
-								) }
+								)}
 							</>
-						) }
+						)}
 					</div>
 					<div className="code-editor-wrapper">
 						<ReactCodeMirror
-							value={ lastInput }
-							extensions={ [ ...editorLanguage ] }
-							readOnly={ codeEditorReadOnly }
-							onChange={ ( value ) => {
-								setLastInput( value );
-							} }
+							value={lastInput}
+							extensions={[...editorLanguage]}
+							readOnly={codeEditorReadOnly}
+							onChange={(value) => {
+								setLastInput(value);
+							}}
 						/>
 					</div>
 					<div className="actions-bar">
 						<button
-							onClick={ () => {
-								updateFileContent(
-									currentFileIndex,
-									lastInput
-								);
-							} }
+							onClick={() => {
+								updateFileContent(currentFileIndex, lastInput);
+							}}
 							type="button"
 							className="wp-element-button"
-							disabled={ ! playgroundClientRef.current }
+							disabled={!playgroundClientRef.current}
 						>
 							Save
 						</button>
-						{ showFileControls && (
+						{showFileControls && (
 							<div className="file-actions">
 								<button
 									type="button"
-									onClick={ () =>
-										setEditFileNameModalOpen( true )
+									onClick={() =>
+										setEditFileNameModalOpen(true)
 									}
 									className="playground-demo-button button-non-destructive"
 								>
-									<Icon icon={ edit } /> Edit file name
+									<Icon icon={edit} /> Edit file name
 								</button>
-								{ files.length > 1 && (
+								{files.length > 1 && (
 									<button
 										type="button"
 										className="playground-demo-button button-destructive"
-										onClick={ () => {
-											setCurrentFileIndex( 0 );
-											removeFile( currentFileIndex );
-										} }
+										onClick={() => {
+											setCurrentFileIndex(0);
+											removeFile(currentFileIndex);
+										}}
 									>
-										<Icon icon={ cancelCircleFilled } />{ ' ' }
+										<Icon icon={cancelCircleFilled} />{' '}
 										Remove file
 									</button>
-								) }
-								{ isEditFileNameModalOpen && (
+								)}
+								{isEditFileNameModalOpen && (
 									<Modal
 										title="Edit file name"
-										onRequestClose={ () =>
-											setEditFileNameModalOpen( false )
+										onRequestClose={() =>
+											setEditFileNameModalOpen(false)
 										}
 									>
 										<InputControl
-											value={ currentFileName }
-											onChange={ ( value ) => {
-												if ( value ) {
-													setCurrentFileName( value );
+											value={currentFileName}
+											onChange={(value) => {
+												if (value) {
+													setCurrentFileName(value);
 												}
-											} }
+											}}
 										/>
 										<br />
 										<Button
 											variant="primary"
-											onClick={ () => {
+											onClick={() => {
 												updateFileName(
 													currentFileIndex,
 													currentFileName
 												);
-												setEditFileNameModalOpen(
-													false
-												);
-											} }
+												setEditFileNameModalOpen(false);
+											}}
 										>
 											Done
 										</Button>
 									</Modal>
-								) }
+								)}
 							</div>
-						) }
+						)}
 					</div>
 				</div>
-			) }
-			<iframe ref={ iframeRef } className="playground-iframe"></iframe>
+			)}
+			<iframe ref={iframeRef} className="playground-iframe"></iframe>
 		</main>
 	);
 }

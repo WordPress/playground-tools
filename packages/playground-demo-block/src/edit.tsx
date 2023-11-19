@@ -15,11 +15,11 @@ import {
 import PlaygroundDemo from './components/PlaygroundDemo';
 import './editor.scss';
 
-export default function Edit( {
+export default function Edit({
 	isSelected,
 	setAttributes,
 	attributes,
-}: BlockEditProps< Attributes > ) {
+}: BlockEditProps<Attributes>) {
 	const {
 		codeEditor,
 		codeEditorReadOnly,
@@ -37,20 +37,20 @@ export default function Edit( {
 	} = attributes;
 
 	return (
-		<div { ...useBlockProps() }>
+		<div {...useBlockProps()}>
 			<PlaygroundDemo
-				showAddNewFile={ isSelected && codeEditorMultipleFiles }
-				showFileControls={ isSelected }
-				onStateChange={ ( { files } ) => {
-					setAttributes( {
+				showAddNewFile={isSelected && codeEditorMultipleFiles}
+				showFileControls={isSelected}
+				onStateChange={({ files }) => {
+					setAttributes({
 						files,
-					} );
-				} }
-				{ ...attributes }
+					});
+				}}
+				{...attributes}
 			/>
 			<InspectorControls>
 				<Panel header="Settings">
-					<PanelBody title="General" initialOpen={ true }>
+					<PanelBody title="General" initialOpen={true}>
 						<ToggleControl
 							label="Code editor"
 							help={
@@ -58,14 +58,14 @@ export default function Edit( {
 									? 'Code editor enabled.'
 									: 'Code editor disabled.'
 							}
-							checked={ codeEditor }
-							onChange={ () => {
-								setAttributes( {
-									codeEditor: ! codeEditor,
-								} );
-							} }
+							checked={codeEditor}
+							onChange={() => {
+								setAttributes({
+									codeEditor: !codeEditor,
+								});
+							}}
 						/>
-						{ codeEditor && (
+						{codeEditor && (
 							<>
 								<ToggleControl
 									label="Code editor: read only"
@@ -74,13 +74,13 @@ export default function Edit( {
 											? 'Code editor is read only.'
 											: 'Code editor is editable.'
 									}
-									checked={ codeEditorReadOnly }
-									onChange={ () => {
-										setAttributes( {
+									checked={codeEditorReadOnly}
+									onChange={() => {
+										setAttributes({
 											codeEditorReadOnly:
-												! codeEditorReadOnly,
-										} );
-									} }
+												!codeEditorReadOnly,
+										});
+									}}
 								/>
 								<ToggleControl
 									label="Code editor: multiple files"
@@ -89,13 +89,13 @@ export default function Edit( {
 											? 'Multiple files allowed.'
 											: 'Single file allowed.'
 									}
-									checked={ codeEditorMultipleFiles }
-									onChange={ () => {
-										setAttributes( {
+									checked={codeEditorMultipleFiles}
+									onChange={() => {
+										setAttributes({
 											codeEditorMultipleFiles:
-												! codeEditorMultipleFiles,
-										} );
-									} }
+												!codeEditorMultipleFiles,
+										});
+									}}
 								/>
 								<SelectControl
 									help={
@@ -117,13 +117,13 @@ export default function Edit( {
 													</strong>
 													: the code will be executed
 													directly in the Gutenberg
-													editor (using{ ' ' }
+													editor (using{' '}
 													<code>
 														<small>
 															wp_add_inline_script
 														</small>
-													</code>{ ' ' }
-													with{ ' ' }
+													</code>{' '}
+													with{' '}
 													<code>
 														<small>wp-block</small>
 													</code>
@@ -133,7 +133,7 @@ export default function Edit( {
 										</div>
 									}
 									label="Mode"
-									options={ [
+									options={[
 										{
 											disabled: true,
 											label: 'Select an Option',
@@ -147,18 +147,18 @@ export default function Edit( {
 											label: 'Plugin',
 											value: 'plugin',
 										},
-									] }
-									value={ codeEditorMode }
-									onChange={ ( value ) => {
-										setAttributes( {
+									]}
+									value={codeEditorMode}
+									onChange={(value) => {
+										setAttributes({
 											codeEditorMode: value,
-										} );
-									} }
+										});
+									}}
 								/>
 							</>
-						) }
+						)}
 					</PanelBody>
-					<PanelBody title="Playground" initialOpen={ false }>
+					<PanelBody title="Playground" initialOpen={false}>
 						<ToggleControl
 							label="Log in automatically"
 							help={
@@ -166,12 +166,12 @@ export default function Edit( {
 									? 'User will be logged in.'
 									: "User won't be logged in."
 							}
-							checked={ logInUser }
-							onChange={ () => {
-								setAttributes( {
-									logInUser: ! logInUser,
-								} );
-							} }
+							checked={logInUser}
+							onChange={() => {
+								setAttributes({
+									logInUser: !logInUser,
+								});
+							}}
 						/>
 						<ToggleControl
 							label="Create new post or page"
@@ -180,23 +180,24 @@ export default function Edit( {
 									? 'New post or page will be created.'
 									: 'No new posts or pages will be created.'
 							}
-							checked={ createNewPost }
-							onChange={ () => {
-								setAttributes( {
-									createNewPost: ! createNewPost,
-								} );
-							} }
+							checked={createNewPost}
+							onChange={() => {
+								setAttributes({
+									createNewPost: !createNewPost,
+								});
+							}}
 						/>
-						{ createNewPost && (
+						{createNewPost && (
 							<>
 								<ToggleGroupControl
 									label="Create new: post type"
-									value={ createNewPostType }
-									onChange={ ( value ) => {
-										setAttributes( {
-											createNewPostType: value?.toString(),
-										} );
-									} }
+									value={createNewPostType}
+									onChange={(value) => {
+										setAttributes({
+											createNewPostType:
+												value?.toString(),
+										});
+									}}
 									isBlock
 								>
 									<ToggleGroupControlOption
@@ -209,22 +210,22 @@ export default function Edit( {
 									/>
 								</ToggleGroupControl>
 								<InputControl
-									value={ createNewPostTitle }
-									onChange={ ( value ) => {
-										setAttributes( {
+									value={createNewPostTitle}
+									onChange={(value) => {
+										setAttributes({
 											createNewPostTitle: value,
-										} );
-									} }
+										});
+									}}
 									label="Create new: title"
 									placeholder="Hello World!"
 								/>
 								<TextareaControl
-									value={ createNewPostContent }
-									onChange={ ( value ) => {
-										setAttributes( {
+									value={createNewPostContent}
+									onChange={(value) => {
+										setAttributes({
 											createNewPostContent: value,
-										} );
-									} }
+										});
+									}}
 									label="Create new: content"
 									help="Gutenberg editor content of the post"
 								/>
@@ -235,22 +236,23 @@ export default function Edit( {
 											? 'User will be redirected.'
 											: "User won't be redirected."
 									}
-									checked={ redirectToPost }
-									onChange={ () => {
-										setAttributes( {
-											redirectToPost: ! redirectToPost,
-										} );
-									} }
+									checked={redirectToPost}
+									onChange={() => {
+										setAttributes({
+											redirectToPost: !redirectToPost,
+										});
+									}}
 								/>
-								{ redirectToPost && (
+								{redirectToPost && (
 									<ToggleGroupControl
 										label="Create new redirect: redirect to"
-										value={ redirectToPostType }
-										onChange={ ( value ) => {
-											setAttributes( {
-												redirectToPostType: value?.toString(),
-											} );
-										} }
+										value={redirectToPostType}
+										onChange={(value) => {
+											setAttributes({
+												redirectToPostType:
+													value?.toString(),
+											});
+										}}
 										isBlock
 									>
 										<ToggleGroupControlOption
@@ -262,29 +264,29 @@ export default function Edit( {
 											label="Edit screen"
 										/>
 									</ToggleGroupControl>
-								) }
+								)}
 							</>
-						) }
-						{ ( ! createNewPost || ! redirectToPost ) && (
+						)}
+						{(!createNewPost || !redirectToPost) && (
 							<InputControl
-								value={ landingPageUrl }
-								onChange={ ( value ) => {
-									setAttributes( {
+								value={landingPageUrl}
+								onChange={(value) => {
+									setAttributes({
 										landingPageUrl: value,
-									} );
-								} }
+									});
+								}}
 								label="Landing page"
 								help="Define where to redirect after Playground is loaded."
 								placeholder="Got to url after load (eg. /wp-admin/)"
 							/>
-						) }
+						)}
 						<TextareaControl
-							value={ blueprint }
-							onChange={ ( value ) => {
-								setAttributes( {
+							value={blueprint}
+							onChange={(value) => {
+								setAttributes({
 									blueprint: value,
-								} );
-							} }
+								});
+							}}
 							label="Blueprint"
 							help="JSON file with playground blueprint"
 						/>

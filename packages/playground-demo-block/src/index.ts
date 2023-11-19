@@ -26,6 +26,6 @@ export type Attributes = {
 };
 
 // @ts-ignore
-registerBlockType< Attributes >( metadata.name, {
+registerBlockType<Attributes>(metadata.name, {
 	edit: Edit,
-} );
+});
