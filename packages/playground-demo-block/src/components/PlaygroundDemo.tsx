@@ -61,9 +61,11 @@ export default function PlaygroundDemo({
 	const [newFileName, setNewFileName] = useState('');
 
 	const [currentFileIndex, setCurrentFileIndex] = useState(0);
-	const [currentFileName, setCurrentFileName] = useState('');
+	const [currentFileName, setCurrentFileName] = useState(
+		files?.[currentFileIndex]?.name
+	);
 
-	const currentFileExtension = currentFileName.split('.').pop();
+	const currentFileExtension = currentFileName?.split('.').pop();
 	const currentFileLanguage = currentFileExtension
 		? languages.get(currentFileExtension)
 		: javascript();
@@ -127,7 +129,7 @@ export default function PlaygroundDemo({
 			return;
 		}
 
-		await client.mkdirTree('/wordpress/wp-content/plugins/demo-plugin');
+		await client.mkdir('/wordpress/wp-content/plugins/demo-plugin');
 
 		if (newFiles) {
 			for (const file of newFiles) {
@@ -257,7 +259,7 @@ export default function PlaygroundDemo({
 		}
 
 		update();
-	}, [playgroundClientRef.current, currentPostId, files]);
+	}, [playgroundClientRef.current, currentPostId, JSON.stringify(files)]);
 
 	return (
 		<main className="demo-container">
@@ -335,7 +337,6 @@ export default function PlaygroundDemo({
 							}}
 							type="button"
 							className="wp-element-button"
-							disabled={!playgroundClientRef.current}
 						>
 							Save
 						</button>
