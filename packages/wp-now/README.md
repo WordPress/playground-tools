@@ -6,17 +6,46 @@ It uses automatic mode detection to provide a fast setup process, regardless of 
 
 ![Demo GIF of wp-now](https://github.com/WordPress/wordpress-playground/assets/36432/474ecb85-d789-4db9-b820-a19c25da79ad)
 
-## Getting Started
 
-To install `wp-now` directly from `npm`:
+## Table of Contents
+
+- [Requirements](#requirements)
+- [Usage](#usage)
+	- [Automatic Modes](#automatic-modes)
+	- [Arguments](#arguments)
+- [Technical Details](#technical-details)
+- [Using Blueprints](#using-blueprints)
+	- [Defining Custom URLs](#defining-custom-urls)
+	- [Defining Debugging Constants](#defining-debugging-constants)
+- [Known Issues](#known-issues)
+- [Comparisons](#comparisons)
+	- [Laravel Valet](#laravel-valet)
+	- [wp-env](#wp-env)
+- [Contributing](#contributing)
+- [Testing](#testing)
+- [Publishing](#publishing)
+
+## Requirements
+
+Node 18 is the minimum supported version. Node 20 is required for Blueprint support.
+
+## Usage
+
+<img src="../../assets/wp-now-basics-diagram.png" width="600">
+
+To run `wp-now` with one command, you can use [npx](https://docs.npmjs.com/cli/v10/commands/npx):
+
+```bash
+npx @wp-now/wp-now start
+```
+
+You can also install `@wp-now/wp-now` globally to just run `wp-now` from any directory:
 
 ```bash
 npm install -g @wp-now/wp-now
 ```
 
-Node 18 is the minimum supported version. Node 20 is required for Blueprint support.
-
-Alternatively, you can install `wp-now` via `git clone` if you'd like to hack on it too. See [Contributing](#contributing) for more details.
+Lastly, you can install `wp-now` via `git clone` if you'd like to hack on it too. See [Contributing](#contributing) for more details.
 
 Once installed, you can start a new server like so:
 
@@ -139,7 +168,7 @@ Run `wp-now start --blueprint=path/to/blueprint-example.json` where `blueprint-e
 }
 ```
 
-This will enable the debug logs and will create a `debug.log` file in the `~/wp-now/wp-content/${project}/debug.log` directory.
+This will enable the debug logs and will create a `debug.log` file in the `~/.wp-now/wp-content/${project}/debug.log` directory.
 
 If you prefer to set a custom path for the debug log file, you can set `WP_DEBUG_LOG` to be a directory. Remember that the `php-wasm` server runs udner a VFS (virtual file system) where the default documentRoot is always `/var/www/html`.
 
