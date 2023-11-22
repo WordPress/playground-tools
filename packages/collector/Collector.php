@@ -14,11 +14,14 @@ Author URI: https://github.com/seanmorris/
 
 const COLLECTOR_DOWNLOAD_PATH   = '/wp-admin/?page=collector_download_package';
 const COLLECTOR_FINAL_ZIP       = '/tmp/collector-package.zip';
-
+//*/
+const COLLECTOR_PLAYGROUND_PACKAGE = 'http://localhost:8082/client/index.js';
+/*/
 define('COLLECTOR_PLAYGROUND_PACKAGE', ($_SERVER['SERVER_NAME'] === 'localhost')
-	? 'http://localhost:8081/index.js'
+	? 'http://localhost:8083/index.js'
 	: 'https://unpkg.com/@wp-playground/client/index.js'
 );
+//*/
 
 global $wp_version;
 
@@ -104,8 +107,11 @@ function collector_render_playground_page()
 					path: '/data.zip',
 				},
 				{
-					step: 'runSqlFile',
-					path: '/wordpress/schema/_Schema.sql',
+					step: 'runSql',
+					sql: {
+						resource: 'vfs',
+						path: '/wordpress/schema/_Schema.sql',
+					}
 				},
 				{
 					step: 'rm',
@@ -115,7 +121,7 @@ function collector_render_playground_page()
 
 			if(pluginUrl && pluginName)
 			{
-				steps.push(...[
+				steps.push(
 					{
 						step: 'writeFile',
 						path: '/plugin.zip',
@@ -138,16 +144,14 @@ function collector_render_playground_page()
 						pluginName: pluginName,
 						pluginPath: '/wordpress/wp-content/plugins/' + pluginName,
 					},
-				]);
+				);
 			}
 
-			steps.push(...[
-				{
-					step: 'login',
-					username: username,
-					password: fakepass,
-				}
-			]);
+			steps.push({
+				step: 'login',
+				username: username,
+				password: fakepass,
+			});
 
 			const client = await startPlaygroundWeb({
 				iframe: document.getElementById('wp-playground'),
