@@ -166,7 +166,9 @@ function collector_render_playground_page()
 				},
 			});
 
-			client.isReady().then(() => client.goTo('/wp-admin/plugins.php'));
+			await client.isReady();
+
+			client.goTo('/wp-admin/plugins.php');
 		})();
 
 		const goBack = document.getElementById('goBack');
