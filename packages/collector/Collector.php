@@ -12,20 +12,13 @@ Version: 0.0.0
 Author URI: https://github.com/seanmorris/
 */
 
-const COLLECTOR_DOWNLOAD_PATH   = '/wp-admin/?page=collector_download_package';
-const COLLECTOR_FINAL_ZIP       = '/tmp/collector-package.zip';
-//*/
-const COLLECTOR_PLAYGROUND_PACKAGE = 'http://localhost:8082/client/index.js';
-/*/
-define('COLLECTOR_PLAYGROUND_PACKAGE', ($_SERVER['SERVER_NAME'] === 'localhost')
-	? 'http://localhost:8083/index.js'
-	: 'https://unpkg.com/@wp-playground/client/index.js'
-);
-//*/
+const COLLECTOR_DOWNLOAD_PATH = '/wp-admin/?page=collector_download_package';
+const COLLECTOR_PLAYGROUND_PACKAGE = 'https://playground.wordpress.net/client/index.js';
 
 global $wp_version;
 
 define('COLLECTOR_WP_VERSION', $wp_version);
+define('COLLECTOR_FINAL_ZIP', get_temp_dir() . '/collector-package.zip');
 define('COLLECTOR_PHP_VERSION', implode('.',sscanf(phpversion(), '%d.%d')));
 
 require __DIR__ . '/Collector_Content.php';
@@ -80,7 +73,7 @@ function collector_render_playground_page()
 		const frame  = document.getElementById('wp-playground');
 		const zipUrl = <?=json_encode(COLLECTOR_DOWNLOAD_PATH);?>;
 
-		const username   = <?=json_encode(wp_get_current_user()->user_login);?>;
+		const username   = <?=json_encode(htmlspecialchars(wp_get_current_user()->user_login, ENT_QUOTES, 'UTF-8'));?>;
 		const fakepass   = <?=json_encode(collector_get_fakepass());?>;
 		const pluginUrl  = new URLSearchParams(window.location.search).get('pluginUrl');
         const pluginName = new URLSearchParams(window.location.search).get('pluginName');
