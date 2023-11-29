@@ -18,13 +18,7 @@ function collector_dump_db($zip)
 	file_put_contents($sqlFile, sprintf("-- %s\n", json_encode(['SECTION END' => 'SCHEMA'])), FILE_APPEND);
 	file_put_contents($sqlFile, sprintf("-- %s\n", json_encode(['SECTION START' => 'RECORDS'])), FILE_APPEND);
 
-	static $mysqli;
-
-	if(!$mysqli)
-	{
-		$mysqli = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD);
-		mysqli_select_db($mysqli, DB_NAME);
-	}
+	global $wpdb;
 
 	// Process in reverse order so wp_users comes before wp_options
 	// meaning the fakepass will be cleared before transients are
@@ -32,9 +26,17 @@ function collector_dump_db($zip)
 	foreach(array_reverse($tables) as $table)
 	{
 		file_put_contents($sqlFile, sprintf("-- %s\n", json_encode(['ACTION' => 'INSERT', 'TABLE' => $table])), FILE_APPEND);
-		$recordList = $mysqli->query(sprintf('SELECT * FROM `%s`', $mysqli->real_escape_string($table)));
 
-		while($record = $recordList->fetch_assoc())
+		$wpdb->query(sprintf('SELECT * FROM `%s`', esc_sql($table)));
+
+		$remaining = $wpdb->result->num_rows;
+
+		if(!$remaining)
+		{
+			continue;
+		}
+
+		foreach($wpdb->result as $record)
 		{
 			if($table === 'wp_users' && (int) $record['ID'] === (int) wp_get_current_user()->ID)
 			{
@@ -43,12 +45,17 @@ function collector_dump_db($zip)
 
 			$insert = sprintf(
 				'INSERT INTO `%s` (%s) VALUES (%s);',
-				$mysqli->real_escape_string($table),
-				implode(', ', array_map(fn($f) => "`" . $mysqli->real_escape_string($f) . "`", array_keys($record))),
-				implode(', ', array_map(fn($f) => "'" . $mysqli->real_escape_string($f) . "'", array_values($record))),
+				esc_sql($table),
+				implode(', ', array_map(fn($f) => "`" . esc_sql($f) . "`", array_keys($record))),
+				implode(', ', array_map(fn($f) => "'" . esc_sql($f) . "'", array_values($record))),
 			);
 
 			file_put_contents($sqlFile, $insert . "\n", FILE_APPEND);
+
+			if(--$remaining <= 0)
+			{
+				break;
+			}
 		}
 	}
 
