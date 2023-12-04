@@ -6,24 +6,23 @@ It uses automatic mode detection to provide a fast setup process, regardless of 
 
 ![Demo GIF of wp-now](https://github.com/WordPress/wordpress-playground/assets/36432/474ecb85-d789-4db9-b820-a19c25da79ad)
 
-
 ## Table of Contents
 
-- [Requirements](#requirements)
-- [Usage](#usage)
-	- [Automatic Modes](#automatic-modes)
-	- [Arguments](#arguments)
-- [Technical Details](#technical-details)
-- [Using Blueprints](#using-blueprints)
-	- [Defining Custom URLs](#defining-custom-urls)
-	- [Defining Debugging Constants](#defining-debugging-constants)
-- [Known Issues](#known-issues)
-- [Comparisons](#comparisons)
-	- [Laravel Valet](#laravel-valet)
-	- [wp-env](#wp-env)
-- [Contributing](#contributing)
-- [Testing](#testing)
-- [Publishing](#publishing)
+-   [Requirements](#requirements)
+-   [Usage](#usage)
+    -   [Automatic Modes](#automatic-modes)
+    -   [Arguments](#arguments)
+-   [Technical Details](#technical-details)
+-   [Using Blueprints](#using-blueprints)
+    -   [Defining Custom URLs](#defining-custom-urls)
+    -   [Defining Debugging Constants](#defining-debugging-constants)
+-   [Known Issues](#known-issues)
+-   [Comparisons](#comparisons)
+    -   [Laravel Valet](#laravel-valet)
+    -   [wp-env](#wp-env)
+-   [Contributing](#contributing)
+-   [Testing](#testing)
+-   [Publishing](#publishing)
 
 ## Requirements
 
