@@ -13,7 +13,7 @@ Author URI: https://github.com/seanmorris/
 */
 
 const COLLECTOR_DOWNLOAD_PATH = '/wp-admin/?page=collector_download_package';
-const COLLECTOR_PLAYGROUND_PACKAGE = 'https://playground.wordpress.net/client/index.js';
+const COLLECTOR_PLAYGROUND_PACKAGE = 'http://localhost:7001/client/index.js';
 
 global $wp_version;
 
@@ -105,11 +105,7 @@ function collector_render_playground_page()
 						resource: 'vfs',
 						path: '/wordpress/schema/_Schema.sql',
 					}
-				},
-				{
-					step: 'rm',
-					path: '/wordpress/wp-content/mu-plugins/1-show-admin-credentials-on-wp-login.php',
-				},
+				}
 			];
 
 			if(pluginUrl && pluginName)
