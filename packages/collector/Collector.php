@@ -13,7 +13,7 @@ Author URI: https://github.com/seanmorris/
 */
 
 const COLLECTOR_DOWNLOAD_PATH = '/wp-admin/?page=collector_download_package';
-const COLLECTOR_PLAYGROUND_PACKAGE = 'http://localhost:7001/client/index.js';
+const COLLECTOR_PLAYGROUND_PACKAGE = 'https://playground.wordpress.net/client/index.js';
 
 global $wp_version;
 
