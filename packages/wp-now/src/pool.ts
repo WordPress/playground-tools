@@ -1,11 +1,11 @@
-type instance = any;
+type PhpInstance = any;
 
-type request = (instance: instance) => Promise<any>;
+type request = (instance: PhpInstance) => Promise<any>;
 
-export type poolOptions = {
-	spawn: () => Promise<instance>;
-	reap?: (instance: instance) => void;
-	fatal?: (instance: instance, error: any) => any;
+export type PoolOptions = {
+	spawn: () => Promise<PhpInstance>;
+	reap?: (instance: PhpInstance) => void;
+	fatal?: (instance: PhpInstance, error: any) => any;
 	maxRequests?: number;
 	maxJobs?: number;
 };
@@ -68,7 +68,7 @@ const reap = (pool: Pool) => {
  * @param error the actual error that got us here
  * @private
  */
-const fatal = (pool: Pool, instance: instance, error: Error) => {
+const fatal = (pool: Pool, instance: PhpInstance, error: Error) => {
 	console.error(error);
 
 	if (instance && pool.instanceInfo.has(instance)) {
@@ -84,7 +84,7 @@ const fatal = (pool: Pool, instance: instance, error: Error) => {
  * Find the next available idle instance.
  * @private
  */
-const getIdleInstance = (pool) => {
+const getIdleInstance = (pool: Pool) => {
 	const sorted = [...pool.instanceInfo].sort(
 		(a, b) => a[1].requests - b[1].requests
 	);
@@ -129,8 +129,8 @@ export class Pool {
 	instanceInfo = new Map(); // php => PoolInfo
 
 	spawn: () => Promise<any>; // Async callback to create new instances.
-	fatal: (instance: instance, error: any) => any; // Callback called on instance fatal errors.
-	reap: (instance: instance) => void; // Callback called on destroyed instances.
+	fatal: (instance: PhpInstance, error: any) => any; // Callback called on instance fatal errors.
+	reap: (instance: PhpInstance) => void; // Callback called on destroyed instances.
 	maxRequests: number; // Max requests to feed each instance
 	maxJobs: number; // Max number of instances to maintain at once.
 
@@ -146,8 +146,8 @@ export class Pool {
 		maxRequests = 128,
 		maxJobs = 1,
 		spawn = undefined,
-		fatal = (instance: instance, error: any) => error,
-		reap = (instance: instance) => {},
+		fatal = (instance: PhpInstance, error: any) => error,
+		reap = (instance: PhpInstance) => {},
 	} = {}) {
 		if (!spawn) {
 			throw new Error('Spawn method is required for pool.');

@@ -1,8 +1,8 @@
-import { PHPResponse } from '@php-wasm/universal';
+import { LatestSupportedPHPVersion, PHPResponse } from '@php-wasm/universal';
 import { NodePHP } from '@php-wasm/node';
 import { Pool } from './pool';
 
-export type nodePoolOptions = {
+export type NodePoolOptions = {
 	spawn?: () => Promise<NodePHP>;
 	reap?: (instance: NodePHP) => void;
 	fatal?: (instance: NodePHP, error: any) => any;
@@ -10,7 +10,7 @@ export type nodePoolOptions = {
 	maxJobs?: number;
 };
 
-const defaultSpawn = async () => await NodePHP.load('8.2');
+const defaultSpawn = async () => await NodePHP.load(LatestSupportedPHPVersion);
 
 const defaultFatal = (instance: NodePHP, error: any) =>
 	new PHPResponse(
@@ -27,7 +27,7 @@ const defaultReap = (instance: NodePHP) => {
 	try {
 		instance.exit();
 	} catch {
-		void 0;
+		// Do nothing.
 	}
 };
 

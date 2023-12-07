@@ -32,7 +32,7 @@ import getWpNowPath from './get-wp-now-path';
 import getWordpressVersionsPath from './get-wordpress-versions-path';
 import getSqlitePath from './get-sqlite-path';
 
-import { NodePool, nodePoolOptions } from './node-pool';
+import { NodePool, NodePoolOptions } from './node-pool';
 
 function seemsLikeAPHPFile(path) {
 	return path.endsWith('.php') || path.includes('.php/');
@@ -82,18 +82,8 @@ export default async function startWPNow(
 		);
 	}
 
-	const spawnInstance = async () => {
-		const php = await NodePHP.load(options.phpVersion, nodePHPOptions);
-
-		php.mkdirTree(documentRoot);
-		php.chdir(documentRoot);
-		php.writeFile(
-			`${documentRoot}/index.php`,
-			`<?php echo 'Hello wp-now!';`
-		);
-
-		return php;
-	};
+	const spawnInstance = async () =>
+		await NodePHP.load(options.phpVersion, nodePHPOptions);
 
 	const php = phpInstances[0];
 
@@ -110,7 +100,7 @@ export default async function startWPNow(
 	output?.log(`mode: ${options.mode}`);
 	output?.log(`php: ${options.phpVersion}`);
 
-	const poolOptions: nodePoolOptions = {
+	const poolOptions: NodePoolOptions = {
 		spawn: spawnInstance,
 		maxRequests: options.maxRequests ?? 128,
 		maxJobs: options.maxJobs ?? 1,

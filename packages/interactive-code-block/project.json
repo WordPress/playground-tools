@@ -14,7 +14,7 @@
 				"cwd": "dist/packages",
 				"commands": [
 					"cp ../../packages/interactive-code-block/README.md ./interactive-code-block/",
-					"rm -f interactive-code-block/assets/php_5*",
+					"rm interactive-code-block/assets/php_5*",
 					"rm interactive-code-block/assets/php_7_0*",
 					"rm interactive-code-block/assets/php_7_1*",
 					"rm interactive-code-block/assets/php_7_2*",
