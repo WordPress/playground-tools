@@ -76,6 +76,30 @@ export async function runCli() {
 						'Create a new project environment, destroying the old project environment.',
 					type: 'boolean',
 				});
+				yargs.option('inspect', {
+					describe: 'Use Node debugging client.',
+					type: 'number',
+				});
+				yargs.option('inspect-brk', {
+					describe:
+						'Use Node debugging client. Break immediately on script execution start.',
+					type: 'number',
+				});
+				yargs.option('trace-exit', {
+					describe:
+						'Prints a stack trace whenever an environment is exited proactively, i.e. invoking process.exit().',
+					type: 'number',
+				});
+				yargs.option('trace-uncaught', {
+					describe:
+						'Print stack traces for uncaught exceptions; usually, the stack trace associated with the creation of an Error is printed, whereas this makes Node.js also print the stack trace associated with throwing the value (which does not need to be an Error instance).',
+					type: 'number',
+				});
+				yargs.option('trace-warnings', {
+					describe:
+						'Print stack traces for process warnings (including deprecations).',
+					type: 'number',
+				});
 			},
 			async (argv) => {
 				const spinner = startSpinner('Starting the server...');
