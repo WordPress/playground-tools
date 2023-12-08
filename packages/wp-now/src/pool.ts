@@ -17,10 +17,14 @@ let childCount = 0;
  * @private
  */
 class PoolInfo {
-	id = childCount++; // Unique ID for debugging purposes.
+	id: number; // Unique ID for debugging purposes.
+	started: number; // Time spawned.
 	requests = 0; // Total requests processed.
-	started = Date.now(); // Time spawned.
 	active = false; // Whether instance is considered active.
+	constructor() {
+		this.id = childCount++;
+		this.started = Date.now();
+	}
 }
 
 /**
