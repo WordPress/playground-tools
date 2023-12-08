@@ -10,31 +10,6 @@
 			"description": "Path of the script to run.",
 			"x-prompt": "What script would you like to run?"
 		},
-		"inspect": {
-			"type": "boolean",
-			"description": "Use Node debugging client.",
-			"x-prompt": "Would you like to connect a Node debugging client?"
-		},
-		"inspect-brk": {
-			"type": "boolean",
-			"description": "Use Node debugging client. Break immediately on script execution start.",
-			"x-prompt": "Would you like to connect a Node debugging client and break immediately on script execution start?"
-		},
-		"trace-exit": {
-			"type": "boolean",
-			"description": "Prints a stack trace whenever an environment is exited proactively, i.e. invoking process.exit().",
-			"x-prompt": "Would you like print a stacktrace on exit?"
-		},
-		"trace-uncaught": {
-			"type": "boolean",
-			"description": "Print stack traces for uncaught exceptions; usually, the stack trace associated with the creation of an Error is printed, whereas this makes Node.js also print the stack trace associated with throwing the value (which does not need to be an Error instance).",
-			"x-prompt": "Would you like print a stacktrace on uncaught promise rejection?"
-		},
-		"trace-warnings": {
-			"type": "boolean",
-			"description": "Print stack traces for process warnings (including deprecations).",
-			"x-prompt": "Would you like print a stacktrace on warning?"
-		},
 		"__unparsed__": {
 			"hidden": true,
 			"type": "array",
