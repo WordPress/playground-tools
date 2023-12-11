@@ -200,6 +200,9 @@ function collector_plugin_install_action_links($action_links, $plugin)
 		);
 
 		array_unshift($action_links, $preview_button);
+
+		// Use only a single Blueprint json for now:
+		break;
 	}
 
 
