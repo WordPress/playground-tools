@@ -82,7 +82,6 @@ function collector_render_playground_page()
 
 		(async () => {
 			const  { startPlaygroundWeb } = await import(<?=json_encode(COLLECTOR_PLAYGROUND_PACKAGE);?>);
-			const blueprintUrl = query.get('blueprintUrl');
 			const blueprint = await (await fetch(blueprintUrl)).json();
 
 			blueprint.steps = blueprint.steps || [];
