@@ -78,17 +78,16 @@ function collector_render_playground_page()
 
 		const username   = <?=json_encode(htmlspecialchars(wp_get_current_user()->user_login, ENT_QUOTES, 'UTF-8'));?>;
 		const fakepass   = <?=json_encode(collector_get_fakepass());?>;
-		const pluginUrl  = query.get('pluginUrl');
-		const pluginName = query.get('pluginName');
 		const blueprintUrl = query.get('blueprintUrl');
 
 		(async () => {
 			const  { startPlaygroundWeb } = await import(<?=json_encode(COLLECTOR_PLAYGROUND_PACKAGE);?>);
+			const blueprintUrl = query.get('blueprintUrl');
 			const blueprint = await (await fetch(blueprintUrl)).json();
 
 			blueprint.steps = blueprint.steps || [];
 
-			blueprint.steps.push(
+			blueprint.steps.unshift(
 				{
 					step: 'writeFile',
 					path: '/data.zip',
@@ -193,7 +192,7 @@ function collector_plugin_install_action_links($action_links, $plugin)
 		$preview_button = sprintf(
 			'<a class="preview-now button" data-slug="%s" href="%s" aria-label="%s" data-name="%s">%s</a>',
 			esc_attr( $plugin['slug'] ),
-			'/wp-admin/admin.php?page=collector_render_playground_page&pluginUrl=' . esc_url( $plugin['download_link'] ) . '&pluginName=' . esc_attr( $plugin['slug'] ) . '&blueprintUrl=' . esc_url( $blueprint['url'] ) . '&returnUrl=' . esc_attr( $retUrl ),
+			'/wp-admin/admin.php?page=collector_render_playground_page&blueprintUrl=' . esc_url( $blueprint['url'] ) . '&returnUrl=' . esc_attr( $retUrl ),
 			/* translators: %s: Plugin name and version. */
 			esc_attr( sprintf( _x( 'Preview %s now', 'plugin' ), $plugin['name'] ) ),
 			esc_attr( $plugin['name'] ),
