@@ -29,34 +29,35 @@ require __DIR__ . '/Collector_Zip.php';
 add_action('admin_menu', 'collector_plugin_menu');
 add_action('plugins_loaded', 'collector_plugins_loaded');
 add_filter('plugin_install_action_links', 'collector_plugin_install_action_links', 10, 2);
+add_filter('plugins_api_args', 'collector_plugins_api_args', 10, 2);
 
 function collector_plugins_loaded()
 {
-    if(!current_user_can('manage_options'))
-    {
-        return;
-    }
+	if(!current_user_can('manage_options'))
+	{
+		return;
+	}
 
-    if(urldecode($_SERVER['REQUEST_URI']) === COLLECTOR_DOWNLOAD_PATH)
-    {
-        collector_zip_collect();
-        collector_zip_send();
-        collector_zip_delete();
-        exit();
-    }
+	if(urldecode($_SERVER['REQUEST_URI']) === COLLECTOR_DOWNLOAD_PATH)
+	{
+		collector_zip_collect();
+		collector_zip_send();
+		collector_zip_delete();
+		exit();
+	}
 }
 
 function collector_plugin_menu()
 {
-    add_submenu_page(
-        NULL,
-        'Collector',
-        'Collector',
-        'manage_options',
-        'collector_render_playground_page',
-        'collector_render_playground_page',
-        NULL
-    );
+	add_submenu_page(
+		NULL,
+		'Collector',
+		'Collector',
+		'manage_options',
+		'collector_render_playground_page',
+		'collector_render_playground_page',
+		NULL
+	);
 }
 
 function collector_render_playground_page()
@@ -73,15 +74,21 @@ function collector_render_playground_page()
 		const frame  = document.getElementById('wp-playground');
 		const zipUrl = <?=json_encode(COLLECTOR_DOWNLOAD_PATH);?>;
 
+		const query = new URLSearchParams(window.location.search);
+
 		const username   = <?=json_encode(htmlspecialchars(wp_get_current_user()->user_login, ENT_QUOTES, 'UTF-8'));?>;
 		const fakepass   = <?=json_encode(collector_get_fakepass());?>;
-		const pluginUrl  = new URLSearchParams(window.location.search).get('pluginUrl');
-        const pluginName = new URLSearchParams(window.location.search).get('pluginName');
+		const pluginUrl  = query.get('pluginUrl');
+		const pluginName = query.get('pluginName');
+		const blueprintUrl = query.get('blueprintUrl');
 
 		(async () => {
 			const  { startPlaygroundWeb } = await import(<?=json_encode(COLLECTOR_PLAYGROUND_PACKAGE);?>);
+			const blueprint = await (await fetch(blueprintUrl)).json();
 
-			const steps = [
+			blueprint.steps = blueprint.steps || [];
+
+			blueprint.steps.push(
 				{
 					step: 'writeFile',
 					path: '/data.zip',
@@ -105,54 +112,23 @@ function collector_render_playground_page()
 						resource: 'vfs',
 						path: '/wordpress/schema/_Schema.sql',
 					}
-				}
-			];
+				},
+				{
+					step: 'login',
+					username: username,
+					password: fakepass,
+				},
+			);
 
-			if(pluginUrl && pluginName)
-			{
-				steps.push(
-					{
-						step: 'writeFile',
-						path: '/plugin.zip',
-						data: {
-							'resource': 'url',
-							'url': pluginUrl,
-						},
-					},
-					{
-						step: 'unzip',
-						zipPath: '/plugin.zip',
-						extractToPath: '/wordpress/wp-content/plugins',
-					},
-					{
-						step: 'rm',
-						path: '/plugin.zip',
-					},
-					{
-						step: 'activatePlugin',
-						pluginName: pluginName,
-						pluginPath: '/wordpress/wp-content/plugins/' + pluginName,
-					},
-				);
-			}
-
-			steps.push({
-				step: 'login',
-				username: username,
-				password: fakepass,
-			});
+			blueprint.preferredVersions = {
+				wp: <?=json_encode(COLLECTOR_WP_VERSION);?>,
+				php: <?=json_encode(COLLECTOR_PHP_VERSION);?>,
+			};
 
 			const client = await startPlaygroundWeb({
 				iframe: document.getElementById('wp-playground'),
 				remoteUrl: `https://playground.wordpress.net/remote.html`,
-				blueprint: {
-					preferredVersions: {
-						wp: <?=json_encode(COLLECTOR_WP_VERSION);?>,
-						php: <?=json_encode(COLLECTOR_PHP_VERSION);?>,
-					},
-					phpExtensionBundles: ['kitchen-sink'],
-					steps,
-				},
+				blueprint
 			});
 
 			await client.isReady();
@@ -178,7 +154,7 @@ function collector_render_playground_page()
 
 		goBack.addEventListener('click', goBackClicked);
 
-    </script>
+	</script>
 
 	<a href = "<?=COLLECTOR_DOWNLOAD_PATH;?>">Download Zip</a>
 
@@ -190,35 +166,53 @@ function collector_render_playground_page()
 			animation: collector-fade-in 0.25s 0.65s cubic-bezier(0.175, 0.885, 0.5, 1.85) 1 forwards; transform:translateY(-100%);
 		}
 		#wp-playground-toolbar > a { text-transform: capitalize; font-size: 0.8rem; padding: 0 0.5rem; }
-        #wpbody-content, #wpcontent { padding-left: 0px !important; }
-        #wpwrap, #wpbody, #wpbody-content {padding-bottom: 0px; height: 100%;}
+		#wpbody-content, #wpcontent { padding-left: 0px !important; }
+		#wpwrap, #wpbody, #wpbody-content {padding-bottom: 0px; height: 100%;}
 		#wpwrap, #wpbody { position: initial; }
-        #wp-playground-main-area { position: relative; display: flex; flex: 1; }
-        #wp-playground, #wp-playground-wrapper {
+		#wp-playground-main-area { position: relative; display: flex; flex: 1; }
+		#wp-playground, #wp-playground-wrapper {
 			position: absolute; top: 0; left: 0; width:100%; height:100%; z-index:999999; background-color: #FFF;
 			display: flex; flex-direction: column;
 		}
 		@keyframes collector-fade-in { from{transform:translateY(-100%)} to{transform:translateY(0)} }
-    </style>
+	</style>
 <?php
 }
 
 function collector_plugin_install_action_links($action_links, $plugin)
 {
-	$retUrl = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . urlencode('?' . http_build_query($_GET));
+	if(!$plugin['blueprints'])
+	{
+		return $action_links;
+	}
 
-	$preview_button = sprintf(
-        '<a class="preview-now button" data-slug="%s" href="%s" aria-label="%s" data-name="%s">%s</a>',
-        esc_attr( $plugin['slug'] ),
-        '/wp-admin/admin.php?page=collector_render_playground_page&pluginUrl=' . esc_url( $plugin['download_link'] ) . '&pluginName=' . esc_attr( $plugin['slug'] ) . '&returnUrl=' . esc_attr( $retUrl ),
-        /* translators: %s: Plugin name and version. */
-        esc_attr( sprintf( _x( 'Preview %s now', 'plugin' ), $plugin['name'] ) ),
-        esc_attr( $plugin['name'] ),
-        __( 'Preview Now' )
-    );
+	foreach($plugin['blueprints'] as $blueprint)
+	{
+		$retUrl = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . urlencode('?' . http_build_query($_GET));
 
-    array_unshift($action_links, $preview_button);
+		$preview_button = sprintf(
+			'<a class="preview-now button" data-slug="%s" href="%s" aria-label="%s" data-name="%s">%s</a>',
+			esc_attr( $plugin['slug'] ),
+			'/wp-admin/admin.php?page=collector_render_playground_page&pluginUrl=' . esc_url( $plugin['download_link'] ) . '&pluginName=' . esc_attr( $plugin['slug'] ) . '&blueprintUrl=' . esc_url( $blueprint['url'] ) . '&returnUrl=' . esc_attr( $retUrl ),
+			/* translators: %s: Plugin name and version. */
+			esc_attr( sprintf( _x( 'Preview %s now', 'plugin' ), $plugin['name'] ) ),
+			esc_attr( $plugin['name'] ),
+			__( 'Preview Now' )
+		);
 
-    return $action_links;
+		array_unshift($action_links, $preview_button);
+	}
+
+
+	return $action_links;
 }
 
+function collector_plugins_api_args($args, $action)  {
+
+	if ($action === 'query_plugins') {
+		$args->fields = ($args->fields ?? '') . 'blueprints';
+	}
+
+	return $args;
+
+}
