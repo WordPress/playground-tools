@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: WordPress Playground ES Modules
+ * Plugin Name: Playground ES Modules Support
  * Version: 0.0.1
  */
 
@@ -26,12 +26,12 @@ add_action('init', function () {
         return;
     }
 
-    global $script_to_global;
+    global $script_to_js_global;
     // Register a fake script that will be used to load the import map
     // @see render_import_map
     wp_register_script('esmodules-import-map', plugins_url('bogus-empty-script.js', __FILE__));
 
-    foreach ($script_to_global as $script_name => $global_name) {
+    foreach ($script_to_js_global as $script_name => $global_name) {
         // Register fake ES module scripts that just point to a bogus JS
         // file. They only exist to trigger WordPress script dependency
         // resolution.
@@ -49,25 +49,13 @@ add_action('init', function () {
     }
 });
 
-
-// Create an admin page that loads the "wp-block-library" script
-// and then loads the "wp-block-library" module
-function admin_menu()
-{
-    add_menu_page(
-        'WordPress ES Modules',
-        'WordPress ES Modules',
-        'manage_options',
-        'wordpress-es-modules',
-        'wordpress_es_modules_admin_page',
-        'dashicons-admin-generic',
-        6
-    );
-}
-// Uncomment to develop this plugin:
-// add_action('admin_menu', 'admin_menu');
-
-$script_to_global = [
+/**
+ * Maps core script handles to the global variable that they export
+ * via `window.wp`.
+ * 
+ * For example, `wp-blob` exports `window.wp.blob`.
+ */
+$script_to_js_global = [
     'wp-admin-manifest' => 'adminManifest',
     'wp-a11y' => 'a11y',
     'wp-annotations' => 'annotations',
@@ -158,7 +146,28 @@ $script_to_global = [
 ];
 
 /**
- * This admin loads the requested WordPress scripts, grabs their
+ * Adds a custom wp-admin page to create the ES module files.
+ * 
+ * For documentation, go to:
+ * @see wordpress_es_modules_admin_page
+ */
+function admin_menu()
+{
+    add_menu_page(
+        'WordPress ES Modules',
+        'WordPress ES Modules',
+        'manage_options',
+        'wordpress-es-modules',
+        'wordpress_es_modules_admin_page',
+        'dashicons-admin-generic',
+        6
+    );
+}
+// Uncomment to develop this plugin:
+// add_action('admin_menu', 'admin_menu');
+
+/**
+ * This admin page loads the requested WordPress scripts, grabs their
  * exports, and creates the ES module files via a REST API request.
  * 
  * For example, the `wp-autop` script appends two variables to window.wp.autop:
@@ -175,11 +184,11 @@ $script_to_global = [
  */
 function wordpress_es_modules_admin_page()
 {
-    global $script_to_global;
+    global $script_to_js_global;
     $requested_script_names = array_filter(
         $_GET['scripts'] ?? array('wp-block-editor', 'wp-block-library'),
-        function ($script) use ($script_to_global) {
-            return array_key_exists($script, $script_to_global);
+        function ($script) use ($script_to_js_global) {
+            return array_key_exists($script, $script_to_js_global);
         }
     );
 
@@ -192,7 +201,7 @@ function wordpress_es_modules_admin_page()
             continue;
         }
         // Only compute dependencies for WordPress scripts that can be modularized
-        if (!array_key_exists($dep, $script_to_global)) {
+        if (!array_key_exists($dep, $script_to_js_global)) {
             continue;
         }
         $resolved_script_names[] = $dep;
@@ -206,7 +215,7 @@ function wordpress_es_modules_admin_page()
     // Enqueue all the scripts
     foreach ($resolved_script_names as $script_name) {
         wp_enqueue_script($script_name);
-        $scripts_for_js[] = [$script_name, $script_to_global[$script_name]];
+        $scripts_for_js[] = [$script_name, $script_to_js_global[$script_name]];
     }
 
     // We need to load the wp-api-fetch script to make the API call
@@ -243,8 +252,6 @@ SCRIPT
 
 /**
  * Registers a REST API endpoint that creates the ES module files.
- * 
- * @return void
  */
 add_action('rest_api_init', function () {
     // Register a new REST API endpoint that creates a JS file in wp-content
@@ -257,8 +264,6 @@ add_action('rest_api_init', function () {
 
 /**
  * Creates the ES module files in wp-content/plugins/playground-esmodules/js
- * 
- * @return void
  */
 function wordpress_es_modules_rest_api_modules()
 {
@@ -287,9 +292,9 @@ function render_import_map($tag, $handle, $src)
         return $tag;
     }
 
-    global $script_to_global;
+    global $script_to_js_global;
     $imports = [];
-    foreach ($script_to_global as $script_name => $global_name) {
+    foreach ($script_to_js_global as $script_name => $global_name) {
         $module_name = str_replace('wp-', '@wordpress/', $script_name);
         $imports[$module_name] = plugins_url('playground-esmodules/js/' . $script_name . '.js');
     }

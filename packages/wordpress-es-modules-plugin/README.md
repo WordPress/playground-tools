@@ -1,4 +1,4 @@
-# WordPress ES Modules Plugin
+# Playground ES Modules Support
 
 This plugin exposes WordPress scripts like `@wordpress/block-editor` as ES modules
 to enable building Guteneberg blocks without any transpilation.
