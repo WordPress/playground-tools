@@ -26,9 +26,9 @@ npm run build
 
 You'll find the built assets in the dist directory. You can make changes, run the VS Code extension or install the interactive code plugin, and test them.
 
-## Debugging
+## Debug Flags
 
-The following flags are available on the CLI for debugging.
+The following flags are available on the `wp-now` cli tool to aid in debugging:
 
 -   `--inspect` - Connect to a Node debugging client.
 -   `--inspect-brk` - Connect to a Node debugging client, break immediately on script execution start.
