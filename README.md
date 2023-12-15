@@ -30,13 +30,14 @@ You'll find the built assets in the dist directory. You can make changes, run th
 
 The following flags are available on the CLI for debugging.
 
--   `inspect` - Connect to a Node debugging client.
--   `inspect-brk` - Connect to a Node debugging client, break immediately on script execution start.
--   `trace-exit` - Prints a stack trace whenever an environment is exited proactively, i.e. invoking process.exit().
--   `trace-uncaught` - Print stack traces for uncaught exceptions; usually, the stack trace associated with the creation of an Error is printed, whereas this makes Node.js also print the stack trace associated with throwing the value (which does not need to be an Error instance).
--   `trace-warnings` - Print stack traces for process warnings (including deprecations).
+-   `--inspect` - Connect to a Node debugging client.
+-   `--inspect-brk` - Connect to a Node debugging client, break immediately on script execution start.
+-   `--trace-exit` - Prints a stack trace whenever an environment is exited proactively, i.e. invoking process.exit().
+-   `--trace-uncaught` - Print stack traces for uncaught exceptions; usually, the stack trace associated with the creation of an Error is printed, whereas this makes Node.js also print the stack trace associated with throwing the value (which does not need to be an Error instance).
+-   `--trace-warnings` - Print stack traces for process warnings (including deprecations).
 
-### Usage: 
+### Usage:
+
 ```bash
 npx wp-now start [FLAGS]
 ```
