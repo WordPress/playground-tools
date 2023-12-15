@@ -48,6 +48,6 @@ When connecting to DevTools with `--inspect` or `--inspect-brk`, the NodeJS debu
 
 ![image](https://github.com/WordPress/playground-tools/assets/640101/3e5d2016-2088-432b-8312-5334a639662b)
 
-You should see the step-debugger open, with the script paused on the first line:
+You should see the step-debugger open, with the script paused on the first line if `--inspect-brk` was selected:
 
 ![image](https://github.com/WordPress/playground-tools/assets/640101/5f3217d0-f447-44a1-9e72-c501359d9f2a)
