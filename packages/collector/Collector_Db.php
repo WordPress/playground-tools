@@ -1,4 +1,9 @@
 <?php
+
+function collector_esc_sql_identifier($tableName) {
+	return str_replace('`', '``', esc_sql($tableName));
+}
+
 function collector_dump_db($zip)
 {
 	$tables   = collector_get_db_tables();
@@ -10,7 +15,7 @@ function collector_dump_db($zip)
 	foreach($tables as $table)
 	{
 		file_put_contents($sqlFile, sprintf("-- %s\n", json_encode(['ACTION' => 'DROP', 'TABLE' => $table])), FILE_APPEND);
-		file_put_contents($sqlFile, sprintf("DROP TABLE IF EXISTS `%s`;\n", $table), FILE_APPEND);
+		file_put_contents($sqlFile, sprintf("DROP TABLE IF EXISTS `%s`;\n", collector_esc_sql_identifier($table)), FILE_APPEND);
 		file_put_contents($sqlFile, sprintf("-- %s\n", json_encode(['ACTION' => 'CREATE', 'TABLE' => $table])), FILE_APPEND);
 		file_put_contents($sqlFile, preg_replace("/\s+/", " ", collector_dump_db_schema($table)) . "\n", FILE_APPEND);
 	}
@@ -27,7 +32,7 @@ function collector_dump_db($zip)
 	{
 		file_put_contents($sqlFile, sprintf("-- %s\n", json_encode(['ACTION' => 'INSERT', 'TABLE' => $table])), FILE_APPEND);
 
-		$wpdb->query(sprintf('SELECT * FROM `%s`', esc_sql($table)));
+		$wpdb->query(sprintf('SELECT * FROM `%s`', collector_esc_sql_identifier($table)));
 
 		$remaining = $wpdb->result->num_rows;
 
@@ -46,7 +51,7 @@ function collector_dump_db($zip)
 			$insert = sprintf(
 				'INSERT INTO `%s` (%s) VALUES (%s);',
 				esc_sql($table),
-				implode(', ', array_map(fn($f) => "`" . esc_sql($f) . "`", array_keys($record))),
+				implode(', ', array_map(fn($f) => "`" . collector_esc_sql_identifier($f) . "`", array_keys($record))),
 				implode(', ', array_map(fn($f) => "'" . esc_sql($f) . "'", array_values($record))),
 			);
 
