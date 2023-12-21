@@ -58,19 +58,6 @@ export default async function startWPNow(
 		requestHandler: {
 			documentRoot,
 			absoluteUrl: options.absoluteUrl,
-			isStaticFilePath: (path) => {
-				try {
-					const fullPath = options.documentRoot + path;
-					return (
-						php.fileExists(fullPath) &&
-						!php.isDir(fullPath) &&
-						!seemsLikeAPHPFile(fullPath)
-					);
-				} catch (e) {
-					output?.error(e);
-					return false;
-				}
-			},
 		},
 	};
 
