@@ -158,11 +158,11 @@ export class Pool {
 		}
 
 		Object.defineProperties(this, {
-			maxRequests: { value: maxRequests },
-			maxJobs: { value: maxJobs },
-			spawn: { value: spawn },
-			fatal: { value: fatal },
-			reap: { value: reap },
+			maxRequests: { value: maxRequests, writable: false, configurable: false, enumerable: false },
+			maxJobs: { value: maxJobs, writable: false, configurable: false, enumerable: false },
+			spawn: { value: spawn, writable: false, configurable: false, enumerable: false },
+			fatal: { value: fatal, writable: false, configurable: false, enumerable: false },
+			reap: { value: reap, writable: false, configurable: false, enumerable: false },
 		});
 	}
 
