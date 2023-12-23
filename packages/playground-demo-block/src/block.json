@@ -28,8 +28,8 @@
 			"type": "array",
 			"default": [
 				{
-					"name": "index.js",
-					"file": ""
+					"name": "index.php",
+					"file": "<?php\n/**\n * Plugin Name: My plugin\n */\n"
 				}
 			]
 		},
