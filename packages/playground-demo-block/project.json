@@ -1,0 +1,51 @@
+{
+	"name": "playground-demo-block",
+	"$schema": "../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "packages/playground-demo-block/src",
+	"projectType": "library",
+	"targets": {
+		"build": {
+			"executor": "nx:noop",
+			"dependsOn": ["build:zip"]
+		},
+		"build:zip": {
+			"executor": "nx:run-commands",
+			"options": {
+				"cwd": "dist/packages/playground-demo-block",
+				"commands": ["zip -r ../playground-demo-block.zip ./*"],
+				"parallel": false
+			},
+			"dependsOn": ["build:bundle"]
+		},
+		"build:bundle": {
+			"executor": "nx:run-commands",
+			"options": {
+				"commands": [
+					"wp-scripts build --webpack-src-dir=packages/playground-demo-block/src/ --output-path=dist/packages/playground-demo-block/build",
+					"cp packages/playground-demo-block/package.json packages/playground-demo-block/*.php dist/packages/playground-demo-block "
+				],
+				"parallel": false
+			}
+		},
+		"dev": {
+			"executor": "nx:run-commands",
+			"options": {
+				"commands": [
+					"wp-scripts start packages/playground-demo-block/src/index.ts --output-path=dist/packages/playground-demo-block/build"
+				]
+			}
+		},
+		"lint": {
+			"executor": "nx:run-commands",
+			"options": {
+				"cwd": "packages/playground-demo-block",
+				"commands": [
+					"wp-scripts lint-style",
+					"wp-scripts lint-js",
+					"wp-scripts format"
+				]
+			}
+		}
+	},
+	"tags": []
+}

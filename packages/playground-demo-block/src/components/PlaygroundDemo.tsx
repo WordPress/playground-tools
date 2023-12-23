@@ -1,4 +1,3 @@
-import React from 'react';
 import type { Attributes, File } from '../index';
 import ReactCodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
@@ -141,7 +140,6 @@ export default function PlaygroundDemo({
 		}
 
 		await activatePlugin(client, {
-			pluginName: 'Demo plugin',
 			pluginPath: '/wordpress/wp-content/plugins/demo-plugin',
 		});
 	};
@@ -180,7 +178,12 @@ export default function PlaygroundDemo({
 
 			const client = await startPlaygroundWeb({
 				iframe: iframeRef.current,
-				remoteUrl: 'https://playground.wordpress.net/remote.html',
+				// wasm.wordpress.net is alias for playground.wordpress.net at the moment.
+				// @TODO: Use playground.wordpress.net once the service worker
+				//        is updated. The current one tries to serve the remote.html
+				//        file from a /wp-6.4/ path when this block is used on
+				//        playground.wordpress.net, and that returns a 404.html.
+				remoteUrl: 'https://wasm.wordpress.net/remote.html',
 			});
 
 			await client.isReady();
@@ -299,7 +302,7 @@ export default function PlaygroundDemo({
 									>
 										<InputControl
 											placeholder="New file name"
-											onChange={(value) => {
+											onChange={(value: any) => {
 												if (value) {
 													setNewFileName(value);
 												}
@@ -373,7 +376,7 @@ export default function PlaygroundDemo({
 									>
 										<InputControl
 											value={currentFileName}
-											onChange={(value) => {
+											onChange={(value: any) => {
 												if (value) {
 													setCurrentFileName(value);
 												}
