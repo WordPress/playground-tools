@@ -141,9 +141,13 @@ export default function PlaygroundDemo({
 			}
 		}
 
-		await activatePlugin(client, {
-			pluginPath: '/wordpress/wp-content/plugins/demo-plugin',
-		});
+		try {
+			await activatePlugin(client, {
+				pluginPath: '/wordpress/wp-content/plugins/demo-plugin',
+			});
+		} catch (e) {
+			console.error(e);
+		}
 	};
 
 	const handleRedirect = async (client: PlaygroundClient, postId: number) => {
@@ -214,7 +218,11 @@ export default function PlaygroundDemo({
 				postId = parseInt(newPostId);
 			}
 
-			await handleCodeInjection(client, files);
+			try {
+				await handleCodeInjection(client, files);
+			} catch (e) {
+				console.error(e);
+			}
 
 			if (logInUser) {
 				await login(client, {
