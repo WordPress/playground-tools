@@ -31,7 +31,7 @@
 			"executor": "nx:run-commands",
 			"options": {
 				"commands": [
-					"wp-scripts start packages/playground-demo-block/src/index.ts --output-path=dist/packages/playground-demo-block/build"
+					"wp-scripts start --webpack-src-dir=packages/playground-demo-block/src/ --output-path=dist/packages/playground-demo-block/build"
 				]
 			}
 		},
