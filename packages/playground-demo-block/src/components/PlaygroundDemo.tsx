@@ -310,24 +310,30 @@ export default function PlaygroundDemo({
 											setNewFileModalOpen(false)
 										}
 									>
-										<InputControl
-											placeholder="New file name"
-											onChange={(value: any) => {
-												if (value) {
-													setNewFileName(value);
+										<form
+											onSubmit={(e) => {
+												if (newFileName) {
+													addFile(newFileName, '');
+													setNewFileModalOpen(false);
 												}
-											}}
-										/>
-										<br />
-										<Button
-											variant="primary"
-											onClick={() => {
-												addFile(newFileName, '');
-												setNewFileModalOpen(false);
+												e.preventDefault();
 											}}
 										>
-											Create
-										</Button>
+											<InputControl
+												autoFocus
+												placeholder="New file name"
+												onChange={(value: any) => {
+													setNewFileName(value || '');
+												}}
+											/>
+											<br />
+											<Button
+												variant="primary"
+												type="submit"
+											>
+												Create
+											</Button>
+										</form>
 									</Modal>
 								)}
 							</>
@@ -357,9 +363,12 @@ export default function PlaygroundDemo({
 							<div className="file-actions">
 								<button
 									type="button"
-									onClick={() =>
-										setEditFileNameModalOpen(true)
-									}
+									onClick={() => {
+										setEditFileNameModalOpen(true);
+										setCurrentFileName(
+											files[currentFileIndex].name
+										);
+									}}
 									className="playground-demo-button button-non-destructive"
 								>
 									<Icon icon={edit} /> Edit file name
@@ -384,27 +393,37 @@ export default function PlaygroundDemo({
 											setEditFileNameModalOpen(false)
 										}
 									>
-										<InputControl
-											value={currentFileName}
-											onChange={(value: any) => {
-												if (value) {
-													setCurrentFileName(value);
+										<form
+											onSubmit={(e) => {
+												if (currentFileName) {
+													updateFileName(
+														currentFileIndex,
+														currentFileName
+													);
+													setEditFileNameModalOpen(
+														false
+													);
 												}
-											}}
-										/>
-										<br />
-										<Button
-											variant="primary"
-											onClick={() => {
-												updateFileName(
-													currentFileIndex,
-													currentFileName
-												);
-												setEditFileNameModalOpen(false);
+												e.preventDefault();
 											}}
 										>
-											Done
-										</Button>
+											<InputControl
+												value={currentFileName}
+												autoFocus
+												onChange={(value: any) => {
+													setCurrentFileName(
+														value || ''
+													);
+												}}
+											/>
+											<br />
+											<Button
+												variant="primary"
+												type="submit"
+											>
+												Done
+											</Button>
+										</form>
 									</Modal>
 								)}
 							</div>
