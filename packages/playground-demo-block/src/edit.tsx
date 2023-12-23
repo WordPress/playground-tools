@@ -8,8 +8,11 @@ import {
 	TextareaControl,
 	Panel,
 	PanelBody,
+	// @ts-ignore
 	__experimentalInputControl as InputControl,
+	// @ts-ignore
 	__experimentalToggleGroupControl as ToggleGroupControl,
+	// @ts-ignore
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 import PlaygroundDemo from './components/PlaygroundDemo';
@@ -192,7 +195,7 @@ export default function Edit({
 								<ToggleGroupControl
 									label="Create new: post type"
 									value={createNewPostType}
-									onChange={(value) => {
+									onChange={(value: any) => {
 										setAttributes({
 											createNewPostType:
 												value?.toString(),
@@ -211,7 +214,7 @@ export default function Edit({
 								</ToggleGroupControl>
 								<InputControl
 									value={createNewPostTitle}
-									onChange={(value) => {
+									onChange={(value: any) => {
 										setAttributes({
 											createNewPostTitle: value,
 										});
@@ -247,7 +250,7 @@ export default function Edit({
 									<ToggleGroupControl
 										label="Create new redirect: redirect to"
 										value={redirectToPostType}
-										onChange={(value) => {
+										onChange={(value: any) => {
 											setAttributes({
 												redirectToPostType:
 													value?.toString(),
@@ -270,7 +273,7 @@ export default function Edit({
 						{(!createNewPost || !redirectToPost) && (
 							<InputControl
 								value={landingPageUrl}
-								onChange={(value) => {
+								onChange={(value: any) => {
 									setAttributes({
 										landingPageUrl: value,
 									});

@@ -1,3 +1,4 @@
+import React from 'react';
 import type { Attributes, File } from '../index';
 import ReactCodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
@@ -14,6 +15,7 @@ import { useEffect, useRef, useState, useCallback } from '@wordpress/element';
 import {
 	Modal,
 	Button,
+	// @ts-ignore
 	__experimentalInputControl as InputControl,
 } from '@wordpress/components';
 import { Icon, plus, cancelCircleFilled, edit } from '@wordpress/icons';
