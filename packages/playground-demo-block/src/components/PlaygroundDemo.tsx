@@ -15,12 +15,24 @@ import { Button } from '@wordpress/components';
 import { Icon, plus, cancelCircleFilled, edit } from '@wordpress/icons';
 import { FileNameModal } from './FileNameModal';
 import useEditorFiles from './useEditorFiles';
+import { LanguageSupport } from '@codemirror/language';
 
 export type PlaygroundDemoProps = Attributes & {
 	showAddNewFile: boolean;
 	showFileControls: boolean;
 	onStateChange?: (state: any) => void;
 };
+
+const languages: Record<string, LanguageSupport> = {
+	js: javascript(),
+	jsx: javascript({ jsx: true }),
+	json: json(),
+	php: php(),
+};
+
+function getLanguageExtensions(extension: string) {
+	return extension in languages ? [languages[extension]] : [];
+}
 
 export default function PlaygroundDemo({
 	codeEditor,
@@ -49,13 +61,6 @@ export default function PlaygroundDemo({
 		setActiveFileIndex,
 	} = useEditorFiles(filesAttribute || []);
 
-	const languages = new Map([
-		['js', javascript()],
-		['jsx', javascript({ jsx: true })],
-		['json', json()],
-		['php', php()],
-	]);
-
 	const iframeRef = useRef<HTMLIFrameElement>(null);
 	const playgroundClientRef = useRef<PlaygroundClient | null>(null);
 	const [lastInput, setLastInput] = useState(activeFile.contents || '');
@@ -67,13 +72,7 @@ export default function PlaygroundDemo({
 	const [isNewFileModalOpen, setNewFileModalOpen] = useState(false);
 	const [isEditFileNameModalOpen, setEditFileNameModalOpen] = useState(false);
 
-	const currentFileExtension = files?.[activeFileIndex]?.name
-		?.split('.')
-		.pop();
-	const currentFileLanguage = currentFileExtension
-		? languages.get(currentFileExtension)
-		: javascript();
-	const editorLanguage = currentFileLanguage ? [currentFileLanguage] : [];
+	const currentFileExtension = activeFile?.name.split('.').pop();
 
 	const handleCodeInjection = async (
 		client: PlaygroundClient,
@@ -247,7 +246,7 @@ export default function PlaygroundDemo({
 			{codeEditor && (
 				<div className="code-container">
 					<div className="file-tabs">
-						{files?.map((file, index) => (
+						{files.map((file, index) => (
 							<Button
 								key={file.name}
 								variant="primary"
@@ -297,7 +296,9 @@ export default function PlaygroundDemo({
 					<div className="code-editor-wrapper">
 						<ReactCodeMirror
 							value={lastInput}
-							extensions={[...editorLanguage]}
+							extensions={getLanguageExtensions(
+								currentFileExtension || 'js'
+							)}
 							readOnly={codeEditorReadOnly}
 							onChange={(value) => {
 								setLastInput(value);
@@ -305,19 +306,7 @@ export default function PlaygroundDemo({
 						/>
 					</div>
 					<div className="actions-bar">
-						<Button
-							variant="primary"
-							className="playground-demo-button"
-							onClick={() => {
-								updateFile((file) => ({
-									...file,
-									contents: lastInput,
-								}));
-							}}
-						>
-							Save
-						</Button>
-						{showFileControls && (
+						{showFileControls ? (
 							<div className="file-actions">
 								<button
 									type="button"
@@ -360,7 +349,21 @@ export default function PlaygroundDemo({
 									/>
 								)}
 							</div>
+						) : (
+							<div className="file-actions"></div>
 						)}
+						<Button
+							variant="primary"
+							className="playground-demo-button"
+							onClick={() => {
+								updateFile((file) => ({
+									...file,
+									contents: lastInput,
+								}));
+							}}
+						>
+							Save
+						</Button>
 					</div>
 				</div>
 			)}

@@ -3,7 +3,7 @@ import type { EditorFile } from '../index';
 
 export type EditorFileMapper = (file: EditorFile) => EditorFile;
 export default function useEditorFiles(filesAttribute: EditorFile[]) {
-	const [files, setFiles] = useState<EditorFile[]>(filesAttribute);
+	const [files, setFiles] = useState<EditorFile[]>(filesAttribute || []);
 	useEffect(() => {
 		if (filesAttribute) {
 			setFiles(filesAttribute);
