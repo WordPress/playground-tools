@@ -40,23 +40,24 @@ const writePluginFiles = async (
 	files: EditorFile[]
 ) => {
 	const docroot = await client.documentRoot;
-	if (await client.fileExists(docroot + '/wp-content/plugins/demo-plugin')) {
-		await client.rmdir(docroot + '/wp-content/plugins/demo-plugin', {
+	const pluginPath = docroot + '/wp-content/plugins/demo-plugin';
+	if (await client.fileExists(pluginPath)) {
+		await client.rmdir(pluginPath, {
 			recursive: true,
 		});
 	}
-	await client.mkdir(docroot + '/wp-content/plugins/demo-plugin');
+	await client.mkdir(pluginPath);
 
 	for (const file of files) {
-		await client.writeFile(
-			docroot + `/wp-content/plugins/demo-plugin/${file.name}`,
-			file.contents
-		);
+		const filePath = `${pluginPath}/${file.name}`;
+		const parentDir = filePath.split('/').slice(0, -1).join('/');
+		await client.mkdir(parentDir);
+		await client.writeFile(filePath, file.contents);
 	}
 
 	try {
 		await activatePlugin(client, {
-			pluginPath: docroot + '/wp-content/plugins/demo-plugin',
+			pluginPath,
 		});
 	} catch (e) {
 		console.error(e);
