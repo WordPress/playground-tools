@@ -87,8 +87,9 @@ export default function PlaygroundDemo({
 	};
 
 	const handleScriptInjection = async (client: PlaygroundClient) => {
+		const docroot = await client.documentRoot;
 		await client.writeFile(
-			'/wordpress/wp-content/mu-plugins/example-code.php',
+			docroot + '/wp-content/mu-plugins/example-code.php',
 			"<?php add_action('admin_init',function(){wp_add_inline_script('wp-blocks','" +
 				lastInput +
 				"','after');});"
@@ -103,13 +104,15 @@ export default function PlaygroundDemo({
 			return;
 		}
 
-		await client.mkdir('/wordpress/wp-content/plugins/demo-plugin');
+		const docroot = await client.documentRoot;
+
+		await client.mkdir(docroot + '/wp-content/plugins/demo-plugin');
 
 		if (newFiles) {
 			for (const file of newFiles) {
 				console.log({ file, newFiles });
 				await client.writeFile(
-					`/wordpress/wp-content/plugins/demo-plugin/${file.name}`,
+					docroot + `/wp-content/plugins/demo-plugin/${file.name}`,
 					file.contents
 				);
 			}
@@ -117,7 +120,7 @@ export default function PlaygroundDemo({
 
 		try {
 			await activatePlugin(client, {
-				pluginPath: '/wordpress/wp-content/plugins/demo-plugin',
+				pluginPath: docroot + '/wp-content/plugins/demo-plugin',
 			});
 		} catch (e) {
 			console.error(e);
@@ -163,9 +166,10 @@ export default function PlaygroundDemo({
 			let postId = 0;
 
 			if (createNewPost) {
+				const docroot = await client.documentRoot;
 				const { text: newPostId } = await client.run({
 					code: `<?php
-						require("/wordpress/wp-load.php");
+						require("${docroot}/wp-load.php");
 
 						$post_id = wp_insert_post([
 							'post_title' => '${createNewPostTitle}',
