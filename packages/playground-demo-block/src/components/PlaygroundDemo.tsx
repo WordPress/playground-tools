@@ -13,7 +13,13 @@ import {
 import { activatePlugin } from '@wp-playground/blueprints';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { Button } from '@wordpress/components';
-import { Icon, plus, cancelCircleFilled, edit } from '@wordpress/icons';
+import {
+	Icon,
+	plus,
+	download,
+	cancelCircleFilled,
+	edit,
+} from '@wordpress/icons';
 import { FileNameModal } from './FileNameModal';
 import useEditorFiles from './useEditorFiles';
 import { LanguageSupport } from '@codemirror/language';
@@ -120,6 +126,61 @@ export default function PlaygroundDemo({
 	const [isEditFileNameModalOpen, setEditFileNameModalOpen] = useState(false);
 
 	/**
+	 * @TODO migrate to @wp-playground/compression-streams
+	 */
+	async function downloadMyPlugin() {
+		if (!playgroundClientRef.current) {
+			return;
+		}
+
+		const client = playgroundClientRef.current;
+		const docroot = await client.documentRoot;
+		const zipPath = '/tmp/demo-plugin.zip';
+		const pluginPath = docroot + '/wp-content/plugins/demo-plugin';
+
+		const result = await client.run({
+			code: `<?php
+				if(file_exists(${phpVar(zipPath)})) {
+					unlink(${phpVar(zipPath)});
+				}
+				$zip = new ZipArchive;
+				$zip->open(${phpVar(zipPath)}, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+				$files = new RecursiveIteratorIterator(
+					new RecursiveDirectoryIterator(${phpVar(pluginPath)}),
+					RecursiveIteratorIterator::LEAVES_ONLY
+				);
+
+				foreach ($files as $name => $file) {
+					if (!$file->isDir()) {
+						$filePath = $file->getRealPath();
+						$relativePath = substr($filePath, ${pluginPath.length} + 1);
+
+						$zip->addFile($filePath, $relativePath);
+					}
+				}
+
+				$zip->close();
+				echo 'done';
+			`,
+		});
+		if (result.text !== 'done') {
+			console.log('Error creating zip file');
+			console.log(result.errors);
+			console.log(result.text);
+		}
+
+		const zipContents = await client.readFileAsBuffer(zipPath);
+
+		// Download the zip file.
+		const blob = new Blob([zipContents], { type: 'application/zip' });
+		const url = URL.createObjectURL(blob);
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = 'demo-plugin.zip';
+		link.click();
+	}
+
+	/**
 	 * Let the parent component know when the state changes.
 	 */
 	useEffect(() => {
@@ -150,8 +211,8 @@ export default function PlaygroundDemo({
 				blueprint: {
 					constants: {
 						// WP_DEBUG: 'true'
-					}
-				}
+					},
+				},
 			});
 
 			await client.isReady();
@@ -271,31 +332,36 @@ export default function PlaygroundDemo({
 							</Button>
 						))}
 						{showAddNewFile && (
-							<>
-								<Button
-									variant="secondary"
-									className="file-tab file-tab-add-new"
-									onClick={() => setNewFileModalOpen(true)}
-								>
-									<Icon icon={plus} />
-								</Button>
-								{isNewFileModalOpen && (
-									<FileNameModal
-										title="Create new file"
-										onRequestClose={() =>
-											setNewFileModalOpen(false)
-										}
-										onSave={(newFileName) => {
-											addFile({
-												name: newFileName,
-												contents: '',
-											});
-											setActiveFileIndex(files.length);
-											setNewFileModalOpen(false);
-										}}
-									/>
-								)}
-							</>
+							<Button
+								variant="secondary"
+								className="file-tab file-tab-extra"
+								onClick={() => setNewFileModalOpen(true)}
+							>
+								<Icon icon={plus} />
+							</Button>
+						)}
+						<Button
+							variant="secondary"
+							className="file-tab file-tab-extra"
+							onClick={() => downloadMyPlugin()}
+						>
+							<Icon icon={download} />
+						</Button>
+						{isNewFileModalOpen && (
+							<FileNameModal
+								title="Create new file"
+								onRequestClose={() =>
+									setNewFileModalOpen(false)
+								}
+								onSave={(newFileName) => {
+									addFile({
+										name: newFileName,
+										contents: '',
+									});
+									setActiveFileIndex(files.length);
+									setNewFileModalOpen(false);
+								}}
+							/>
 						)}
 					</div>
 					<div className="code-editor-wrapper">
