@@ -279,30 +279,36 @@ export default function PlaygroundDemo({
 			{codeEditor && (
 				<div className="code-container">
 					<div className="file-tabs">
-						{files &&
-							files.map((file, index) => (
-								<button
-									className={`file-tab wp-element-button ${
-										index === currentFileIndex &&
-										'file-tab-active'
-									}`}
-									onClick={() => {
-										setCurrentFileIndex(index);
-										setCurrentFileName(file.name);
-										setLastInput(file.file);
-									}}
-								>
-									{file.name}
-								</button>
-							))}
+						{files?.map((file, index) => (
+							<Button
+								key={file.name}
+								variant="primary"
+								className={`file-tab ${
+									index === currentFileIndex &&
+									'file-tab-active'
+								}`}
+								onClick={() => {
+									setCurrentFileIndex(index);
+									setCurrentFileName(file.name);
+									setLastInput(file.file);
+								}}
+								onDoubleClick={() => {
+									setEditFileNameModalOpen(true);
+									setCurrentFileName(files[index].name);
+								}}
+							>
+								{file.name}
+							</Button>
+						))}
 						{showAddNewFile && (
 							<>
-								<button
-									className="file-tab file-tab-add-new wp-element-button"
+								<Button
+									variant="secondary"
+									className="file-tab file-tab-add-new"
 									onClick={() => setNewFileModalOpen(true)}
 								>
 									<Icon icon={plus} />
-								</button>
+								</Button>
 								{isNewFileModalOpen && (
 									<Modal
 										title="Create new file"
@@ -314,6 +320,7 @@ export default function PlaygroundDemo({
 											onSubmit={(e) => {
 												if (newFileName) {
 													addFile(newFileName, '');
+													setCurrentFileIndex(files.length);
 													setNewFileModalOpen(false);
 												}
 												e.preventDefault();
@@ -350,15 +357,15 @@ export default function PlaygroundDemo({
 						/>
 					</div>
 					<div className="actions-bar">
-						<button
+						<Button
+							variant="primary"
+							className="playground-demo-button"
 							onClick={() => {
 								updateFileContent(currentFileIndex, lastInput);
 							}}
-							type="button"
-							className="wp-element-button"
 						>
 							Save
-						</button>
+						</Button>
 						{showFileControls && (
 							<div className="file-actions">
 								<button

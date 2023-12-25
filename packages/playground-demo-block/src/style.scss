@@ -7,25 +7,15 @@
 		box-sizing: border-box;
 	}
 
+	.playground-demo-button {
+		font-size: 18px;
+		padding: 22px 24px;
+		cursor: pointer;
+	}
+
 	.demo-container {
 		display: flex;
 		flex-wrap: wrap;
-
-		.actions-bar {
-			.wp-element-button {
-				background-color: #3858e9;
-				cursor: pointer;
-			}
-
-			.wp-element-button:hover {
-				background-color: #3258ff;
-			}
-
-			.wp-element-button:focus {
-				background-color: #3258ff;
-				outline: 2px solid #eee;
-			}
-		}
 	}
 
 	.code-container {
@@ -55,20 +45,25 @@
 			cursor: pointer;
 			font-size: 16px;
 			font-weight: bold;
-			background-color: #575757;
 
-			&.file-tab-active,
-			&.file-tab-add-new {
-				background-color: #3258ff;
-			}
-
-			&.file-tab-active {
-				pointer-events: none;
+			&:not(.file-tab-active) {
+				background-color: #575757;
 			}
 		}
 
-		> .file-tab:hover {
-			background-color: #7c7d81;
+		.file-tab-add-new {
+			background-color: #575757;
+			color: #fff;
+			font-weight: bold;
+			&:hover {
+				background-color: #6e6e6e;
+			}
+			&:focus {
+				background-color: #6e6e6e;
+			}
+			&:active {
+				background-color: #6e6e6e;
+			}
 		}
 	}
 
