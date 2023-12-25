@@ -137,7 +137,7 @@ export default function PlaygroundDemo({
 				return;
 			}
 
-			console.log('initializing Playground again');
+			console.log('Initializing Playground');
 			const client = await startPlaygroundWeb({
 				iframe: iframeRef.current,
 				// wasm.wordpress.net is alias for playground.wordpress.net at the moment.
@@ -196,7 +196,6 @@ export default function PlaygroundDemo({
 
 		initPlayground();
 	}, [
-		iframeRef.current,
 		logInUser,
 		landingPageUrl,
 		createNewPost,
@@ -369,7 +368,7 @@ export default function PlaygroundDemo({
 					</div>
 				</div>
 			)}
-			<iframe ref={iframeRef} className="playground-iframe"></iframe>
+			<iframe key="playground-iframe" ref={iframeRef} className="playground-iframe"></iframe>
 		</main>
 	);
 }
