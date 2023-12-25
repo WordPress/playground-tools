@@ -8,6 +8,7 @@ import {
 	startPlaygroundWeb,
 	login,
 	PlaygroundClient,
+	phpVar,
 } from '@wp-playground/client';
 import { activatePlugin } from '@wp-playground/blueprints';
 import { useEffect, useRef, useState } from '@wordpress/element';
@@ -32,6 +33,53 @@ const languages: Record<string, LanguageSupport> = {
 
 function getLanguageExtensions(extension: string) {
 	return extension in languages ? [languages[extension]] : [];
+}
+
+const writePluginFiles = async (
+	client: PlaygroundClient,
+	files: EditorFile[]
+) => {
+	const docroot = await client.documentRoot;
+	if (await client.fileExists(docroot + '/wp-content/plugins/demo-plugin')) {
+		await client.rmdir(docroot + '/wp-content/plugins/demo-plugin', {
+			recursive: true,
+		});
+	}
+	await client.mkdir(docroot + '/wp-content/plugins/demo-plugin');
+
+	for (const file of files) {
+		await client.writeFile(
+			docroot + `/wp-content/plugins/demo-plugin/${file.name}`,
+			file.contents
+		);
+	}
+
+	try {
+		await activatePlugin(client, {
+			pluginPath: docroot + '/wp-content/plugins/demo-plugin',
+		});
+	} catch (e) {
+		console.error(e);
+	}
+};
+
+/**
+ * Playground's `goTo` method doesn't work when the URL is the same as the
+ * current URL. This function returns a URL that is the same as the given URL,
+ * but with a `__playground_refresh` query parameter added or removed to
+ * force a refresh.
+ *
+ * @param lastPath
+ * @returns
+ */
+function getRefreshPath(lastPath: string) {
+	const url = new URL(lastPath, 'https://playground.wordpress.net');
+	if (url.searchParams.has('__playground_refresh')) {
+		url.searchParams.delete('__playground_refresh', '1');
+	} else {
+		url.searchParams.set('__playground_refresh', '1');
+	}
+	return url.pathname + url.search;
 }
 
 export default function PlaygroundDemo({
@@ -64,83 +112,24 @@ export default function PlaygroundDemo({
 	const iframeRef = useRef<HTMLIFrameElement>(null);
 	const playgroundClientRef = useRef<PlaygroundClient | null>(null);
 	const [lastInput, setLastInput] = useState(activeFile.contents || '');
-	useEffect(() => {
-		setLastInput(activeFile.contents);
-	}, [activeFile.contents]);
+	const [lastPath, setLastUrl] = useState(landingPageUrl);
 
 	const [currentPostId, setCurrentPostId] = useState(0);
 	const [isNewFileModalOpen, setNewFileModalOpen] = useState(false);
 	const [isEditFileNameModalOpen, setEditFileNameModalOpen] = useState(false);
 
+	/**
+	 * Let the parent component know when the state changes.
+	 */
+	useEffect(() => {
+		onStateChange?.({
+			client: playgroundClientRef.current,
+			postId: currentPostId,
+			files,
+		});
+	}, [playgroundClientRef.current, currentPostId, files]);
+
 	const currentFileExtension = activeFile?.name.split('.').pop();
-
-	const handleCodeInjection = async (
-		client: PlaygroundClient,
-		newFiles: EditorFile[]
-	) => {
-		if (codeEditorMode === 'editor-script') {
-			await handleScriptInjection(client);
-		} else if (codeEditorMode === 'plugin') {
-			await handlePluginCreation(client, newFiles);
-		}
-	};
-
-	const handleScriptInjection = async (client: PlaygroundClient) => {
-		const docroot = await client.documentRoot;
-		await client.writeFile(
-			docroot + '/wp-content/mu-plugins/example-code.php',
-			"<?php add_action('admin_init',function(){wp_add_inline_script('wp-blocks','" +
-				lastInput +
-				"','after');});"
-		);
-	};
-
-	const handlePluginCreation = async (
-		client: PlaygroundClient,
-		newFiles: EditorFile[]
-	) => {
-		if (!codeEditor) {
-			return;
-		}
-
-		const docroot = await client.documentRoot;
-
-		await client.mkdir(docroot + '/wp-content/plugins/demo-plugin');
-
-		if (newFiles) {
-			for (const file of newFiles) {
-				console.log({ file, newFiles });
-				await client.writeFile(
-					docroot + `/wp-content/plugins/demo-plugin/${file.name}`,
-					file.contents
-				);
-			}
-		}
-
-		try {
-			await activatePlugin(client, {
-				pluginPath: docroot + '/wp-content/plugins/demo-plugin',
-			});
-		} catch (e) {
-			console.error(e);
-		}
-	};
-
-	const handleRedirect = async (client: PlaygroundClient, postId: number) => {
-		if (createNewPost && redirectToPost) {
-			if (redirectToPostType === 'front') {
-				await client.goTo(`/?p=${postId}`);
-				return;
-			} else if (redirectToPostType === 'admin') {
-				await client.goTo(
-					`/wp-admin/post.php?post=${postId}&action=edit`
-				);
-				return;
-			}
-		}
-
-		await client.goTo(landingPageUrl);
-	};
 
 	useEffect(() => {
 		async function initPlayground() {
@@ -148,6 +137,7 @@ export default function PlaygroundDemo({
 				return;
 			}
 
+			console.log('initializing Playground again');
 			const client = await startPlaygroundWeb({
 				iframe: iframeRef.current,
 				// wasm.wordpress.net is alias for playground.wordpress.net at the moment.
@@ -159,11 +149,16 @@ export default function PlaygroundDemo({
 			});
 
 			await client.isReady();
-
 			playgroundClientRef.current = client;
 
-			let postId = 0;
+			// Keeps track of the last URL that was loaded in the iframe.
+			// @TODO: Fix client.getCurrentURL() and use that instead.
+			client.onNavigation((url) => {
+				console.log({ url });
+				setLastUrl(url);
+			});
 
+			let postId = 0;
 			if (createNewPost) {
 				const docroot = await client.documentRoot;
 				const { text: newPostId } = await client.run({
@@ -171,10 +166,10 @@ export default function PlaygroundDemo({
 						require("${docroot}/wp-load.php");
 
 						$post_id = wp_insert_post([
-							'post_title' => '${createNewPostTitle}',
-							'post_content' => '${createNewPostContent}',
+							'post_title' => ${phpVar(createNewPostTitle)},
+							'post_content' => ${phpVar(createNewPostContent)},
 							'post_status' => 'publish',
-							'post_type' => '${createNewPostType}',
+							'post_type' => ${phpVar(createNewPostType)},
 						]);
 
 						echo $post_id;
@@ -185,12 +180,6 @@ export default function PlaygroundDemo({
 				postId = parseInt(newPostId);
 			}
 
-			try {
-				await handleCodeInjection(client, files);
-			} catch (e) {
-				console.error(e);
-			}
-
 			if (logInUser) {
 				await login(client, {
 					username: 'admin',
@@ -198,7 +187,11 @@ export default function PlaygroundDemo({
 				});
 			}
 
-			await handleRedirect(client, postId);
+			await reinstallCode();
+
+			const redirectUrl = getLandingPageUrl(postId);
+			setLastUrl(redirectUrl);
+			await client.goTo(redirectUrl);
 		}
 
 		initPlayground();
@@ -214,32 +207,39 @@ export default function PlaygroundDemo({
 		redirectToPostType,
 	]);
 
-	useEffect(() => {
-		async function update() {
-			if (!playgroundClientRef.current) {
-				return;
-			}
-
-			if (!files) {
-				return;
-			}
-
-			const client = playgroundClientRef.current;
-
-			await handleCodeInjection(client, files);
-			await handleRedirect(client, currentPostId);
-
-			if (onStateChange) {
-				onStateChange({
-					client,
-					postId: currentPostId,
-					files,
-				});
+	function getLandingPageUrl(postId: number = currentPostId) {
+		if (createNewPost && redirectToPost) {
+			if (redirectToPostType === 'front') {
+				return `/?p=${postId}`;
+			} else if (redirectToPostType === 'admin') {
+				return `/wp-admin/post.php?post=${postId}&action=edit`;
 			}
 		}
+		return landingPageUrl;
+	}
 
-		update();
-	}, [playgroundClientRef.current, currentPostId, JSON.stringify(files)]);
+	async function reinstallCode() {
+		if (!playgroundClientRef.current) {
+			return;
+		}
+
+		const client = playgroundClientRef.current;
+		const docroot = await client.documentRoot;
+		if (codeEditorMode === 'editor-script') {
+			await client.writeFile(
+				docroot + '/wp-content/mu-plugins/example-code.php',
+				"<?php add_action('admin_init',function(){wp_add_inline_script('wp-blocks','" +
+					lastInput +
+					"','after');});"
+			);
+		} else if (codeEditorMode === 'plugin' && codeEditor) {
+			await writePluginFiles(client, files);
+		}
+	}
+
+	async function refreshPlayground() {
+		await playgroundClientRef.current!.goTo(getRefreshPath(lastPath));
+	}
 
 	return (
 		<main className="demo-container">
@@ -295,14 +295,17 @@ export default function PlaygroundDemo({
 					</div>
 					<div className="code-editor-wrapper">
 						<ReactCodeMirror
-							value={lastInput}
+							value={activeFile.contents}
 							extensions={getLanguageExtensions(
 								currentFileExtension || 'js'
 							)}
 							readOnly={codeEditorReadOnly}
-							onChange={(value) => {
-								setLastInput(value);
-							}}
+							onChange={(value) =>
+								updateFile((file) => ({
+									...file,
+									contents: value,
+								}))
+							}
 						/>
 					</div>
 					<div className="actions-bar">
@@ -354,15 +357,14 @@ export default function PlaygroundDemo({
 						)}
 						<Button
 							variant="primary"
-							className="playground-demo-button"
+							icon="controls-play"
+							iconPosition="right"
 							onClick={() => {
-								updateFile((file) => ({
-									...file,
-									contents: lastInput,
-								}));
+								reinstallCode().then(refreshPlayground);
 							}}
+							className="playground-demo-button"
 						>
-							Save
+							Run
 						</Button>
 					</div>
 				</div>

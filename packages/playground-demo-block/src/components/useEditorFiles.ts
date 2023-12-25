@@ -1,14 +1,9 @@
-import { useState, useCallback, useEffect } from '@wordpress/element';
+import { useState, useCallback } from '@wordpress/element';
 import type { EditorFile } from '../index';
 
 export type EditorFileMapper = (file: EditorFile) => EditorFile;
 export default function useEditorFiles(filesAttribute: EditorFile[]) {
 	const [files, setFiles] = useState<EditorFile[]>(filesAttribute || []);
-	useEffect(() => {
-		if (filesAttribute) {
-			setFiles(filesAttribute);
-		}
-	}, [filesAttribute]);
 
 	const [activeFileIndex, setActiveFileIndex] = useState(0);
 	const activeFile = files[activeFileIndex];
