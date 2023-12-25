@@ -3,9 +3,9 @@ import Edit from './edit';
 import metadata from './block.json';
 import './style.scss';
 
-export type File = {
+export type EditorFile = {
 	name: string;
-	file: string;
+	contents: string;
 };
 
 export type Attributes = {
@@ -22,7 +22,7 @@ export type Attributes = {
 	redirectToPost: boolean;
 	redirectToPostType: string;
 	blueprint: string;
-	files?: File[];
+	files?: EditorFile[];
 };
 
 // @ts-ignore

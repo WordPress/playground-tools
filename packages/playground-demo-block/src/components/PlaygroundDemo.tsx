@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Attributes, File } from '../index';
+import type { Attributes, EditorFile } from '../index';
 import ReactCodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
@@ -10,11 +10,11 @@ import {
 	PlaygroundClient,
 } from '@wp-playground/client';
 import { activatePlugin } from '@wp-playground/blueprints';
-import { useImmer } from 'use-immer';
-import { useEffect, useRef, useState, useCallback } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import { Icon, plus, cancelCircleFilled, edit } from '@wordpress/icons';
 import { FileNameModal } from './FileNameModal';
+import useEditorFiles from './useEditorFiles';
 
 export type PlaygroundDemoProps = Attributes & {
 	showAddNewFile: boolean;
@@ -39,7 +39,15 @@ export default function PlaygroundDemo({
 	showFileControls = false,
 	onStateChange,
 }: PlaygroundDemoProps) {
-	const [files, setFiles] = useImmer<File[]>([]);
+	const {
+		files,
+		addFile,
+		updateFile,
+		removeFile,
+		activeFile,
+		activeFileIndex,
+		setActiveFileIndex,
+	} = useEditorFiles(filesAttribute || []);
 
 	const languages = new Map([
 		['js', javascript()],
@@ -50,13 +58,14 @@ export default function PlaygroundDemo({
 
 	const iframeRef = useRef<HTMLIFrameElement>(null);
 	const playgroundClientRef = useRef<PlaygroundClient | null>(null);
-	const [lastInput, setLastInput] = useState('');
-	const [currentPostId, setCurrentPostId] = useState(0);
+	const [lastInput, setLastInput] = useState(activeFile.contents || '');
+	useEffect(() => {
+		setLastInput(activeFile.contents);
+	}, [activeFile.contents]);
 
+	const [currentPostId, setCurrentPostId] = useState(0);
 	const [isNewFileModalOpen, setNewFileModalOpen] = useState(false);
 	const [isEditFileNameModalOpen, setEditFileNameModalOpen] = useState(false);
-
-	const [activeFileIndex, setActiveFileIndex] = useState(0);
 
 	const currentFileExtension = files?.[activeFileIndex]?.name
 		?.split('.')
@@ -66,39 +75,9 @@ export default function PlaygroundDemo({
 		: javascript();
 	const editorLanguage = currentFileLanguage ? [currentFileLanguage] : [];
 
-	const updateFileName = useCallback((index: number, newName: string) => {
-		setFiles((draft) => {
-			draft[index].name = newName;
-		});
-	}, []);
-
-	const updateFileContent = useCallback(
-		(index: number, newContent: string) => {
-			setFiles((draft) => {
-				draft[index].file = newContent;
-			});
-		},
-		[]
-	);
-
-	const removeFile = useCallback((index: number) => {
-		setFiles((draft) => {
-			draft.splice(index, 1);
-		});
-	}, []);
-
-	const addFile = useCallback((name: string, content?: string) => {
-		setFiles((draft) => {
-			draft.push({
-				name,
-				file: content || '',
-			});
-		});
-	}, []);
-
 	const handleCodeInjection = async (
 		client: PlaygroundClient,
-		newFiles: File[]
+		newFiles: EditorFile[]
 	) => {
 		if (codeEditorMode === 'editor-script') {
 			await handleScriptInjection(client);
@@ -118,7 +97,7 @@ export default function PlaygroundDemo({
 
 	const handlePluginCreation = async (
 		client: PlaygroundClient,
-		newFiles: File[]
+		newFiles: EditorFile[]
 	) => {
 		if (!codeEditor) {
 			return;
@@ -128,9 +107,10 @@ export default function PlaygroundDemo({
 
 		if (newFiles) {
 			for (const file of newFiles) {
+				console.log({ file, newFiles });
 				await client.writeFile(
 					`/wordpress/wp-content/plugins/demo-plugin/${file.name}`,
-					file.file
+					file.contents
 				);
 			}
 		}
@@ -159,16 +139,6 @@ export default function PlaygroundDemo({
 
 		await client.goTo(landingPageUrl);
 	};
-
-	useEffect(() => {
-		if (filesAttribute) {
-			setFiles(() => {
-				return filesAttribute;
-			});
-
-			setLastInput(filesAttribute[activeFileIndex].file);
-		}
-	}, [filesAttribute]);
 
 	useEffect(() => {
 		async function initPlayground() {
@@ -283,7 +253,7 @@ export default function PlaygroundDemo({
 								}`}
 								onClick={() => {
 									setActiveFileIndex(index);
-									setLastInput(file.file);
+									setLastInput(file.contents);
 								}}
 								onDoubleClick={() => {
 									setEditFileNameModalOpen(true);
@@ -308,7 +278,10 @@ export default function PlaygroundDemo({
 											setNewFileModalOpen(false)
 										}
 										onSave={(newFileName) => {
-											addFile(newFileName, '');
+											addFile({
+												name: newFileName,
+												contents: '',
+											});
 											setActiveFileIndex(files.length);
 											setNewFileModalOpen(false);
 										}}
@@ -332,7 +305,10 @@ export default function PlaygroundDemo({
 							variant="primary"
 							className="playground-demo-button"
 							onClick={() => {
-								updateFileContent(activeFileIndex, lastInput);
+								updateFile((file) => ({
+									...file,
+									contents: lastInput,
+								}));
 							}}
 						>
 							Save
@@ -370,11 +346,11 @@ export default function PlaygroundDemo({
 										onRequestClose={() =>
 											setEditFileNameModalOpen(false)
 										}
-										onSave={(newFileName) => {
-											updateFileName(
-												activeFileIndex,
-												newFileName
-											);
+										onSave={(fileName) => {
+											updateFile((file) => ({
+												...file,
+												name: fileName,
+											}));
 											setEditFileNameModalOpen(false);
 										}}
 									/>
