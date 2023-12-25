@@ -29,7 +29,7 @@
 			"default": [
 				{
 					"name": "index.php",
-					"file": "<?php\n/**\n * Plugin Name: My plugin\n */\n"
+					"file": "<?php\n/**\n * Plugin Name: My WordPress plugin\n */\n"
 				}
 			]
 		},
@@ -73,7 +73,7 @@
 	"textdomain": "playground-demo",
 	"editorScript": "file:./index.js",
 	"editorStyle": "file:./index.css",
-	"style": "file:./style-index.css",
+	"style": ["file:./style-index.css", "wp-components"],
 	"viewScript": ["file:./view.js", "react", "react-dom", "wp-components"],
 	"render": "file:./render.php"
 }

@@ -368,7 +368,11 @@ export default function PlaygroundDemo({
 					</div>
 				</div>
 			)}
-			<iframe key="playground-iframe" ref={iframeRef} className="playground-iframe"></iframe>
+			<iframe
+				key="playground-iframe"
+				ref={iframeRef}
+				className="playground-iframe"
+			></iframe>
 		</main>
 	);
 }
