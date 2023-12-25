@@ -12,13 +12,9 @@ import {
 import { activatePlugin } from '@wp-playground/blueprints';
 import { useImmer } from 'use-immer';
 import { useEffect, useRef, useState, useCallback } from '@wordpress/element';
-import {
-	Modal,
-	Button,
-	// @ts-ignore
-	__experimentalInputControl as InputControl,
-} from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { Icon, plus, cancelCircleFilled, edit } from '@wordpress/icons';
+import { FileNameModal } from './FileNameModal';
 
 export type PlaygroundDemoProps = Attributes & {
 	showAddNewFile: boolean;
@@ -59,14 +55,13 @@ export default function PlaygroundDemo({
 
 	const [isEditFileNameModalOpen, setEditFileNameModalOpen] = useState(false);
 	const [isNewFileModalOpen, setNewFileModalOpen] = useState(false);
-	const [newFileName, setNewFileName] = useState('');
 
-	const [currentFileIndex, setCurrentFileIndex] = useState(0);
-	const [currentFileName, setCurrentFileName] = useState(
-		files?.[currentFileIndex]?.name
+	const [activeFileIndex, setActiveFileIndex] = useState(0);
+	const [editedFileName, setEditedFileName] = useState(
+		files?.[activeFileIndex]?.name
 	);
 
-	const currentFileExtension = currentFileName?.split('.').pop();
+	const currentFileExtension = editedFileName?.split('.').pop();
 	const currentFileLanguage = currentFileExtension
 		? languages.get(currentFileExtension)
 		: javascript();
@@ -172,7 +167,7 @@ export default function PlaygroundDemo({
 				return filesAttribute;
 			});
 
-			setLastInput(filesAttribute[currentFileIndex].file);
+			setLastInput(filesAttribute[activeFileIndex].file);
 		}
 	}, [filesAttribute]);
 
@@ -284,17 +279,17 @@ export default function PlaygroundDemo({
 								key={file.name}
 								variant="primary"
 								className={`file-tab ${
-									index === currentFileIndex &&
+									index === activeFileIndex &&
 									'file-tab-active'
 								}`}
 								onClick={() => {
-									setCurrentFileIndex(index);
-									setCurrentFileName(file.name);
+									setActiveFileIndex(index);
+									setEditedFileName(file.name);
 									setLastInput(file.file);
 								}}
 								onDoubleClick={() => {
 									setEditFileNameModalOpen(true);
-									setCurrentFileName(files[index].name);
+									setEditedFileName(files[index].name);
 								}}
 							>
 								{file.name}
@@ -310,38 +305,17 @@ export default function PlaygroundDemo({
 									<Icon icon={plus} />
 								</Button>
 								{isNewFileModalOpen && (
-									<Modal
+									<FileNameModal
 										title="Create new file"
 										onRequestClose={() =>
 											setNewFileModalOpen(false)
 										}
-									>
-										<form
-											onSubmit={(e) => {
-												if (newFileName) {
-													addFile(newFileName, '');
-													setCurrentFileIndex(files.length);
-													setNewFileModalOpen(false);
-												}
-												e.preventDefault();
-											}}
-										>
-											<InputControl
-												autoFocus
-												placeholder="New file name"
-												onChange={(value: any) => {
-													setNewFileName(value || '');
-												}}
-											/>
-											<br />
-											<Button
-												variant="primary"
-												type="submit"
-											>
-												Create
-											</Button>
-										</form>
-									</Modal>
+										onSave={(newFileName) => {
+											addFile(newFileName, '');
+											setActiveFileIndex(files.length);
+											setNewFileModalOpen(false);
+										}}
+									/>
 								)}
 							</>
 						)}
@@ -361,7 +335,7 @@ export default function PlaygroundDemo({
 							variant="primary"
 							className="playground-demo-button"
 							onClick={() => {
-								updateFileContent(currentFileIndex, lastInput);
+								updateFileContent(activeFileIndex, lastInput);
 							}}
 						>
 							Save
@@ -372,8 +346,8 @@ export default function PlaygroundDemo({
 									type="button"
 									onClick={() => {
 										setEditFileNameModalOpen(true);
-										setCurrentFileName(
-											files[currentFileIndex].name
+										setEditedFileName(
+											files[activeFileIndex].name
 										);
 									}}
 									className="playground-demo-button button-non-destructive"
@@ -385,8 +359,8 @@ export default function PlaygroundDemo({
 										type="button"
 										className="playground-demo-button button-destructive"
 										onClick={() => {
-											setCurrentFileIndex(0);
-											removeFile(currentFileIndex);
+											setActiveFileIndex(0);
+											removeFile(activeFileIndex);
 										}}
 									>
 										<Icon icon={cancelCircleFilled} />{' '}
@@ -394,44 +368,20 @@ export default function PlaygroundDemo({
 									</button>
 								)}
 								{isEditFileNameModalOpen && (
-									<Modal
+									<FileNameModal
 										title="Edit file name"
+										initialFilename={editedFileName}
 										onRequestClose={() =>
 											setEditFileNameModalOpen(false)
 										}
-									>
-										<form
-											onSubmit={(e) => {
-												if (currentFileName) {
-													updateFileName(
-														currentFileIndex,
-														currentFileName
-													);
-													setEditFileNameModalOpen(
-														false
-													);
-												}
-												e.preventDefault();
-											}}
-										>
-											<InputControl
-												value={currentFileName}
-												autoFocus
-												onChange={(value: any) => {
-													setCurrentFileName(
-														value || ''
-													);
-												}}
-											/>
-											<br />
-											<Button
-												variant="primary"
-												type="submit"
-											>
-												Done
-											</Button>
-										</form>
-									</Modal>
+										onSave={(newFileName) => {
+											updateFileName(
+												activeFileIndex,
+												newFileName
+											);
+											setEditFileNameModalOpen(false);
+										}}
+									/>
 								)}
 							</div>
 						)}
