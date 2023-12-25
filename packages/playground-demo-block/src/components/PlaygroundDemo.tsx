@@ -53,15 +53,14 @@ export default function PlaygroundDemo({
 	const [lastInput, setLastInput] = useState('');
 	const [currentPostId, setCurrentPostId] = useState(0);
 
-	const [isEditFileNameModalOpen, setEditFileNameModalOpen] = useState(false);
 	const [isNewFileModalOpen, setNewFileModalOpen] = useState(false);
+	const [isEditFileNameModalOpen, setEditFileNameModalOpen] = useState(false);
 
 	const [activeFileIndex, setActiveFileIndex] = useState(0);
-	const [editedFileName, setEditedFileName] = useState(
-		files?.[activeFileIndex]?.name
-	);
 
-	const currentFileExtension = editedFileName?.split('.').pop();
+	const currentFileExtension = files?.[activeFileIndex]?.name
+		?.split('.')
+		.pop();
 	const currentFileLanguage = currentFileExtension
 		? languages.get(currentFileExtension)
 		: javascript();
@@ -284,12 +283,10 @@ export default function PlaygroundDemo({
 								}`}
 								onClick={() => {
 									setActiveFileIndex(index);
-									setEditedFileName(file.name);
 									setLastInput(file.file);
 								}}
 								onDoubleClick={() => {
 									setEditFileNameModalOpen(true);
-									setEditedFileName(files[index].name);
 								}}
 							>
 								{file.name}
@@ -346,9 +343,6 @@ export default function PlaygroundDemo({
 									type="button"
 									onClick={() => {
 										setEditFileNameModalOpen(true);
-										setEditedFileName(
-											files[activeFileIndex].name
-										);
 									}}
 									className="playground-demo-button button-non-destructive"
 								>
@@ -370,7 +364,9 @@ export default function PlaygroundDemo({
 								{isEditFileNameModalOpen && (
 									<FileNameModal
 										title="Edit file name"
-										initialFilename={editedFileName}
+										initialFilename={
+											files[activeFileIndex].name
+										}
 										onRequestClose={() =>
 											setEditFileNameModalOpen(false)
 										}
