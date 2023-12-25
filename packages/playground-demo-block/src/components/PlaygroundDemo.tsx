@@ -147,6 +147,11 @@ export default function PlaygroundDemo({
 				//        file from a /wp-6.4/ path when this block is used on
 				//        playground.wordpress.net, and that returns a 404.html.
 				remoteUrl: 'https://wasm.wordpress.net/remote.html',
+				blueprint: {
+					constants: {
+						// WP_DEBUG: 'true'
+					}
+				}
 			});
 
 			await client.isReady();

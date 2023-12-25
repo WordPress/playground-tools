@@ -9,7 +9,7 @@
 
 	.playground-demo-button {
 		font-size: 18px;
-		padding: 22px 24px;
+		padding: 12px 12px;
 		cursor: pointer;
 	}
 
@@ -95,9 +95,11 @@
 
 	.actions-bar {
 		display: flex;
+		flex-wrap: wrap;
 		align-items: center;
 		justify-content: space-between;
 		min-height: 90px;
+		max-width: 100vw;
 		padding: 10px;
 		background-color: #0c0224;
 		color: #fff;
