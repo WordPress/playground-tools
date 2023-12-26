@@ -27,6 +27,7 @@ import useEditorFiles from './use-editor-files';
 import { LanguageSupport } from '@codemirror/language';
 import { writePluginFiles } from './write-plugin-files';
 import downloadZippedPlugin from './download-zipped-plugin';
+import classnames from 'classnames';
 
 export type PlaygroundDemoProps = Attributes & {
 	showAddNewFile: boolean;
@@ -68,6 +69,7 @@ function getRefreshPath(lastPath: string) {
 
 export default function PlaygroundPreview({
 	codeEditor,
+	codeEditorSideBySide,
 	codeEditorReadOnly,
 	codeEditorMode,
 	logInUser,
@@ -143,7 +145,6 @@ export default function PlaygroundPreview({
 			// Keeps track of the last URL that was loaded in the iframe.
 			// @TODO: Fix client.getCurrentURL() and use that instead.
 			client.onNavigation((url) => {
-				console.log({ url });
 				setLastUrl(url);
 			});
 
@@ -249,10 +250,15 @@ export default function PlaygroundPreview({
 		[handleReRunCode]
 	);
 
+	const codeContainerClass = classnames('code-container', {
+		'is-full-width': !codeEditorSideBySide,
+		'is-half-width': codeEditorSideBySide,
+	});
+
 	return (
 		<main className="demo-container">
 			{codeEditor && (
-				<div className="code-container">
+				<div className={codeContainerClass}>
 					<div className="file-tabs">
 						{files.map((file, index) => (
 							<Button
@@ -385,7 +391,7 @@ export default function PlaygroundPreview({
 							onClick={() => {
 								handleReRunCode();
 							}}
-							className="wordpress-playground-block-button"
+							className="wordpress-playground-run-button"
 						>
 							Run
 						</Button>

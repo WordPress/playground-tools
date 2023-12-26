@@ -11,6 +11,7 @@ export type EditorFile = {
 export type Attributes = {
 	codeEditor: boolean;
 	codeEditorReadOnly: boolean;
+	codeEditorSideBySide: boolean;
 	codeEditorMultipleFiles: boolean;
 	codeEditorMode: string;
 	logInUser: boolean;

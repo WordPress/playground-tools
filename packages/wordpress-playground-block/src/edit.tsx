@@ -26,6 +26,7 @@ export default function Edit({
 	const {
 		codeEditor,
 		codeEditorReadOnly,
+		codeEditorSideBySide,
 		codeEditorMultipleFiles,
 		codeEditorMode,
 		logInUser,
@@ -70,6 +71,21 @@ export default function Edit({
 						/>
 						{codeEditor && (
 							<>
+								<ToggleControl
+									label="Code editor: side by side"
+									help={
+										codeEditorSideBySide
+											? 'Code editor is to the left.'
+											: 'Code editor is at the top.'
+									}
+									checked={codeEditorSideBySide}
+									onChange={() => {
+										setAttributes({
+											codeEditorSideBySide:
+												!codeEditorSideBySide,
+										});
+									}}
+								/>
 								<ToggleControl
 									label="Code editor: read only"
 									help={
