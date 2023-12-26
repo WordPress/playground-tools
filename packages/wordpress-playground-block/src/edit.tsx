@@ -123,7 +123,8 @@ export default function Edit({
 									checked={codeEditorErrorLog}
 									onChange={() => {
 										setAttributes({
-											codeEditorErrorLog: !codeEditorErrorLog,
+											codeEditorErrorLog:
+												!codeEditorErrorLog,
 										});
 									}}
 								/>
