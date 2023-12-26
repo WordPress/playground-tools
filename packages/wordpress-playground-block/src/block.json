@@ -28,6 +28,10 @@
 			"type": "string",
 			"default": "plugin"
 		},
+		"codeEditorErrorLog": {
+			"type": "boolean",
+			"default": false
+		},
 		"constants": {
 			"type": "object",
 			"default": {

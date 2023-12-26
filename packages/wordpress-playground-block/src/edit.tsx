@@ -39,6 +39,7 @@ export default function Edit({
 		redirectToPostType,
 		constants,
 		blueprint,
+		codeEditorErrorLog,
 	} = attributes;
 
 	return (
@@ -55,7 +56,7 @@ export default function Edit({
 			/>
 			<InspectorControls>
 				<Panel header="Settings">
-					<PanelBody title="General" initialOpen={true}>
+					<PanelBody title="Code editor" initialOpen={true}>
 						<ToggleControl
 							label="Code editor"
 							help={
@@ -73,7 +74,7 @@ export default function Edit({
 						{codeEditor && (
 							<>
 								<ToggleControl
-									label="Code editor: side by side"
+									label="Side by side"
 									help={
 										codeEditorSideBySide
 											? 'Code editor is to the left.'
@@ -88,7 +89,7 @@ export default function Edit({
 									}}
 								/>
 								<ToggleControl
-									label="Code editor: read only"
+									label="Read only"
 									help={
 										codeEditorReadOnly
 											? 'Code editor is read only.'
@@ -103,7 +104,7 @@ export default function Edit({
 									}}
 								/>
 								<ToggleControl
-									label="Code editor: multiple files"
+									label="Multiple files"
 									help={
 										codeEditorMultipleFiles
 											? 'Multiple files allowed.'
@@ -114,6 +115,15 @@ export default function Edit({
 										setAttributes({
 											codeEditorMultipleFiles:
 												!codeEditorMultipleFiles,
+										});
+									}}
+								/>
+								<ToggleControl
+									label='Include "error_log" file'
+									checked={codeEditorErrorLog}
+									onChange={() => {
+										setAttributes({
+											codeEditorErrorLog: !codeEditorErrorLog,
 										});
 									}}
 								/>

@@ -84,6 +84,7 @@ export default function PlaygroundPreview({
 	files: filesAttribute,
 	showAddNewFile = false,
 	showFileControls = false,
+	codeEditorErrorLog = false,
 	onStateChange,
 }: PlaygroundDemoProps) {
 	const {
@@ -94,12 +95,17 @@ export default function PlaygroundPreview({
 		activeFile,
 		activeFileIndex,
 		setActiveFileIndex,
-	} = useEditorFiles(filesAttribute || []);
+	} = useEditorFiles(filesAttribute || [], {
+		withErrorLog: codeEditorErrorLog,
+		getErrors: async () =>
+			(await playgroundClientRef.current?.readFileAsText(
+				'/tmp/stderr'
+			)) || '',
+	});
 
 	const iframeRef = useRef<HTMLIFrameElement>(null);
 	const playgroundClientRef = useRef<PlaygroundClient | null>(null);
-	const [lastInput, setLastInput] = useState(activeFile.contents || '');
-	const [lastPath, setLastUrl] = useState(landingPageUrl);
+	const [lastPath, setLastPath] = useState(landingPageUrl);
 
 	const [currentPostId, setCurrentPostId] = useState(0);
 	const [isNewFileModalOpen, setNewFileModalOpen] = useState(false);
@@ -149,7 +155,7 @@ export default function PlaygroundPreview({
 			// Keeps track of the last URL that was loaded in the iframe.
 			// @TODO: Fix client.getCurrentURL() and use that instead.
 			client.onNavigation((url) => {
-				setLastUrl(url);
+				setLastPath(url);
 			});
 
 			let postId = 0;
@@ -184,7 +190,7 @@ export default function PlaygroundPreview({
 			await reinstallEditedPlugin();
 
 			const redirectUrl = getLandingPageUrl(postId);
-			setLastUrl(redirectUrl);
+			setLastPath(redirectUrl);
 			await client.goTo(redirectUrl);
 		}
 
@@ -192,6 +198,7 @@ export default function PlaygroundPreview({
 	}, [
 		logInUser,
 		landingPageUrl,
+		constants,
 		createNewPost,
 		createNewPostType,
 		createNewPostTitle,
@@ -222,7 +229,7 @@ export default function PlaygroundPreview({
 			await client.writeFile(
 				docroot + '/wp-content/mu-plugins/example-code.php',
 				"<?php add_action('admin_init',function(){wp_add_inline_script('wp-blocks','" +
-					lastInput +
+					activeFile.contents +
 					"','after');});"
 			);
 		} else if (codeEditorMode === 'plugin' && codeEditor) {
@@ -274,7 +281,6 @@ export default function PlaygroundPreview({
 								}`}
 								onClick={() => {
 									setActiveFileIndex(index);
-									setLastInput(file.contents);
 								}}
 								onDoubleClick={() => {
 									setEditFileNameModalOpen(true);
@@ -344,15 +350,17 @@ export default function PlaygroundPreview({
 					<div className="actions-bar">
 						{showFileControls ? (
 							<div className="file-actions">
-								<button
-									type="button"
-									onClick={() => {
-										setEditFileNameModalOpen(true);
-									}}
-									className="wordpress-playground-block-button button-non-destructive"
-								>
-									<Icon icon={edit} /> Edit file name
-								</button>
+								{!activeFile && (
+									<button
+										type="button"
+										onClick={() => {
+											setEditFileNameModalOpen(true);
+										}}
+										className="wordpress-playground-block-button button-non-destructive"
+									>
+										<Icon icon={edit} /> Edit file name
+									</button>
+								)}
 								{files.length > 1 && (
 									<button
 										type="button"

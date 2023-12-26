@@ -25,6 +25,7 @@ export type Attributes = {
 	blueprint: string;
 	files?: EditorFile[];
 	constants: Record<string, boolean | string | number>;
+	codeEditorErrorLog: boolean;
 };
 
 // @ts-ignore
