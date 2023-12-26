@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Attributes, EditorFile } from '../index';
+import type { Attributes } from '../../index';
 import ReactCodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
@@ -10,7 +10,6 @@ import {
 	PlaygroundClient,
 	phpVar,
 } from '@wp-playground/client';
-import { activatePlugin } from '@wp-playground/blueprints';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import {
@@ -20,9 +19,11 @@ import {
 	cancelCircleFilled,
 	edit,
 } from '@wordpress/icons';
-import { FileNameModal } from './FileNameModal';
-import useEditorFiles from './useEditorFiles';
+import { FileNameModal } from '../file-name-modal';
+import useEditorFiles from './use-editor-files';
 import { LanguageSupport } from '@codemirror/language';
+import { writePluginFiles } from './write-plugin-files';
+import downloadZippedPlugin from './download-zipped-plugin';
 
 export type PlaygroundDemoProps = Attributes & {
 	showAddNewFile: boolean;
@@ -40,35 +41,6 @@ const languages: Record<string, LanguageSupport> = {
 function getLanguageExtensions(extension: string) {
 	return extension in languages ? [languages[extension]] : [];
 }
-
-const writePluginFiles = async (
-	client: PlaygroundClient,
-	files: EditorFile[]
-) => {
-	const docroot = await client.documentRoot;
-	const pluginPath = docroot + '/wp-content/plugins/demo-plugin';
-	if (await client.fileExists(pluginPath)) {
-		await client.rmdir(pluginPath, {
-			recursive: true,
-		});
-	}
-	await client.mkdir(pluginPath);
-
-	for (const file of files) {
-		const filePath = `${pluginPath}/${file.name}`;
-		const parentDir = filePath.split('/').slice(0, -1).join('/');
-		await client.mkdir(parentDir);
-		await client.writeFile(filePath, file.contents);
-	}
-
-	try {
-		await activatePlugin(client, {
-			pluginPath,
-		});
-	} catch (e) {
-		console.error(e);
-	}
-};
 
 /**
  * Playground's `goTo` method doesn't work when the URL is the same as the
@@ -89,7 +61,7 @@ function getRefreshPath(lastPath: string) {
 	return url.pathname + url.search;
 }
 
-export default function PlaygroundDemo({
+export default function PlaygroundPreview({
 	codeEditor,
 	codeEditorReadOnly,
 	codeEditorMode,
@@ -124,61 +96,6 @@ export default function PlaygroundDemo({
 	const [currentPostId, setCurrentPostId] = useState(0);
 	const [isNewFileModalOpen, setNewFileModalOpen] = useState(false);
 	const [isEditFileNameModalOpen, setEditFileNameModalOpen] = useState(false);
-
-	/**
-	 * @TODO migrate to @wp-playground/compression-streams
-	 */
-	async function downloadMyPlugin() {
-		if (!playgroundClientRef.current) {
-			return;
-		}
-
-		const client = playgroundClientRef.current;
-		const docroot = await client.documentRoot;
-		const zipPath = '/tmp/demo-plugin.zip';
-		const pluginPath = docroot + '/wp-content/plugins/demo-plugin';
-
-		const result = await client.run({
-			code: `<?php
-				if(file_exists(${phpVar(zipPath)})) {
-					unlink(${phpVar(zipPath)});
-				}
-				$zip = new ZipArchive;
-				$zip->open(${phpVar(zipPath)}, ZipArchive::CREATE | ZipArchive::OVERWRITE);
-				$files = new RecursiveIteratorIterator(
-					new RecursiveDirectoryIterator(${phpVar(pluginPath)}),
-					RecursiveIteratorIterator::LEAVES_ONLY
-				);
-
-				foreach ($files as $name => $file) {
-					if (!$file->isDir()) {
-						$filePath = $file->getRealPath();
-						$relativePath = substr($filePath, ${pluginPath.length} + 1);
-
-						$zip->addFile($filePath, $relativePath);
-					}
-				}
-
-				$zip->close();
-				echo 'done';
-			`,
-		});
-		if (result.text !== 'done') {
-			console.log('Error creating zip file');
-			console.log(result.errors);
-			console.log(result.text);
-		}
-
-		const zipContents = await client.readFileAsBuffer(zipPath);
-
-		// Download the zip file.
-		const blob = new Blob([zipContents], { type: 'application/zip' });
-		const url = URL.createObjectURL(blob);
-		const link = document.createElement('a');
-		link.href = url;
-		link.download = 'demo-plugin.zip';
-		link.click();
-	}
 
 	/**
 	 * Let the parent component know when the state changes.
@@ -254,7 +171,7 @@ export default function PlaygroundDemo({
 				});
 			}
 
-			await reinstallCode();
+			await reinstallEditedPlugin();
 
 			const redirectUrl = getLandingPageUrl(postId);
 			setLastUrl(redirectUrl);
@@ -284,14 +201,14 @@ export default function PlaygroundDemo({
 		return landingPageUrl;
 	}
 
-	async function reinstallCode() {
+	async function reinstallEditedPlugin() {
 		if (!playgroundClientRef.current) {
 			return;
 		}
 
 		const client = playgroundClientRef.current;
-		const docroot = await client.documentRoot;
 		if (codeEditorMode === 'editor-script') {
+			const docroot = await client.documentRoot;
 			await client.writeFile(
 				docroot + '/wp-content/mu-plugins/example-code.php',
 				"<?php add_action('admin_init',function(){wp_add_inline_script('wp-blocks','" +
@@ -343,7 +260,13 @@ export default function PlaygroundDemo({
 						<Button
 							variant="secondary"
 							className="file-tab file-tab-extra"
-							onClick={() => downloadMyPlugin()}
+							onClick={() => {
+								if (playgroundClientRef.current) {
+									downloadZippedPlugin(
+										playgroundClientRef.current
+									);
+								}
+							}}
 						>
 							<Icon icon={download} />
 						</Button>
@@ -431,7 +354,7 @@ export default function PlaygroundDemo({
 							icon="controls-play"
 							iconPosition="right"
 							onClick={() => {
-								reinstallCode().then(refreshPlayground);
+								reinstallEditedPlugin().then(refreshPlayground);
 							}}
 							className="wordpress-playground-block-button"
 						>

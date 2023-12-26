@@ -15,7 +15,7 @@ import {
 	// @ts-ignore
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
-import PlaygroundDemo from './components/PlaygroundDemo';
+import PlaygroundPreview from './components/playground-preview';
 import './editor.scss';
 
 export default function Edit({
@@ -41,8 +41,8 @@ export default function Edit({
 
 	return (
 		<div {...useBlockProps()}>
-			<PlaygroundDemo
-				showAddNewFile={isSelected && codeEditorMultipleFiles}
+			<PlaygroundPreview
+				showAddNewFile={codeEditorMultipleFiles}
 				showFileControls={isSelected}
 				onStateChange={({ files }) => {
 					setAttributes({

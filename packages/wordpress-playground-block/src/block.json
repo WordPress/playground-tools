@@ -29,7 +29,7 @@
 			"default": [
 				{
 					"name": "index.php",
-					"file": "<?php\n/**\n * Plugin Name: My WordPress plugin\n */\n"
+					"contents": "<?php\n/**\n * Plugin Name: My WordPress plugin\n */\n"
 				}
 			]
 		},

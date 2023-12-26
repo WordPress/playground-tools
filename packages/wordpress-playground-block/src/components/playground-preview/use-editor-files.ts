@@ -1,5 +1,5 @@
 import { useState, useCallback } from '@wordpress/element';
-import type { EditorFile } from '../index';
+import type { EditorFile } from '../../index';
 
 export type EditorFileMapper = (file: EditorFile) => EditorFile;
 export default function useEditorFiles(filesAttribute: EditorFile[]) {

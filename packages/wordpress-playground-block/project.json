@@ -38,7 +38,7 @@
 			},
 			// Ensures wp-now will treat the dist directory as a WordPress plugin
 			// by copying the main PHP plugin file to the dist directory before starting the server.
-			"dependsOn": ["dev:cp-php"] 
+			"dependsOn": ["dev:cp-php"]
 		},
 		"dev:webpack": {
 			"executor": "nx:run-commands",
