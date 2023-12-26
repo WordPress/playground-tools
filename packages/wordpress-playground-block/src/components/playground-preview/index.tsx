@@ -72,6 +72,7 @@ export default function PlaygroundPreview({
 	codeEditorSideBySide,
 	codeEditorReadOnly,
 	codeEditorMode,
+	constants,
 	logInUser,
 	createNewPost,
 	createNewPostType = 'post',
@@ -133,9 +134,12 @@ export default function PlaygroundPreview({
 				//        playground.wordpress.net, and that returns a 404.html.
 				remoteUrl: 'https://wasm.wordpress.net/remote.html',
 				blueprint: {
-					constants: {
-						// WP_DEBUG: 'true'
-					},
+					steps: [
+						{
+							step: 'defineWpConfigConsts',
+							consts: constants,
+						},
+					],
 				},
 			});
 

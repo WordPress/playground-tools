@@ -28,6 +28,13 @@
 			"type": "string",
 			"default": "plugin"
 		},
+		"constants": {
+			"type": "object",
+			"default": {
+				"WP_DEBUG": true,
+				"WP_SCRIPT_DEBUG": true
+			}
+		},
 		"files": {
 			"type": "array",
 			"default": [

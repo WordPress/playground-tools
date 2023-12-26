@@ -37,6 +37,7 @@ export default function Edit({
 		createNewPostContent,
 		redirectToPost,
 		redirectToPostType,
+		constants,
 		blueprint,
 	} = attributes;
 
@@ -192,6 +193,26 @@ export default function Edit({
 								});
 							}}
 						/>
+						{['WP_DEBUG', 'WP_SCRIPT_DEBUG'].map((constName) => (
+							<ToggleControl
+								key={constName}
+								label={constName}
+								help={
+									constants[constName]
+										? `${constName}=true`
+										: `${constName}=false`
+								}
+								checked={!!constants[constName]}
+								onChange={() => {
+									setAttributes({
+										constants: {
+											...constants,
+											[constName]: !constants[constName],
+										},
+									});
+								}}
+							/>
+						))}
 						<ToggleControl
 							label="Create new post or page"
 							help={

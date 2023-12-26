@@ -24,6 +24,7 @@ export type Attributes = {
 	redirectToPostType: string;
 	blueprint: string;
 	files?: EditorFile[];
+	constants: Record<string, boolean | string | number>;
 };
 
 // @ts-ignore
