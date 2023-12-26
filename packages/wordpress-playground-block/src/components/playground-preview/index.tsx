@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import type { Attributes } from '../../index';
 import ReactCodeMirror from '@uiw/react-codemirror';
+import { keymap, EditorView } from '@codemirror/view';
+import { html } from '@codemirror/lang-html';
+import { css } from '@codemirror/lang-css';
 import { javascript } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
 import { php } from '@codemirror/lang-php';
@@ -32,6 +35,8 @@ export type PlaygroundDemoProps = Attributes & {
 };
 
 const languages: Record<string, LanguageSupport> = {
+	css: css(),
+	html: html(),
 	js: javascript(),
 	jsx: javascript({ jsx: true }),
 	json: json(),
@@ -220,9 +225,29 @@ export default function PlaygroundPreview({
 		}
 	}
 
-	async function refreshPlayground() {
-		await playgroundClientRef.current!.goTo(getRefreshPath(lastPath));
-	}
+	const handleReRunCode = useCallback(() => {
+		async function doHandleRun() {
+			await reinstallEditedPlugin();
+
+			// Refresh Playground iframe
+			await playgroundClientRef.current!.goTo(getRefreshPath(lastPath));
+		}
+		doHandleRun();
+	}, [reinstallEditedPlugin]);
+
+	const keymapExtension = useMemo(
+		() =>
+			keymap.of([
+				{
+					key: 'Mod-s',
+					run() {
+						handleReRunCode();
+						return true;
+					},
+				},
+			]),
+		[handleReRunCode]
+	);
 
 	return (
 		<main className="demo-container">
@@ -290,9 +315,13 @@ export default function PlaygroundPreview({
 					<div className="code-editor-wrapper">
 						<ReactCodeMirror
 							value={activeFile.contents}
-							extensions={getLanguageExtensions(
-								currentFileExtension || 'js'
-							)}
+							extensions={[
+								keymapExtension,
+								EditorView.lineWrapping,
+								...getLanguageExtensions(
+									currentFileExtension || 'js'
+								),
+							]}
 							readOnly={codeEditorReadOnly}
 							onChange={(value) =>
 								updateFile((file) => ({
@@ -354,7 +383,7 @@ export default function PlaygroundPreview({
 							icon="controls-play"
 							iconPosition="right"
 							onClick={() => {
-								reinstallEditedPlugin().then(refreshPlayground);
+								handleReRunCode();
 							}}
 							className="wordpress-playground-block-button"
 						>
