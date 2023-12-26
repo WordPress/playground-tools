@@ -1,5 +1,5 @@
 {
-	"name": "@wp-playground/playground-demo-block",
+	"name": "@wp-playground/playground-block",
 	"version": "0.0.1",
 	"description": "WordPress Playground as a Gutenberg block.",
 	"author": "Dawid Urbański",

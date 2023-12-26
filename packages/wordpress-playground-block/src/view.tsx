@@ -3,7 +3,7 @@ import { createRoot } from '@wordpress/element';
 import PlaygroundDemo from './components/PlaygroundDemo';
 
 const playgroundDemo = Array.from(
-	document.getElementsByClassName('playground-demo')
+	document.getElementsByClassName('wordpress-playground-block')
 );
 
 for (const element of playgroundDemo) {

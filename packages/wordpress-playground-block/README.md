@@ -1,6 +1,6 @@
-# playground-demo-block
+# WordPress Playground Block
 
-`playground-demo-block` is a Gutenberg block that embeds WordPress Playground on your site.
+`wordpress-playground-block` is a Gutenberg block that embeds WordPress Playground on your site.
 
 ![CleanShot 2023-11-19 at 16 20 53](https://github.com/WordPress/playground-tools/assets/12466568/f10695cf-fc71-4954-ba91-291ef36c1386)
 
@@ -51,16 +51,16 @@ You can download the latest version of the plugin from the [releases page on Git
 If you want to install the plugin from source, see the [contributing](#contributing) section below for repo setup instructions. Once you have the repo set up, you can build the plugin by running the following command in the repo root:
 
 ```bash
-npx nx build playground-demo-block
+npx nx build wordpress-playground-block
 ```
 
-This will create a `playground-demo-block.zip` file in the `dist/playground-demo-block` directory. You can then install the plugin by uploading this zip file to your WordPress site.
+This will create a `wordpress-playground-block.zip` file in the `dist/wordpress-playground-block` directory. You can then install the plugin by uploading this zip file to your WordPress site.
 
 ## Contributing
 
 We welcome contributions from the community!
 
-In order to contribute to `playground-demo-block`, you'll need to first install a few global dependencies:
+In order to contribute to `wordpress-playground-block`, you'll need to first install a few global dependencies:
 
 -   Make sure you have `nvm` installed. If you need to install it first,
     [follow these installation instructions](https://github.com/nvm-sh/nvm#installation).
@@ -73,39 +73,37 @@ git clone git@github.com:WordPress/playground-tools.git
 cd playground-tools
 nvm use
 npm install
-nx dev playground-demo-block
+nx dev wordpress-playground-block
 ```
 
-This will start a development server for the `playground-demo-block` package. You can then test the plugin by running `wp-now` in the `dist/packages/playground-demo-block` directory:
+This will start:
 
-```bash
-cd dist/packages/playground-demo-block
-npx @wp-now/wp-now start
-```
+-   A webpack development server for the `wordpress-playground-block` package
+-   A new WordPress site with the `wordpress-playground-block` plugin activated
 
-This will start a new WordPress site with the `playground-demo-block` plugin activated. You can then visit the site in your browser to test the plugin.
+You can now visit the site in your browser to test the plugin.
 
 ## Testing
 
-There are no automated unit tests for the `playground-demo-block` package yet. If you'd like to add some, please do!
+There are no automated unit tests for the `wordpress-playground-block` package yet. If you'd like to add some, please do!
 
 ## Publishing
 
-The `playground-demo-block` package is part of a larger monorepo, sharing its space with other sibling packages. Even though it has a package.json file, it doesn't actually get published to NPM. Instead, it is a WordPress plugin that is published to the WordPress.org plugin repository.
+The `wordpress-playground-block` package is part of a larger monorepo, sharing its space with other sibling packages. Even though it has a package.json file, it doesn't actually get published to NPM. Instead, it is a WordPress plugin that is published to the WordPress.org plugin repository.
 
-To publish a new version of `playground-demo-block`, you'll need to have a WordPress.org account with the appropriate permissions. Once you have that, you can run the following command in the repo root:
+To publish a new version of `wordpress-playground-block`, you'll need to have a WordPress.org account with the appropriate permissions. Once you have that, you can run the following command in the repo root:
 
 ```bash
 # Build the block
-npx nx build playground-demo-block
+npx nx build wordpress-playground-block
 ```
 
 This will:
 
--   Bundle the plugin into the `dist/packages/playground-demo-block` directory.
--   Create a `playground-demo-block.zip` file in the `dist/playground-demo-block` directory.
+-   Bundle the plugin into the `dist/packages/wordpress-playground-block` directory.
+-   Create a `wordpress-playground-block.zip` file in the `dist/wordpress-playground-block` directory.
 
-You can then copy the contents of the `playground-demo-block` directory into your local working copy of the SVN repository for the plugin, update the version number in README.txt, and then commit the changes to the remote SVN repository.
+You can then copy the contents of the `wordpress-playground-block` directory into your local working copy of the SVN repository for the plugin, update the version number in README.txt, and then commit the changes to the remote SVN repository.
 
 ## Caveats
 

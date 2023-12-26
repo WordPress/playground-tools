@@ -387,14 +387,14 @@ export default function PlaygroundDemo({
 									onClick={() => {
 										setEditFileNameModalOpen(true);
 									}}
-									className="playground-demo-button button-non-destructive"
+									className="wordpress-playground-block-button button-non-destructive"
 								>
 									<Icon icon={edit} /> Edit file name
 								</button>
 								{files.length > 1 && (
 									<button
 										type="button"
-										className="playground-demo-button button-destructive"
+										className="wordpress-playground-block-button button-destructive"
 										onClick={() => {
 											setActiveFileIndex(0);
 											removeFile(activeFileIndex);
@@ -433,7 +433,7 @@ export default function PlaygroundDemo({
 							onClick={() => {
 								reinstallCode().then(refreshPlayground);
 							}}
-							className="playground-demo-button"
+							className="wordpress-playground-block-button"
 						>
 							Run
 						</Button>

@@ -1,9 +1,9 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 2,
-	"name": "wordpress-playground/playground-demo",
-	"version": "1.0.0",
-	"title": "Playground Demo",
+	"name": "wordpress-playground/playground",
+	"version": "0.0.1",
+	"title": "WordPress Playground",
 	"category": "widgets",
 	"icon": "wordpress",
 	"description": "Display demo in WordPress Playground",
@@ -70,7 +70,7 @@
 	"supports": {
 		"html": false
 	},
-	"textdomain": "playground-demo",
+	"textdomain": "wordpress-playground-block",
 	"editorScript": "file:./index.js",
 	"editorStyle": "file:./index.css",
 	"style": ["file:./style-index.css", "wp-components"],
