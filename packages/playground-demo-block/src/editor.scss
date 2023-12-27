@@ -1,0 +1,51 @@
+.wp-block-wordpress-playground-playground-demo {
+	position: relative;
+
+	&::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 1000;
+	}
+
+	&.is-selected {
+		&::after {
+			content: none;
+		}
+	}
+}
+
+.playground-demo-button {
+	display: inline-flex;
+	align-items: center;
+	appearance: none;
+	background-color: transparent;
+	border: 0;
+	cursor: pointer;
+	font-weight: bold;
+	font-size: 12px;
+}
+
+.button-destructive {
+	color: red;
+}
+
+.button-destructive:hover {
+	color: #ff4545;
+}
+
+.button-non-destructive {
+	color: #eee;
+}
+
+.file-actions {
+	display: flex;
+	align-items: center;
+
+	path {
+		fill: currentColor;
+	}
+}
