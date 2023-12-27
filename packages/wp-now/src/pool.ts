@@ -22,7 +22,6 @@ class PoolInfo {
 	active = false; // Whether instance is considered active.
 	constructor() {
 		this.id = childCount++;
-		this.started = Date.now();
 	}
 }
 
