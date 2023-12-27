@@ -34,10 +34,6 @@ import getSqlitePath from './get-sqlite-path';
 
 import { NodePool, NodePoolOptions } from './node-pool';
 
-function seemsLikeAPHPFile(path) {
-	return path.endsWith('.php') || path.includes('.php/');
-}
-
 async function applyToInstances(phpInstances: NodePHP[], callback: Function) {
 	for (let i = 0; i < phpInstances.length; i++) {
 		await callback(phpInstances[i]);

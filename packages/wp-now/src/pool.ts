@@ -18,7 +18,6 @@ let childCount = 0;
  */
 class PoolInfo {
 	id: number; // Unique ID for debugging purposes.
-	started: number; // Time spawned.
 	requests = 0; // Total requests processed.
 	active = false; // Whether instance is considered active.
 	constructor() {
