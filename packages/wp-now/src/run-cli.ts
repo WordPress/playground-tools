@@ -6,6 +6,7 @@ import { SupportedPHPVersion } from '@php-wasm/universal';
 import getWpNowConfig, { CliOptions } from './config';
 import { spawn, SpawnOptionsWithoutStdio } from 'child_process';
 import { executePHP } from './execute-php';
+import { executeWPCli } from './execute-wp-cli';
 import { output } from './output';
 import { isGitHubCodespace } from './github-codespaces';
 
@@ -63,6 +64,7 @@ export async function runCli() {
 					describe: "WordPress version to use: e.g. '--wp=6.2'",
 					type: 'string',
 				});
+
 				yargs.option('port', {
 					describe: 'Server port',
 					type: 'number',
@@ -76,6 +78,7 @@ export async function runCli() {
 						'Create a new project environment, destroying the old project environment.',
 					type: 'boolean',
 				});
+
 			},
 			async (argv) => {
 				const spinner = startSpinner('Starting the server...');
@@ -121,6 +124,37 @@ export async function runCli() {
 						: args;
 					// 0: php, ...args
 					await executePHP(phpArgs, options);
+					process.exit(0);
+				} catch (error) {
+					console.error(error);
+					process.exit(error.status || -1);
+				}
+			}
+		)
+		.command(
+			'wp [..args]',
+			'run a wp-cli command',
+			(yargs) => {
+				commonParameters(yargs);
+			},
+			async (argv) => {
+				try {
+					const options = await getWpNowConfig({
+						path: argv.path as string,
+						php: argv.php as SupportedPHPVersion,
+						wp: argv.wp as string,
+						port: argv.port as number,
+						blueprint: argv.blueprint as string,
+						reset: argv.reset as boolean,
+					});
+					console.log(options);
+					// 0: node, 1: wp-now, 2: php, ...args
+					const args = process.argv.slice(2);
+					const phpArgs = args.includes('--')
+						? (argv._ as string[])
+						: args;
+					// 0: php, ...args
+					await executeWPCli(phpArgs);
 					process.exit(0);
 				} catch (error) {
 					console.error(error);
