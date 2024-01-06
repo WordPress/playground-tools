@@ -216,8 +216,11 @@ async function runWpPrMode(
 
 	php.mount(`${projectPath}/wp-content`, `${documentRoot}/wp-content`);
 
-	if(!fs.existsSync(`${projectPath}/wp-content/db.php`)){
-		await fs.promises.copyFile(`${getSqlitePath()}/db.copy`, `${projectPath}/wp-content/db.php`)
+	if (!fs.existsSync(`${projectPath}/wp-content/db.php`)) {
+		await fs.promises.copyFile(
+			`${getSqlitePath()}/db.copy`,
+			`${projectPath}/wp-content/db.php`
+		);
 	}
 
 	mountSqliteDatabaseDirectory(
