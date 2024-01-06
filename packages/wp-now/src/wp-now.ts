@@ -113,10 +113,10 @@ export default async function startWPNow(
 			case WPNowMode.WP_CONTENT:
 				await runWpContentMode(_php, options);
 				break;
-				case WPNowMode.WP_PR:
-					await runWpPrMode(_php, options);
-					break;
-				case WPNowMode.WORDPRESS_DEVELOP:
+			case WPNowMode.WP_PR:
+				await runWpPrMode(_php, options);
+				break;
+			case WPNowMode.WORDPRESS_DEVELOP:
 				await runWordPressDevelopMode(_php, options);
 				break;
 			case WPNowMode.WORDPRESS:
@@ -217,7 +217,11 @@ async function runWpPrMode(
 	php.mount(`${projectPath}/wp-content`, `${documentRoot}/wp-content`);
 
 	mountSqlitePlugin(php, documentRoot);
-	mountSqliteDatabaseDirectory(php, documentRoot, `${projectPath}/wp-content`);
+	mountSqliteDatabaseDirectory(
+		php,
+		documentRoot,
+		`${projectPath}/wp-content`
+	);
 	mountMuPlugins(php, documentRoot);
 }
 

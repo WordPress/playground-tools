@@ -78,7 +78,6 @@ export async function runCli() {
 						'Create a new project environment, destroying the old project environment.',
 					type: 'boolean',
 				});
-
 			},
 			async (argv) => {
 				const spinner = startSpinner('Starting the server...');
