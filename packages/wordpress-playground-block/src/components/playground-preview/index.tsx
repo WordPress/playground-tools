@@ -147,10 +147,7 @@ export default function PlaygroundPreview({
 					steps: [
 						{
 							step: 'defineWpConfigConsts',
-							consts: {
-								...constants,
-								REQUESTS_SILENCE_PSR0_DEPRECATIONS: true,
-							},
+							consts: constants,
 						},
 					],
 				},
