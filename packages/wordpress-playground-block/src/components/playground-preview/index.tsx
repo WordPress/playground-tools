@@ -60,7 +60,7 @@ function getLanguageExtensions(extension: string) {
 function getRefreshPath(lastPath: string) {
 	const url = new URL(lastPath, 'https://playground.wordpress.net');
 	if (url.searchParams.has('__playground_refresh')) {
-		url.searchParams.delete('__playground_refresh', '1');
+		url.searchParams.delete('__playground_refresh');
 	} else {
 		url.searchParams.set('__playground_refresh', '1');
 	}
