@@ -23,7 +23,7 @@ import {
 	edit,
 } from '@wordpress/icons';
 import { FileNameModal } from '../file-name-modal';
-import useEditorFiles from './use-editor-files';
+import useEditorFiles, { isErrorLogFile } from './use-editor-files';
 import { LanguageSupport } from '@codemirror/language';
 import { writePluginFiles } from './write-plugin-files';
 import downloadZippedPlugin from './download-zipped-plugin';
@@ -140,6 +140,10 @@ export default function PlaygroundPreview({
 				//        playground.wordpress.net, and that returns a 404.html.
 				remoteUrl: 'https://wasm.wordpress.net/remote.html',
 				blueprint: {
+					preferredVersions: {
+						wp: 'latest',
+						php: '7.4',
+					},
 					steps: [
 						{
 							step: 'defineWpConfigConsts',
@@ -361,19 +365,22 @@ export default function PlaygroundPreview({
 										<Icon icon={edit} /> Edit file name
 									</button>
 								)}
-								{files.length > 1 && (
-									<button
-										type="button"
-										className="wordpress-playground-block-button button-destructive"
-										onClick={() => {
-											setActiveFileIndex(0);
-											removeFile(activeFileIndex);
-										}}
-									>
-										<Icon icon={cancelCircleFilled} />{' '}
-										Remove file
-									</button>
-								)}
+								{!isErrorLogFile(activeFile) &&
+									files.filter(
+										(file) => !isErrorLogFile(file)
+									).length > 1 && (
+										<button
+											type="button"
+											className="wordpress-playground-block-button button-destructive"
+											onClick={() => {
+												setActiveFileIndex(0);
+												removeFile(activeFileIndex);
+											}}
+										>
+											<Icon icon={cancelCircleFilled} />{' '}
+											Remove file
+										</button>
+									)}
 								{isEditFileNameModalOpen && (
 									<FileNameModal
 										title="Edit file name"

@@ -96,7 +96,7 @@ export default function useEditorFiles(
 	};
 }
 
-const ERROR_LOG_FILE_NAME = 'PHP error_log';
+export const ERROR_LOG_FILE_NAME = 'PHP error_log';
 
 export function isErrorLogFile(file: EditorFile) {
 	return file.name === ERROR_LOG_FILE_NAME;
