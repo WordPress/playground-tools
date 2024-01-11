@@ -32,10 +32,6 @@ import getWpNowPath from './get-wp-now-path';
 import getWordpressVersionsPath from './get-wordpress-versions-path';
 import getSqlitePath from './get-sqlite-path';
 
-function seemsLikeAPHPFile(path) {
-	return path.endsWith('.php') || path.includes('.php/');
-}
-
 async function applyToInstances(phpInstances: NodePHP[], callback: Function) {
 	for (let i = 0; i < phpInstances.length; i++) {
 		await callback(phpInstances[i]);
