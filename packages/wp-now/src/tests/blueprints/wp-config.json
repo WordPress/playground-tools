@@ -6,7 +6,7 @@
 				"WP_HOME": "http://127.0.0.1",
 				"WP_SITEURL": "http://127.0.0.1"
 			},
-			"virtualize": true
+			"method": "define-before-run"
 		}
 	]
 }
