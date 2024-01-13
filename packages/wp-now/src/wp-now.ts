@@ -222,6 +222,11 @@ async function runWpPrMode(
 			`${projectPath}/wp-content/db.php`
 		);
 	}
+	// need a dist folder for output
+	if (!fs.existsSync(`${projectPath}/dist`)) {
+		await fs.promises.mkdir('dist');
+	}
+	php.mount(`${projectPath}/dist`, `${documentRoot}/dist`);
 
 	mountSqliteDatabaseDirectory(
 		php,
