@@ -118,7 +118,7 @@ To execute this Blueprint, create a file named `blueprint-example.json` and run 
 				"WP_HOME": "http://myurl.wpnow:8881",
 				"WP_SITEURL": "http://myurl.wpnow:8881"
 			},
-			"virtualize": true
+			"method": "define-before-run"
 		}
 	]
 }
@@ -140,7 +140,7 @@ The Blueprint to listen on port `80` will look like this:
 				"WP_HOME": "http://myurl.wpnow",
 				"WP_SITEURL": "http://myurl.wpnow"
 			},
-			"virtualize": true
+			"method": "define-before-run"
 		}
 	]
 }
@@ -161,7 +161,7 @@ Run `wp-now start --blueprint=path/to/blueprint-example.json` where `blueprint-e
 				"WP_DEBUG": true,
 				"WP_DEBUG_LOG": true
 			},
-			"virtualize": true
+			"method": "define-before-run"
 		}
 	]
 }
@@ -181,7 +181,7 @@ For example, if you run `wp-now start --blueprint=path/to/blueprint-example.json
 			"consts": {
 				"WP_DEBUG_LOG": "/var/www/html/wp-content/themes/atlas/example.log"
 			},
-			"virtualize": true
+			"method": "define-before-run"
 		}
 	]
 }
