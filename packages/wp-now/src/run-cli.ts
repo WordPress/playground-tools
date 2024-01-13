@@ -135,20 +135,12 @@ export async function runCli() {
 			'run a wp-cli command',
 			(yargs) => {
 				commonParameters(yargs);
+				yargs.strict(false);
 			},
 			async (argv) => {
 				try {
-					const options = await getWpNowConfig({
-						path: argv.path as string,
-						php: argv.php as SupportedPHPVersion,
-						wp: argv.wp as string,
-						port: argv.port as number,
-						blueprint: argv.blueprint as string,
-						reset: argv.reset as boolean,
-					});
-					console.log(options);
 					// 0: node, 1: wp-now, 2: php, ...args
-					const args = process.argv.slice(2);
+					const args = process.argv.slice(3);
 					const phpArgs = args.includes('--')
 						? (argv._ as string[])
 						: args;
