@@ -46,7 +46,7 @@
 					"cp ./LICENSE dist/packages/vscode-extension",
 					"cp packages/vscode-extension/package.json dist/packages/vscode-extension",
 					"cp packages/vscode-extension/README.md dist/packages/vscode-extension",
-					"cp node_modules/@php-wasm/node/*.wasm dist/packages/vscode-extension"
+					"cp -r node_modules/@php-wasm/node/*_*_* dist/packages/vscode-extension"
 				],
 				"parallel": false
 			}
