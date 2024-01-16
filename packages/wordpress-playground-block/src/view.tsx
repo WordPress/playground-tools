@@ -1,9 +1,9 @@
 import React from 'react';
 import { createRoot } from '@wordpress/element';
-import PlaygroundDemo from './components/PlaygroundDemo';
+import PlaygroundPreview from './components/playground-preview';
 
 const playgroundDemo = Array.from(
-	document.getElementsByClassName('playground-demo')
+	document.getElementsByClassName('wordpress-playground-block')
 );
 
 for (const element of playgroundDemo) {
@@ -13,5 +13,5 @@ for (const element of playgroundDemo) {
 		atob(rootElement.dataset['attributes'] || '')
 	);
 
-	root.render(<PlaygroundDemo {...attributes} />);
+	root.render(<PlaygroundPreview {...attributes} />);
 }

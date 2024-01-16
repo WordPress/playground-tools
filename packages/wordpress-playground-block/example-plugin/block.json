@@ -1,0 +1,8 @@
+{
+	"apiVersion": 3,
+	"title": "My first block",
+	"name": "block-tutorial/my-first-block",
+	"category": "media",
+	"icon": "smiley",
+	"editorScript": "file:./block.js"
+}

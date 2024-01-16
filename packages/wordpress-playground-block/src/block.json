@@ -1,16 +1,24 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 2,
-	"name": "wordpress-playground/playground-demo",
-	"version": "1.0.0",
-	"title": "Playground Demo",
+	"name": "wordpress-playground/playground",
+	"version": "0.0.1",
+	"title": "WordPress Playground",
 	"category": "widgets",
 	"icon": "wordpress",
 	"description": "Display demo in WordPress Playground",
 	"attributes": {
+		"align": {
+            "type": "string",
+            "default": "wide"
+        },
 		"codeEditor": {
 			"type": "boolean",
 			"default": false
+		},
+		"codeEditorSideBySide": {
+			"type": "boolean",
+			"default": true
 		},
 		"codeEditorReadOnly": {
 			"type": "boolean",
@@ -24,12 +32,23 @@
 			"type": "string",
 			"default": "plugin"
 		},
+		"codeEditorErrorLog": {
+			"type": "boolean",
+			"default": false
+		},
+		"constants": {
+			"type": "object",
+			"default": {
+				"WP_DEBUG": true,
+				"WP_SCRIPT_DEBUG": true
+			}
+		},
 		"files": {
 			"type": "array",
 			"default": [
 				{
-					"name": "index.js",
-					"file": ""
+					"name": "index.php",
+					"contents": "<?php\n/**\n * Plugin Name: My WordPress plugin\n */\n"
 				}
 			]
 		},
@@ -63,17 +82,34 @@
 			"type": "string",
 			"default": "front"
 		},
+		"configurationSource": {
+			"type": "string",
+			"default": "block-attributes"
+		},
+		"blueprintUrl": {
+			"type": "string"
+		},
 		"blueprint": {
 			"type": "string"
 		}
 	},
 	"supports": {
-		"html": false
+		"html": false,
+		"align": [ "full", "wide" ],
+		"alignWide": true,
+		"__experimentalLayout": true,
+		"spacing": {
+			"margin": true,
+			"padding": true,
+			"__experimentalDefaultControls": {
+				"padding": true
+			}
+		}
 	},
-	"textdomain": "playground-demo",
+	"textdomain": "wordpress-playground-block",
 	"editorScript": "file:./index.js",
 	"editorStyle": "file:./index.css",
-	"style": "file:./style-index.css",
+	"style": ["file:./style-index.css", "wp-components"],
 	"viewScript": ["file:./view.js", "react", "react-dom", "wp-components"],
 	"render": "file:./render.php"
 }
