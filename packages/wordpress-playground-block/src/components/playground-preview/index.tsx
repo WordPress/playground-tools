@@ -169,7 +169,12 @@ export default function PlaygroundPreview({
 
 			const configuration = {
 				iframe: iframeRef.current,
-				remoteUrl: 'https://playground.wordpress.net/remote.html',
+				// wasm.wordpress.net is alias for playground.wordpress.net at the moment.
+				// @TODO: Use playground.wordpress.net once the service worker
+				//        is updated. The current one tries to serve the remote.html
+				//        file from a /wp-6.4/ path when this block is used on
+				//        playground.wordpress.net, and that returns a 404.html.
+				remoteUrl: 'https://wasm.wordpress.net/remote.html',
 			} as any;
 			if (finalBlueprint) {
 				configuration['blueprint'] = finalBlueprint;
