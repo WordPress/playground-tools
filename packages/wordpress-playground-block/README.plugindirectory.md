@@ -11,13 +11,7 @@ Early preview: Enables building WordPress plugins directly in the browser thanks
 
 # WordPress Playground Block
 
-`wordpress-playground-block` is a Gutenberg block that embeds WordPress Playground in your posts and pages.
-
-![CleanShot 2023-11-19 at 16 27 16](https://github.com/WordPress/playground-tools/assets/12466568/ebbc1d01-86db-4e17-a111-2aaf6fc09ea7)
-
-You can also include an interactive code editor to demonstrate and teach your readers how WordPress plugins are built.
-
-![CleanShot 2023-11-21 at 10 14 24](https://github.com/WordPress/playground-tools/assets/12466568/f2ff13e3-392a-4de9-aaf3-45f077abc42c)
+This WordPress block embeds WordPress Playground in your posts and pages. You can also include an interactive code editor to demonstrate and teach your readers how WordPress plugins are built.
 
 ## Usage
 

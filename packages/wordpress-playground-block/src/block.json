@@ -9,9 +9,9 @@
 	"description": "Display demo in WordPress Playground",
 	"attributes": {
 		"align": {
-            "type": "string",
-            "default": "wide"
-        },
+			"type": "string",
+			"default": "wide"
+		},
 		"codeEditor": {
 			"type": "boolean",
 			"default": false
@@ -95,7 +95,7 @@
 	},
 	"supports": {
 		"html": false,
-		"align": [ "full", "wide" ],
+		"align": ["full", "wide"],
 		"alignWide": true,
 		"__experimentalLayout": true,
 		"spacing": {
