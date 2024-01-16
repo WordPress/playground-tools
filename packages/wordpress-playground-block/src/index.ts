@@ -26,6 +26,11 @@ export type Attributes = {
 	files?: EditorFile[];
 	constants: Record<string, boolean | string | number>;
 	codeEditorErrorLog: boolean;
+	blueprintUrl: string;
+	configurationSource:
+		| 'block-attributes'
+		| 'blueprint-url'
+		| 'blueprint-json';
 };
 
 // @ts-ignore

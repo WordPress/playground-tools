@@ -321,7 +321,7 @@ async function initWordPress(
 	}
 	await defineWpConfigConsts(php, {
 		consts: wpConfigConsts,
-		method: 'define-before-run'
+		method: 'define-before-run',
 	});
 
 	return { initializeDefaultDatabase };

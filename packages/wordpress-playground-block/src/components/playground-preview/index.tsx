@@ -68,6 +68,9 @@ function getRefreshPath(lastPath: string) {
 }
 
 export default function PlaygroundPreview({
+	blueprint,
+	blueprintUrl,
+	configurationSource,
 	codeEditor,
 	codeEditorSideBySide,
 	codeEditorReadOnly,
@@ -105,7 +108,6 @@ export default function PlaygroundPreview({
 
 	const iframeRef = useRef<HTMLIFrameElement>(null);
 	const playgroundClientRef = useRef<PlaygroundClient | null>(null);
-	const [lastPath, setLastPath] = useState(landingPageUrl);
 
 	const [currentPostId, setCurrentPostId] = useState(0);
 	const [isNewFileModalOpen, setNewFileModalOpen] = useState(false);
@@ -130,8 +132,37 @@ export default function PlaygroundPreview({
 				return;
 			}
 
-			console.log('Initializing Playground');
-			const client = await startPlaygroundWeb({
+			let finalBlueprint: any = undefined;
+			try {
+				if (configurationSource === 'blueprint-json') {
+					if (blueprint) {
+						finalBlueprint = JSON.parse(blueprint);
+					}
+				} else if (configurationSource === 'blueprint-url') {
+					if (blueprintUrl) {
+						finalBlueprint = await fetch(blueprintUrl).then((res) =>
+							res.json()
+						);
+					}
+				} else {
+					finalBlueprint = {
+						preferredVersions: {
+							wp: 'latest',
+							php: '7.4',
+						},
+						steps: [
+							{
+								step: 'defineWpConfigConsts',
+								consts: constants,
+							},
+						],
+					};
+				}
+			} catch (e) {
+				console.error(e);
+			}
+
+			const configuration = {
 				iframe: iframeRef.current,
 				// wasm.wordpress.net is alias for playground.wordpress.net at the moment.
 				// @TODO: Use playground.wordpress.net once the service worker
@@ -139,34 +170,30 @@ export default function PlaygroundPreview({
 				//        file from a /wp-6.4/ path when this block is used on
 				//        playground.wordpress.net, and that returns a 404.html.
 				remoteUrl: 'https://wasm.wordpress.net/remote.html',
-				blueprint: {
-					preferredVersions: {
-						wp: 'latest',
-						php: '7.4',
-					},
-					steps: [
-						{
-							step: 'defineWpConfigConsts',
-							consts: constants,
-						},
-					],
-				},
-			});
+			} as any;
+			if (finalBlueprint) {
+				configuration['blueprint'] = finalBlueprint;
+			}
+			console.log('Initializing Playground');
+			const client = await startPlaygroundWeb(configuration);
 
 			await client.isReady();
 			playgroundClientRef.current = client;
 
-			// Keeps track of the last URL that was loaded in the iframe.
-			// @TODO: Fix client.getCurrentURL() and use that instead.
-			client.onNavigation((url) => {
-				setLastPath(url);
-			});
+			await reinstallEditedPlugin();
 
-			let postId = 0;
-			if (createNewPost) {
-				const docroot = await client.documentRoot;
-				const { text: newPostId } = await client.run({
-					code: `<?php
+			if (configurationSource === 'block-attributes') {
+				let postId = 0;
+				if (logInUser) {
+					await login(client, {
+						username: 'admin',
+						password: 'password',
+					});
+				}
+				if (createNewPost) {
+					const docroot = await client.documentRoot;
+					const { text: newPostId } = await client.run({
+						code: `<?php
 						require("${docroot}/wp-load.php");
 
 						$post_id = wp_insert_post([
@@ -178,28 +205,23 @@ export default function PlaygroundPreview({
 
 						echo $post_id;
 					`,
-				});
+					});
 
-				setCurrentPostId(parseInt(newPostId));
-				postId = parseInt(newPostId);
+					setCurrentPostId(parseInt(newPostId));
+					postId = parseInt(newPostId);
+				}
+				const redirectUrl = getLandingPageUrl(postId);
+				await client.goTo(redirectUrl);
+			} else if (!finalBlueprint) {
+				await client.goTo('/');
 			}
-
-			if (logInUser) {
-				await login(client, {
-					username: 'admin',
-					password: 'password',
-				});
-			}
-
-			await reinstallEditedPlugin();
-
-			const redirectUrl = getLandingPageUrl(postId);
-			setLastPath(redirectUrl);
-			await client.goTo(redirectUrl);
 		}
 
 		initPlayground();
 	}, [
+		blueprint,
+		blueprintUrl,
+		configurationSource,
 		logInUser,
 		landingPageUrl,
 		constants,
@@ -246,6 +268,7 @@ export default function PlaygroundPreview({
 			await reinstallEditedPlugin();
 
 			// Refresh Playground iframe
+			const lastPath = await playgroundClientRef.current!.getCurrentURL();
 			await playgroundClientRef.current!.goTo(getRefreshPath(lastPath));
 		}
 		doHandleRun();

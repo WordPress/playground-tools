@@ -78,6 +78,13 @@
 			"type": "string",
 			"default": "front"
 		},
+		"configurationSource": {
+			"type": "string",
+			"default": "block-attributes"
+		},
+		"blueprintUrl": {
+			"type": "string"
+		},
 		"blueprint": {
 			"type": "string"
 		}
