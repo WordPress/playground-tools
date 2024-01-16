@@ -215,13 +215,6 @@ export default function Edit({
 								});
 							}}
 						/>
-						<ToggleControl
-							label="Create new post or page"
-							help={
-								'Playground is configured using Blueprints. Select the source ' +
-								"of the Blueprint you'd like to use for this Playground instance."
-							}
-						/>
 						{configurationSource === 'block-attributes' && (
 							<>
 								<ToggleControl
@@ -237,6 +230,13 @@ export default function Edit({
 											logInUser: !logInUser,
 										});
 									}}
+								/>
+								<ToggleControl
+									label="Create new post or page"
+									help={
+										'Playground is configured using Blueprints. Select the source ' +
+										"of the Blueprint you'd like to use for this Playground instance."
+									}
 								/>
 								<ToggleControl
 									label="Create new post or page"

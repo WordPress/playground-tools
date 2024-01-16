@@ -155,6 +155,11 @@ export default function PlaygroundPreview({
 								step: 'defineWpConfigConsts',
 								consts: constants,
 							},
+							logInUser && {
+								step: 'login',
+								username: 'admin',
+								password: 'password',
+							},
 						],
 					};
 				}
@@ -184,12 +189,6 @@ export default function PlaygroundPreview({
 
 			if (configurationSource === 'block-attributes') {
 				let postId = 0;
-				if (logInUser) {
-					await login(client, {
-						username: 'admin',
-						password: 'password',
-					});
-				}
 				if (createNewPost) {
 					const docroot = await client.documentRoot;
 					const { text: newPostId } = await client.run({
