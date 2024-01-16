@@ -23,7 +23,8 @@
 				"cwd": "packages/wordpress-playground-block",
 				"commands": [
 					"wp-scripts build --webpack-src-dir=./src/ --output-path=../../dist/packages/wordpress-playground-block/build",
-					"cp ./package.json ./*.php ../../dist/packages/wordpress-playground-block "
+					"cp ./package.json ./*.php ../../dist/packages/wordpress-playground-block",
+					"cp ./README.plugindirectory.md ../../dist/packages/wordpress-playground-block/README.md"
 				],
 				"parallel": false
 			}
