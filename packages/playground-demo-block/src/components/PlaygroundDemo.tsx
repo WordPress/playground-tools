@@ -27,6 +27,9 @@ export type PlaygroundDemoProps = Attributes & {
 };
 
 export default function PlaygroundDemo({
+	blueprint,
+	blueprintUrl,
+	configurationSource,
 	codeEditor,
 	codeEditorReadOnly,
 	codeEditorMode,
@@ -178,7 +181,24 @@ export default function PlaygroundDemo({
 				return;
 			}
 
-			const client = await startPlaygroundWeb({
+			let finalBlueprint: any = undefined;
+			try {
+				if (configurationSource === 'blueprint-json') {
+					if (blueprint) {
+						finalBlueprint = JSON.parse(blueprint);
+					}
+				} else if (configurationSource === 'blueprint-url') {
+					if (blueprintUrl) {
+						finalBlueprint = await fetch(blueprintUrl).then((res) =>
+							res.json()
+						);
+					}
+				}
+			} catch (e) {
+				console.error(e);
+			}
+
+			const configuration = {
 				iframe: iframeRef.current,
 				// wasm.wordpress.net is alias for playground.wordpress.net at the moment.
 				// @TODO: Use playground.wordpress.net once the service worker
@@ -186,17 +206,29 @@ export default function PlaygroundDemo({
 				//        file from a /wp-6.4/ path when this block is used on
 				//        playground.wordpress.net, and that returns a 404.html.
 				remoteUrl: 'https://wasm.wordpress.net/remote.html',
-			});
+			} as any;
+			if (finalBlueprint) {
+				configuration['blueprint'] = finalBlueprint;
+			}
+			const client = await startPlaygroundWeb(configuration);
 
 			await client.isReady();
 
 			playgroundClientRef.current = client;
 
-			let postId = 0;
+			await handleCodeInjection(client, files);
 
-			if (createNewPost) {
-				const { text: newPostId } = await client.run({
-					code: `<?php
+			if (configurationSource === 'block-attributes') {
+				if (logInUser) {
+					await login(client, {
+						username: 'admin',
+						password: 'password',
+					});
+				}
+				let postId = 0;
+				if (createNewPost) {
+					const { text: newPostId } = await client.run({
+						code: `<?php
 						require("/wordpress/wp-load.php");
 
 						$post_id = wp_insert_post([
@@ -208,27 +240,22 @@ export default function PlaygroundDemo({
 
 						echo $post_id;
 					`,
-				});
-
-				setCurrentPostId(parseInt(newPostId));
-				postId = parseInt(newPostId);
+					});
+					setCurrentPostId(parseInt(newPostId));
+					postId = parseInt(newPostId);
+				}
+				await handleRedirect(client, postId);
+			} else if (!finalBlueprint) {
+				await client.goTo('/');
 			}
-
-			await handleCodeInjection(client, files);
-
-			if (logInUser) {
-				await login(client, {
-					username: 'admin',
-					password: 'password',
-				});
-			}
-
-			await handleRedirect(client, postId);
 		}
 
 		initPlayground();
 	}, [
 		iframeRef.current,
+		blueprint,
+		blueprintUrl,
+		configurationSource,
 		logInUser,
 		landingPageUrl,
 		createNewPost,
@@ -252,7 +279,9 @@ export default function PlaygroundDemo({
 			const client = playgroundClientRef.current;
 
 			await handleCodeInjection(client, files);
-			await handleRedirect(client, currentPostId);
+			if (configurationSource === 'block-attributes') {
+				await handleRedirect(client, currentPostId);
+			}
 
 			if (onStateChange) {
 				onStateChange({

@@ -22,6 +22,11 @@ export type Attributes = {
 	redirectToPost: boolean;
 	redirectToPostType: string;
 	blueprint: string;
+	blueprintUrl: string;
+	configurationSource:
+		| 'block-attributes'
+		| 'blueprint-url'
+		| 'blueprint-json';
 	files?: File[];
 };
 

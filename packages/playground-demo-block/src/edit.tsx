@@ -37,6 +37,8 @@ export default function Edit({
 		redirectToPost,
 		redirectToPostType,
 		blueprint,
+		blueprintUrl,
+		configurationSource,
 	} = attributes;
 
 	return (
@@ -161,138 +163,185 @@ export default function Edit({
 							</>
 						)}
 					</PanelBody>
-					<PanelBody title="Playground" initialOpen={false}>
-						<ToggleControl
-							label="Log in automatically"
-							help={
-								logInUser
-									? 'User will be logged in.'
-									: "User won't be logged in."
-							}
-							checked={logInUser}
-							onChange={() => {
+					<PanelBody title="Blueprint" initialOpen={false}>
+						<SelectControl
+							label="Blueprint source"
+							value={configurationSource}
+							options={[
+								{
+									label: 'Generate from block attributes',
+									value: 'block-attributes',
+								},
+								{
+									label: 'URL',
+									value: 'blueprint-url',
+								},
+								{
+									label: 'JSON (paste it below)',
+									value: 'blueprint-json',
+								},
+							]}
+							onChange={(newConfigurationSource) => {
 								setAttributes({
-									logInUser: !logInUser,
+									configurationSource: newConfigurationSource,
 								});
 							}}
-						/>
-						<ToggleControl
-							label="Create new post or page"
 							help={
-								createNewPost
-									? 'New post or page will be created.'
-									: 'No new posts or pages will be created.'
+								'Playground is configured using Blueprints. Select the source ' +
+								"of the Blueprint you'd like to use for this Playground instance."
 							}
-							checked={createNewPost}
-							onChange={() => {
-								setAttributes({
-									createNewPost: !createNewPost,
-								});
-							}}
 						/>
-						{createNewPost && (
+						{configurationSource === 'block-attributes' && (
 							<>
-								<ToggleGroupControl
-									label="Create new: post type"
-									value={createNewPostType}
-									onChange={(value: any) => {
-										setAttributes({
-											createNewPostType:
-												value?.toString(),
-										});
-									}}
-									isBlock
-								>
-									<ToggleGroupControlOption
-										value="post"
-										label="Post"
-									/>
-									<ToggleGroupControlOption
-										value="page"
-										label="Page"
-									/>
-								</ToggleGroupControl>
-								<InputControl
-									value={createNewPostTitle}
-									onChange={(value: any) => {
-										setAttributes({
-											createNewPostTitle: value,
-										});
-									}}
-									label="Create new: title"
-									placeholder="Hello World!"
-								/>
-								<TextareaControl
-									value={createNewPostContent}
-									onChange={(value) => {
-										setAttributes({
-											createNewPostContent: value,
-										});
-									}}
-									label="Create new: content"
-									help="Gutenberg editor content of the post"
-								/>
 								<ToggleControl
-									label="Create new: redirect to post"
+									label="Log in automatically"
 									help={
-										redirectToPost
-											? 'User will be redirected.'
-											: "User won't be redirected."
+										logInUser
+											? 'User will be logged in.'
+											: "User won't be logged in."
 									}
-									checked={redirectToPost}
+									checked={logInUser}
 									onChange={() => {
 										setAttributes({
-											redirectToPost: !redirectToPost,
+											logInUser: !logInUser,
 										});
 									}}
 								/>
-								{redirectToPost && (
-									<ToggleGroupControl
-										label="Create new redirect: redirect to"
-										value={redirectToPostType}
+								<ToggleControl
+									label="Create new post or page"
+									help={
+										createNewPost
+											? 'New post or page will be created.'
+											: 'No new posts or pages will be created.'
+									}
+									checked={createNewPost}
+									onChange={() => {
+										setAttributes({
+											createNewPost: !createNewPost,
+										});
+									}}
+								/>
+								{createNewPost && (
+									<>
+										<ToggleGroupControl
+											label="Create new: post type"
+											value={createNewPostType}
+											onChange={(value: any) => {
+												setAttributes({
+													createNewPostType:
+														value?.toString(),
+												});
+											}}
+											isBlock
+										>
+											<ToggleGroupControlOption
+												value="post"
+												label="Post"
+											/>
+											<ToggleGroupControlOption
+												value="page"
+												label="Page"
+											/>
+										</ToggleGroupControl>
+										<InputControl
+											value={createNewPostTitle}
+											onChange={(value: any) => {
+												setAttributes({
+													createNewPostTitle: value,
+												});
+											}}
+											label="Create new: title"
+											placeholder="Hello World!"
+										/>
+										<TextareaControl
+											value={createNewPostContent}
+											onChange={(value) => {
+												setAttributes({
+													createNewPostContent: value,
+												});
+											}}
+											label="Create new: content"
+											help="Gutenberg editor content of the post"
+										/>
+										<ToggleControl
+											label="Create new: redirect to post"
+											help={
+												redirectToPost
+													? 'User will be redirected.'
+													: "User won't be redirected."
+											}
+											checked={redirectToPost}
+											onChange={() => {
+												setAttributes({
+													redirectToPost:
+														!redirectToPost,
+												});
+											}}
+										/>
+										{redirectToPost && (
+											<ToggleGroupControl
+												label="Create new redirect: redirect to"
+												value={redirectToPostType}
+												onChange={(value: any) => {
+													setAttributes({
+														redirectToPostType:
+															value?.toString(),
+													});
+												}}
+												isBlock
+											>
+												<ToggleGroupControlOption
+													value="front"
+													label="Front page"
+												/>
+												<ToggleGroupControlOption
+													value="admin"
+													label="Edit screen"
+												/>
+											</ToggleGroupControl>
+										)}
+									</>
+								)}
+								{(!createNewPost || !redirectToPost) && (
+									<InputControl
+										value={landingPageUrl}
 										onChange={(value: any) => {
 											setAttributes({
-												redirectToPostType:
-													value?.toString(),
+												landingPageUrl: value,
 											});
 										}}
-										isBlock
-									>
-										<ToggleGroupControlOption
-											value="front"
-											label="Front page"
-										/>
-										<ToggleGroupControlOption
-											value="admin"
-											label="Edit screen"
-										/>
-									</ToggleGroupControl>
+										label="Landing page"
+										help="Define where to redirect after Playground is loaded."
+										placeholder="URL to redirect to after load (eg. /wp-admin/)"
+									/>
 								)}
 							</>
 						)}
-						{(!createNewPost || !redirectToPost) && (
+						{configurationSource === 'blueprint-url' && (
 							<InputControl
-								value={landingPageUrl}
+								value={blueprintUrl}
 								onChange={(value: any) => {
 									setAttributes({
-										landingPageUrl: value,
+										blueprintUrl: value,
 									});
 								}}
-								label="Landing page"
-								help="Define where to redirect after Playground is loaded."
-								placeholder="Got to url after load (eg. /wp-admin/)"
+								label="Blueprint URL"
+								help="Load Blueprint from this URL."
+								placeholder="URL to load the Blueprint from"
 							/>
 						)}
-						<TextareaControl
-							value={blueprint}
-							onChange={(value) => {
-								setAttributes({
-									blueprint: value,
-								});
-							}}
-							label="Blueprint"
-							help="JSON file with playground blueprint"
-						/>
+						{configurationSource === 'blueprint-json' && (
+							<TextareaControl
+								value={blueprint}
+								onChange={(value) => {
+									setAttributes({
+										blueprint: value,
+									});
+								}}
+								label="Blueprint"
+								help="JSON file with playground blueprint"
+							/>
+						)}
 					</PanelBody>
 				</Panel>
 			</InspectorControls>
