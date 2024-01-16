@@ -2,8 +2,7 @@
 
 Use the [WordPress Playground Block](https://github.com/WordPress/playground-tools/tree/trunk/packages/wordpress-playground-block) instead. Interactive Code Block won't be further maintained as it turned out to be much more complex than anticipated.
 
-----
-
+---
 
 Enables running PHP code directly in the browser thanks to [WordPress Playground](https://github.com/WordPress/wordpress-playground).
 

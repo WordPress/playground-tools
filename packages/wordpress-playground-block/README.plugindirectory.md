@@ -35,10 +35,8 @@ This WordPress block embeds WordPress Playground in your posts and pages. You ca
 
 ## Resources
 
-Resources:
-
 -   [Source code](https://github.com/WordPress/playground-tools/tree/trunk/packages/wordpress-playground-block)
--   [WordPress Plugins page](https://wordpress.org/plugins/wordpress-playground-block/)
+-   [WordPress Plugins page](https://wordpress.org/plugins/interactive-code-block/)
 -   [WordPress Playground](https://developer.wordpress.org/playground)
 -   [WordPress Playground repository](https://wordpress.github.io/wordpress-playground/)
 
