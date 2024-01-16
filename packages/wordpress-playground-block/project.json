@@ -24,7 +24,7 @@
 				"commands": [
 					"wp-scripts build --webpack-src-dir=./src/ --output-path=../../dist/packages/wordpress-playground-block/build",
 					"cp ./package.json ./*.php ../../dist/packages/wordpress-playground-block",
-					"cp ./README.plugindirectory.md ../../dist/packages/wordpress-playground-block/README.md"
+					"cp ./README.plugindirectory.txt ../../dist/packages/wordpress-playground-block/README.txt"
 				],
 				"parallel": false
 			}
