@@ -12,8 +12,10 @@ Version: 0.0.0
 Author URI: https://github.com/seanmorris/
 */
 const COLLECTOR_DOWNLOAD_PATH = '?page=collector_download_package';
+const COLLECTOR_ADMIN_PAGE_SLUG = 'collector_render_playground_page';
 const COLLECTOR_PLAYGROUND_PACKAGE = 'https://playground.wordpress.net/client/index.js';
 const TRANSLATE_DOMAIN = 'playground-collector';
+const ADMIN_PAGE_CAPABILITY = 'manage_options';
 
 global $wp_version;
 
@@ -37,7 +39,7 @@ function get_collector_admin_page_url() {
 
 function collector_plugins_loaded()
 {
-	if(!current_user_can('manage_options'))
+	if(!current_user_can(ADMIN_PAGE_CAPABILITY))
 	{
 		return;
 	}
@@ -55,10 +57,10 @@ function collector_plugin_menu()
 {
 	add_submenu_page(
 		NULL,
-		'Collector',
-		'Collector',
-		'manage_options',
-		'collector_render_playground_page',
+		__('Collector', TRANSLATE_DOMAIN),
+		__('Collector', TRANSLATE_DOMAIN),
+		ADMIN_PAGE_CAPABILITY,
+		COLLECTOR_ADMIN_PAGE_SLUG,
 		'collector_render_playground_page',
 		NULL
 	);
@@ -212,15 +214,20 @@ function collector_plugin_install_action_links($action_links, $plugin)
 				'blueprintUrl' => esc_url($blueprint['url']),
 				'returnUrl'    => esc_attr($retUrl),
 			],
-			admin_url('admin.php?page=collector_render_playground_page')
+			admin_url('admin.php?page=' . COLLECTOR_ADMIN_PAGE_SLUG)
 		);
 
 		$preview_button = sprintf(
 			'<a class="preview-now button" data-slug="%s" href="%s" aria-label="%s" data-name="%s">%s</a>',
 			esc_attr( $plugin['slug'] ),
 			$preview_url,
-			/* translators: %s: Plugin name and version. */
-			esc_attr( sprintf( _x( 'Preview %s now', 'plugin' ), $plugin['name'] ) ),
+			esc_attr(
+				sprintf(
+					/* translators: %s: Plugin name. */
+					_x('Preview %s now', 'plugin'),
+					$plugin['name']
+				)
+			),
 			esc_attr( $plugin['name'] ),
 			__( 'Preview Now', TRANSLATE_DOMAIN )
 		);
