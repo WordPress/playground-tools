@@ -103,6 +103,12 @@ export async function startServer(
 				),
 				body: body as string,
 			};
+
+			data.headers['host'] = options.absoluteUrl
+				.replaceAll('http://', '')
+				.replaceAll('https://', '')
+				.replaceAll('/', '');
+			data.headers['origin'] = options.absoluteUrl;
 			const resp = await php.request(data);
 			res.statusCode = resp.httpStatusCode;
 			Object.keys(resp.headers).forEach((key) => {
