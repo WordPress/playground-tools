@@ -11,9 +11,9 @@ Author: Sean Morris
 Version: 0.0.0
 Author URI: https://github.com/seanmorris/
 */
-
-const COLLECTOR_DOWNLOAD_PATH = '/wp-admin/?page=collector_download_package';
+const COLLECTOR_DOWNLOAD_PATH = '?page=collector_download_package';
 const COLLECTOR_PLAYGROUND_PACKAGE = 'https://playground.wordpress.net/client/index.js';
+const TRANSLATE_DOMAIN = 'playground-collector';
 
 global $wp_version;
 
@@ -31,6 +31,10 @@ add_action('plugins_loaded', 'collector_plugins_loaded');
 add_filter('plugin_install_action_links', 'collector_plugin_install_action_links', 10, 2);
 add_filter('plugins_api_args', 'collector_plugins_api_args', 10, 2);
 
+function get_collector_admin_page_url() {
+	return admin_url(COLLECTOR_DOWNLOAD_PATH);
+}
+
 function collector_plugins_loaded()
 {
 	if(!current_user_can('manage_options'))
@@ -38,7 +42,7 @@ function collector_plugins_loaded()
 		return;
 	}
 
-	if(urldecode($_SERVER['REQUEST_URI']) === COLLECTOR_DOWNLOAD_PATH)
+	if(home_url($_SERVER['REQUEST_URI']) === get_collector_admin_page_url())
 	{
 		collector_zip_collect();
 		collector_zip_send();
@@ -64,7 +68,20 @@ function collector_render_playground_page()
 {?>
 	<div id = "wp-playground-wrapper">
 		<div id = "wp-playground-toolbar">
-			NOW WORKING INSIDE WORDPRESS PLAYGROUND &nbsp; [<a href = "/wp-admin" id = "goBack">RETURN</a>]
+			<span>
+				<?php
+				printf(
+					__(
+						'WordPress Playground preview for %s',
+						TRANSLATE_DOMAIN
+					),
+					get_bloginfo('name')
+				);
+				?>
+			</span>
+			<a href="<?php echo admin_url( 'plugin-install.php' ); ?>" id = "goBack">
+				<?php _e('Go Back', TRANSLATE_DOMAIN); ?>
+			</a>
 		</div>
 		<div id = "wp-playground-main-area">
 			<iframe id = "wp-playground"></iframe>
@@ -72,7 +89,7 @@ function collector_render_playground_page()
 	</div>
 	<script type = "text/javascript">
 		const frame  = document.getElementById('wp-playground');
-		const zipUrl = <?=json_encode(COLLECTOR_DOWNLOAD_PATH);?>;
+		const zipUrl = '<?= esc_url( get_collector_admin_page_url() ); ?>';
 
 		const query = new URLSearchParams(window.location.search);
 
@@ -154,7 +171,9 @@ function collector_render_playground_page()
 
 	</script>
 
-	<a href = "<?=COLLECTOR_DOWNLOAD_PATH;?>">Download Zip</a>
+	<a href = "<?= get_collector_admin_page_url();?>">
+		<?php _e('Download Zip', TRANSLATE_DOMAIN); ?>
+	</a>
 
 	<style type = "text/css">
 		#wp-playground-toolbar {
@@ -188,14 +207,22 @@ function collector_plugin_install_action_links($action_links, $plugin)
 	{
 		$retUrl = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . urlencode('?' . http_build_query($_GET));
 
+		$preview_url = add_query_arg(
+			[
+				'blueprintUrl' => esc_url($blueprint['url']),
+				'returnUrl'    => esc_attr($retUrl),
+			],
+			admin_url('admin.php?page=collector_render_playground_page')
+		);
+
 		$preview_button = sprintf(
 			'<a class="preview-now button" data-slug="%s" href="%s" aria-label="%s" data-name="%s">%s</a>',
 			esc_attr( $plugin['slug'] ),
-			'/wp-admin/admin.php?page=collector_render_playground_page&blueprintUrl=' . esc_url( $blueprint['url'] ) . '&returnUrl=' . esc_attr( $retUrl ),
+			$preview_url,
 			/* translators: %s: Plugin name and version. */
 			esc_attr( sprintf( _x( 'Preview %s now', 'plugin' ), $plugin['name'] ) ),
 			esc_attr( $plugin['name'] ),
-			__( 'Preview Now' )
+			__( 'Preview Now', TRANSLATE_DOMAIN )
 		);
 
 		array_unshift($action_links, $preview_button);
