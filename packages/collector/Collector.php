@@ -98,14 +98,13 @@ function collector_render_playground_page()
 		const username   = <?=json_encode(htmlspecialchars(wp_get_current_user()->user_login, ENT_QUOTES, 'UTF-8'));?>;
 		const fakepass   = <?=json_encode(collector_get_fakepass());?>;
 		const blueprintUrl = query.get('blueprintUrl');
-
 		(async () => {
 			const  { startPlaygroundWeb } = await import(<?=json_encode(COLLECTOR_PLAYGROUND_PACKAGE);?>);
 			const blueprint = await (await fetch(blueprintUrl)).json();
 
 			blueprint.steps = blueprint.steps || [];
-
-			blueprint.steps.unshift(
+			blueprint.steps = [
+				...blueprint.steps,
 				{
 					step: 'writeFile',
 					path: '/data.zip',
@@ -134,8 +133,8 @@ function collector_render_playground_page()
 					step: 'login',
 					username: username,
 					password: fakepass,
-				},
-			);
+				}
+			];
 
 			blueprint.preferredVersions = {
 				wp: <?=json_encode(COLLECTOR_WP_VERSION);?>,
