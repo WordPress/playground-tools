@@ -7,7 +7,7 @@ function collector_esc_sql_identifier($tableName) {
 function collector_dump_db($zip)
 {
 	$tables   = collector_get_db_tables();
-	$sqlFileHandle = fopen('php://memory', 'w');
+	$sqlFileHandle = fopen('php://memory', 'rw');
 
 	fwrite($sqlFileHandle, sprintf("-- %s\n", json_encode(['SECTION START' => 'SCHEMA'])));
 
