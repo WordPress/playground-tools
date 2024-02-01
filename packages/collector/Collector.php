@@ -91,15 +91,15 @@ function collector_render_playground_page()
 	</div>
 	<script type = "text/javascript">
 		const frame  = document.getElementById('wp-playground');
-		const zipUrl = '<?= esc_url( get_collector_admin_page_url() ); ?>';
+		const zipUrl = '<?php echo esc_url( get_collector_admin_page_url() ); ?>';
 
 		const query = new URLSearchParams(window.location.search);
 
-		const username   = <?=json_encode(htmlspecialchars(wp_get_current_user()->user_login, ENT_QUOTES, 'UTF-8'));?>;
-		const fakepass   = <?=json_encode(collector_get_fakepass());?>;
+		const username   = '<?php echo esc_js(wp_get_current_user()->user_login); ?>';
+		const fakepass   = '<?php echo esc_js(collector_get_fakepass()); ?>';
 		const blueprintUrl = query.get('blueprintUrl');
 		(async () => {
-			const  { startPlaygroundWeb } = await import(<?=json_encode(COLLECTOR_PLAYGROUND_PACKAGE);?>);
+			const  { startPlaygroundWeb } = await import('<?php echo esc_url(COLLECTOR_PLAYGROUND_PACKAGE);?>');
 			const blueprint = await (await fetch(blueprintUrl)).json();
 
 			blueprint.steps = blueprint.steps || [];
@@ -137,8 +137,8 @@ function collector_render_playground_page()
 			];
 
 			blueprint.preferredVersions = {
-				wp: <?=json_encode(COLLECTOR_WP_VERSION);?>,
-				php: <?=json_encode(COLLECTOR_PHP_VERSION);?>,
+				wp: '<?php echo esc_js(COLLECTOR_WP_VERSION); ?>',
+				php: '<?php echo esc_js(COLLECTOR_PHP_VERSION); ?>',
 			};
 
 			const client = await startPlaygroundWeb({
@@ -172,7 +172,7 @@ function collector_render_playground_page()
 
 	</script>
 
-	<a href = "<?= get_collector_admin_page_url();?>">
+	<a href = "<?php echo  get_collector_admin_page_url();?>">
 		<?php _e('Download Zip', TRANSLATE_DOMAIN); ?>
 	</a>
 
