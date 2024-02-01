@@ -30,18 +30,17 @@ function collector_open_zip()
 	return [$zip, $zipName];
 }
 
-function collector_close_zip($zip, $files)
+function collector_close_zip($zip)
 {
 	$zip->close();
-	array_map(fn($f) => unlink($f), $files);
 }
 
 function collector_zip_collect()
 {
 	[$zip, $zipName] = collector_open_zip();
 	collector_zip_wp_content($zip);
-	$tmpFiles = collector_dump_db($zip);
-	collector_close_zip($zip, $tmpFiles);
+	collector_dump_db($zip);
+	collector_close_zip($zip);
 
 	rename($zipName, COLLECTOR_FINAL_ZIP);
 

@@ -7,21 +7,20 @@ function collector_esc_sql_identifier($tableName) {
 function collector_dump_db($zip)
 {
 	$tables   = collector_get_db_tables();
-	$sqlFile  = collector_get_tmpfile('schema', 'sql');
-	$tmpFiles = [$sqlFile];
+	$sqlFileHandle = fopen('php://memory', 'w');
 
-	file_put_contents($sqlFile, sprintf("-- %s\n", json_encode(['SECTION START' => 'SCHEMA'])), FILE_APPEND);
+	fwrite($sqlFileHandle, sprintf("-- %s\n", json_encode(['SECTION START' => 'SCHEMA'])));
 
 	foreach($tables as $table)
 	{
-		file_put_contents($sqlFile, sprintf("-- %s\n", json_encode(['ACTION' => 'DROP', 'TABLE' => $table])), FILE_APPEND);
-		file_put_contents($sqlFile, sprintf("DROP TABLE IF EXISTS `%s`;\n", collector_esc_sql_identifier($table)), FILE_APPEND);
-		file_put_contents($sqlFile, sprintf("-- %s\n", json_encode(['ACTION' => 'CREATE', 'TABLE' => $table])), FILE_APPEND);
-		file_put_contents($sqlFile, preg_replace("/\s+/", " ", collector_dump_db_schema($table)) . "\n", FILE_APPEND);
+		fwrite($sqlFileHandle, sprintf("-- %s\n", json_encode(['ACTION' => 'DROP', 'TABLE' => $table])));
+		fwrite($sqlFileHandle, sprintf("DROP TABLE IF EXISTS `%s`;\n", collector_esc_sql_identifier($table)));
+		fwrite($sqlFileHandle, sprintf("-- %s\n", json_encode(['ACTION' => 'CREATE', 'TABLE' => $table])));
+		fwrite($sqlFileHandle, preg_replace("/\s+/", " ", collector_dump_db_schema($table)) . "\n");
 	}
 
-	file_put_contents($sqlFile, sprintf("-- %s\n", json_encode(['SECTION END' => 'SCHEMA'])), FILE_APPEND);
-	file_put_contents($sqlFile, sprintf("-- %s\n", json_encode(['SECTION START' => 'RECORDS'])), FILE_APPEND);
+	fwrite($sqlFileHandle, sprintf("-- %s\n", json_encode(['SECTION END' => 'SCHEMA'])));
+	fwrite($sqlFileHandle, sprintf("-- %s\n", json_encode(['SECTION START' => 'RECORDS'])));
 
 	global $wpdb;
 
@@ -30,7 +29,7 @@ function collector_dump_db($zip)
 	// dumped to the schema backup in the zip
 	foreach(array_reverse($tables) as $table)
 	{
-		file_put_contents($sqlFile, sprintf("-- %s\n", json_encode(['ACTION' => 'INSERT', 'TABLE' => $table])), FILE_APPEND);
+		fwrite($sqlFileHandle, sprintf("-- %s\n", json_encode(['ACTION' => 'INSERT', 'TABLE' => $table])));
 
 		$wpdb->query(sprintf('SELECT * FROM `%s`', collector_esc_sql_identifier($table)));
 
@@ -55,7 +54,7 @@ function collector_dump_db($zip)
 				implode(', ', array_map(fn($f) => "'" . esc_sql($f) . "'", array_values($record))),
 			);
 
-			file_put_contents($sqlFile, $insert . "\n", FILE_APPEND);
+			fwrite($sqlFileHandle, $insert . "\n");
 
 			if(--$remaining <= 0)
 			{
@@ -64,11 +63,15 @@ function collector_dump_db($zip)
 		}
 	}
 
-	file_put_contents($sqlFile, sprintf("-- %s\n", json_encode(['SECTION END' => 'RECORDS'])), FILE_APPEND);
+	fwrite($sqlFileHandle, sprintf("-- %s\n", json_encode(['SECTION END' => 'RECORDS'])));
 
-	$zip->addFile($sqlFile, 'schema/_Schema.sql');
-
-	return $tmpFiles;
+	fseek($sqlFileHandle, 0);
+	$content = '';
+	while (!feof($sqlFileHandle)) {
+		$content .= fread($sqlFileHandle, 8192);
+	}
+	$zip->addFromString('schema/_Schema.sql', $content);
+	fclose($sqlFileHandle);
 }
 
 function collector_get_db_tables()
