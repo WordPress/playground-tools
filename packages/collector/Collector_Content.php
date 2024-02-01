@@ -5,7 +5,7 @@ function collector_iterate_directory($path, $prefix, $callback)
 
 	while($entry = readdir($handle))
 	{
-		if($entry === '.' || $entry === '..' || substr($entry, 0, 4) === '.git' || substr($entry, 0, 4) === '.svn' || substr($entry, 0, 10) === '.mercurial')
+		if($entry === '.' || $entry === '..' || substr($entry, 0, 1) === '.')
 		{
 			continue;
 		}
