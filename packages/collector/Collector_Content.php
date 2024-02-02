@@ -10,7 +10,7 @@ function collector_iterate_directory($path, $prefix, $callback)
 			continue;
 		}
 
-		$realPath = realpath($path . '/' . $entry);
+		$realPath = path_join($path, $entry);
 		$packPath = substr($realPath, strlen($prefix));
 
 		$callback($realPath, $packPath);

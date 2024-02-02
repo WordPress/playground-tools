@@ -169,44 +169,39 @@ function collector_render_playground_page()
 
 function collector_plugin_install_action_links($action_links, $plugin)
 {
-	if(!$plugin['blueprints'])
+	if(empty($plugin['blueprints']))
 	{
 		return $action_links;
 	}
 
-	foreach($plugin['blueprints'] as $blueprint)
-	{
-		$retUrl = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . urlencode('?' . http_build_query($_GET));
+	$blueprint = $plugin['blueprints'][0];
 
-		$preview_url = add_query_arg(
-			[
-				'blueprintUrl' => esc_url($blueprint['url']),
-				'returnUrl'    => esc_attr($retUrl),
-			],
-			admin_url('admin.php?page=' . COLLECTOR_ADMIN_PAGE_SLUG)
-		);
+	$retUrl = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . urlencode('?' . http_build_query($_GET));
 
-		$preview_button = sprintf(
-			'<a class="preview-now button" data-slug="%s" href="%s" aria-label="%s" data-name="%s">%s</a>',
-			esc_attr( $plugin['slug'] ),
-			$preview_url,
-			esc_attr(
-				sprintf(
-					/* translators: %s: Plugin name. */
-					_x('Preview %s now', 'plugin'),
-					$plugin['name']
-				)
-			),
-			esc_attr( $plugin['name'] ),
-			__( 'Preview Now', TRANSLATE_DOMAIN )
-		);
+	$preview_url = add_query_arg(
+		[
+			'blueprintUrl' => esc_url($blueprint['url']),
+			'returnUrl'    => esc_attr($retUrl),
+		],
+		admin_url('admin.php?page=' . COLLECTOR_ADMIN_PAGE_SLUG)
+	);
 
-		array_unshift($action_links, $preview_button);
+	$preview_button = sprintf(
+		'<a class="preview-now button" data-slug="%s" href="%s" aria-label="%s" data-name="%s">%s</a>',
+		esc_attr( $plugin['slug'] ),
+		$preview_url,
+		esc_attr(
+			sprintf(
+				/* translators: %s: Plugin name. */
+				_x('Preview %s now', 'plugin'),
+				$plugin['name']
+			)
+		),
+		esc_attr( $plugin['name'] ),
+		__( 'Preview Now', TRANSLATE_DOMAIN )
+	);
 
-		// Use only a single Blueprint json for now:
-		break;
-	}
-
+	array_unshift($action_links, $preview_button);
 
 	return $action_links;
 }
