@@ -7,8 +7,8 @@
 Plugin Name: Collector
 Plugin URI: https://github.com/seanmorris/collector
 Description: Packages your WordPress install and sends it to Playground.
-Author: Sean Morris
-Version: 0.0.0
+Author: WordPress Contributors
+Version: 0.0.1
 Author URI: https://github.com/seanmorris/
 */
 const COLLECTOR_DOWNLOAD_PATH = '?page=collector_download_package';
@@ -140,25 +140,6 @@ function collector_render_playground_page()
 
 			client.goTo('/wp-admin/plugins.php');
 		})();
-
-		const goBack = document.getElementById('goBack');
-		const goBackClicked = event => {
-
-			const qsUrl  = new URLSearchParams(window.location.search).get('returnUrl');
-			const drUrl  = new URL(document.referrer).pathname;
-
-			if (qsUrl && qsUrl.substr(0,7) !== 'http://' && qsUrl.substr(0,8) !== 'https://' && qsUrl.substr(0,2) !== '//') {
-				window.location.assign(qsUrl);
-				event.preventDefault();
-			}
-			else if (drUrl && drUrl.substr(0,7) !== 'http://' && drUrl.substr(0,8) !== 'https://' && drUrl.substr(0,2) !== '//') {
-				window.location.assign(drUrl);
-				event.preventDefault();
-			}
-		};
-
-		goBack.addEventListener('click', goBackClicked);
-
 	</script>
 
 	<a href = "<?php echo  get_collector_admin_page_url();?>">
