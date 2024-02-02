@@ -7,20 +7,20 @@ function collector_esc_sql_identifier($tableName) {
 function collector_dump_db($zip)
 {
 	$tables   = collector_get_db_tables();
-	$sqlFileHandle = fopen('php://memory', 'rw');
+	$sql_dump = '';
 
-	fwrite($sqlFileHandle, sprintf("-- %s\n", json_encode(['SECTION START' => 'SCHEMA'])));
+	$sql_dump .= sprintf("-- %s\n", json_encode(['SECTION START' => 'SCHEMA']));
 
 	foreach($tables as $table)
 	{
-		fwrite($sqlFileHandle, sprintf("-- %s\n", json_encode(['ACTION' => 'DROP', 'TABLE' => $table])));
-		fwrite($sqlFileHandle, sprintf("DROP TABLE IF EXISTS `%s`;\n", collector_esc_sql_identifier($table)));
-		fwrite($sqlFileHandle, sprintf("-- %s\n", json_encode(['ACTION' => 'CREATE', 'TABLE' => $table])));
-		fwrite($sqlFileHandle, preg_replace("/\s+/", " ", collector_dump_db_schema($table)) . "\n");
+		$sql_dump .= sprintf("-- %s\n", json_encode(['ACTION' => 'DROP', 'TABLE' => $table]));
+		$sql_dump .= sprintf("DROP TABLE IF EXISTS `%s`;\n", collector_esc_sql_identifier($table));
+		$sql_dump .= sprintf("-- %s\n", json_encode(['ACTION' => 'CREATE', 'TABLE' => $table]));
+		$sql_dump .= preg_replace("/\s+/", " ", collector_dump_db_schema($table)) . "\n";
 	}
 
-	fwrite($sqlFileHandle, sprintf("-- %s\n", json_encode(['SECTION END' => 'SCHEMA'])));
-	fwrite($sqlFileHandle, sprintf("-- %s\n", json_encode(['SECTION START' => 'RECORDS'])));
+	$sql_dump .= sprintf("-- %s\n", json_encode(['SECTION END' => 'SCHEMA']));
+	$sql_dump .= sprintf("-- %s\n", json_encode(['SECTION START' => 'RECORDS']));
 
 	global $wpdb;
 
@@ -29,7 +29,7 @@ function collector_dump_db($zip)
 	// dumped to the schema backup in the zip
 	foreach(array_reverse($tables) as $table)
 	{
-		fwrite($sqlFileHandle, sprintf("-- %s\n", json_encode(['ACTION' => 'INSERT', 'TABLE' => $table])));
+		$sql_dump .= sprintf("-- %s\n", json_encode(['ACTION' => 'INSERT', 'TABLE' => $table]));
 
 		$wpdb->query(sprintf('SELECT * FROM `%s`', collector_esc_sql_identifier($table)));
 
@@ -54,7 +54,7 @@ function collector_dump_db($zip)
 				implode(', ', array_map(fn($f) => "'" . esc_sql($f) . "'", array_values($record))),
 			);
 
-			fwrite($sqlFileHandle, $insert . "\n");
+			$sql_dump .= $insert . "\n";
 
 			if(--$remaining <= 0)
 			{
@@ -63,15 +63,8 @@ function collector_dump_db($zip)
 		}
 	}
 
-	fwrite($sqlFileHandle, sprintf("-- %s\n", json_encode(['SECTION END' => 'RECORDS'])));
-
-	fseek($sqlFileHandle, 0);
-	$content = '';
-	while (!feof($sqlFileHandle)) {
-		$content .= fread($sqlFileHandle, 8192);
-	}
-	$zip->addFromString('schema/_Schema.sql', $content);
-	fclose($sqlFileHandle);
+	$sql_dump .= sprintf("-- %s\n", json_encode(['SECTION END' => 'RECORDS']));
+	$zip->addFromString('schema/_Schema.sql', $sql_dump);
 }
 
 function collector_get_db_tables()
