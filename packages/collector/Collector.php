@@ -104,21 +104,12 @@ function collector_render_playground_page()
 			blueprint.steps = [
 				...blueprint.steps,
 				{
-					step: 'writeFile',
-					path: '/data.zip',
-					data: {
+					step: 'unzip',
+					zipFile: {
 						'resource': 'url',
 						'url': zipUrl,
 					},
-				},
-				{
-					step: 'unzip',
-					zipPath: '/data.zip',
 					extractToPath: '/wordpress',
-				},
-				{
-					step: 'rm',
-					path: '/data.zip',
 				},
 				{
 					step: 'runSql',
