@@ -64,7 +64,7 @@ function collector_dump_db($zip)
 	}
 
 	$sql_dump .= sprintf("-- %s\n", json_encode(['SECTION END' => 'RECORDS']));
-	$zip->addFromString('schema/_Schema.sql', $sql_dump);
+	$zip->addFile('schema/_Schema.sql', $sql_dump);
 }
 
 function collector_get_db_tables()

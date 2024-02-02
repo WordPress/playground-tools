@@ -1,64 +1,44 @@
 <?php
+use ZipStream\ZipStream;
+use ZipStream\Option\Archive;
+
 
 function collector_zip_wp_content($zip)
 {
 	$callback = function ($realPath, $packPath) use ($zip, &$callback) {
 		if(is_file($realPath))
 		{
-			$zip->addFile($realPath, $packPath);
+			$zip->addFileFromPath($packPath, $realPath);
 		}
 		else if(is_dir($realPath))
 		{
-			$zip->addEmptyDir($packPath);
-
 			collector_iterate_directory($realPath, ABSPATH, $callback);
 		}
 	};
 
-	collector_iterate_directory(ABSPATH . '/' . 'wp-content/', ABSPATH, $callback);
+	collector_iterate_directory(ABSPATH . '/wp-content/', ABSPATH, $callback);
 }
 
 function collector_open_zip()
 {
-	$zipName = collector_get_tmpfile('package', 'zip');
-	$zip = new ZipArchive;
-	$zip->open($zipName, ZIPARCHIVE::CREATE);
-
-	$zip->addEmptyDir('wp-content');
-	$zip->addEmptyDir('schema');
-
-	return [$zip, $zipName];
+	$options = new Archive();
+	$options->setSendHttpHeaders(true);
+	$zip = new ZipStream(
+		collector_get_tmpfile('collector', 'zip'),
+		$options
+	);
+	return $zip;
 }
 
 function collector_close_zip($zip)
 {
-	$zip->close();
+	$zip->finish();
 }
 
 function collector_zip_collect()
 {
-	[$zip, $zipName] = collector_open_zip();
+	$zip = collector_open_zip();
 	collector_zip_wp_content($zip);
 	collector_dump_db($zip);
 	collector_close_zip($zip);
-
-	rename($zipName, COLLECTOR_FINAL_ZIP);
-
-	return $zipName;
-}
-
-function collector_zip_send()
-{
-	header("Status: 200 OK");
-	header("Content-type: application/zip");
-	header("Content-Disposition: attachment; filename=collector-package-" . date('Y-m-d_H-i-s') . ".zip");
-	header("Pragma: no-cache");
-	header("Expires: 0");
-
-	readfile(COLLECTOR_FINAL_ZIP);
-}
-
-function collector_zip_delete()
-{
-	unlink(COLLECTOR_FINAL_ZIP);
 }

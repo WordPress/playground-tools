@@ -1,13 +1,7 @@
 <?php
 function collector_get_tmpfile($name, $type)
 {
-	$tmpDir  = get_temp_dir();
-    $tmpName = tempnam($tmpDir . '/', 'clctr-'. date('Y-m-d_H-i-s-') . $name . '-');
-    $typName = $tmpName . '.' . $type;
-    touch($typName);
-    unlink($tmpName);
-
-    return $typName;
+    return $name . '-package-'. date('Y-m-d_H-i-s') . '.' . $type;
 }
 
 function collector_get_fakepass()

@@ -20,9 +20,9 @@ const ADMIN_PAGE_CAPABILITY = 'manage_options';
 global $wp_version;
 
 define('COLLECTOR_WP_VERSION', $wp_version);
-define('COLLECTOR_FINAL_ZIP', get_temp_dir() . '/collector-package.zip');
 define('COLLECTOR_PHP_VERSION', implode('.',sscanf(phpversion(), '%d.%d')));
 
+require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/Collector_Content.php';
 require __DIR__ . '/Collector_Db.php';
 require __DIR__ . '/Collector_Helpers.php';
@@ -47,8 +47,6 @@ function collector_plugins_loaded()
 	if(home_url($_SERVER['REQUEST_URI']) === get_collector_admin_page_url())
 	{
 		collector_zip_collect();
-		collector_zip_send();
-		collector_zip_delete();
 		exit();
 	}
 }
