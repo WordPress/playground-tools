@@ -2,7 +2,9 @@
 
 _v0.0.0_
 
-Packages your WordPress install and sends it to Playground.
+A WordPress plugin for collecting the content of a site and spinning up WordPress Playground with a copy of the site content.
+
+The current version of the plugin allows you to preview a plugin installation from the WordPress.org repository in a WordPress Playground instance.
 
 ## Development
 

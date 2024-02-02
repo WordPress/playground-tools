@@ -66,8 +66,8 @@ function collector_plugin_menu()
 
 function collector_render_playground_page()
 {?>
-	<div id = "wp-playground-wrapper">
-		<div id = "wp-playground-toolbar">
+	<div id="wp-playground-wrapper">
+		<div id="wp-playground-toolbar">
 			<span>
 				<?php
 				printf(
@@ -83,8 +83,8 @@ function collector_render_playground_page()
 				<?php _e('Go Back', TRANSLATE_DOMAIN); ?>
 			</a>
 		</div>
-		<div id = "wp-playground-main-area">
-			<iframe id = "wp-playground"></iframe>
+		<div id="wp-playground-main-area">
+			<iframe id="wp-playground"></iframe>
 		</div>
 	</div>
 	<script type = "text/javascript">
@@ -181,7 +181,7 @@ function collector_render_playground_page()
 			box-shadow: 0 4px 4px rgba(0,0,0,0.25); position: relative; z-index:1999999;
 			animation: collector-fade-in 0.25s 0.65s cubic-bezier(0.175, 0.885, 0.5, 1.85) 1 forwards; transform:translateY(-100%);
 		}
-		#wp-playground-toolbar > a { text-transform: capitalize; font-size: 0.8rem; padding: 0 0.5rem; }
+		#wp-playground-toolbar > a { text-transform: capitalize; padding: 0 0.5rem; }
 		#wpbody-content, #wpcontent { padding-left: 0px !important; }
 		#wpwrap, #wpbody, #wpbody-content {padding-bottom: 0px; height: 100%;}
 		#wpwrap, #wpbody { position: initial; }
