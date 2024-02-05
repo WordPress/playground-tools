@@ -1,28 +1,28 @@
 {
-	"landingPage": "/wp-admin/post.php?post=4&action=edit",
-	"steps": [
-		{
-			"step": "login",
-			"username": "admin",
-			"password": "password"
-		},
-		{
-			"step": "installTheme",
-			"themeZipFile": {
-				"resource": "wordpress.org/themes",
-				"slug": "adventurer"
-			}
-		},
-		{
-			"step": "installPlugin",
-			"pluginZipFile": {
-				"resource": "wordpress.org/plugins",
-				"slug": "interactive-code-block"
-			}
-		},
-		{
-			"step": "runPHP",
-			"code": "<?php require '/wordpress/wp-load.php'; wp_insert_post(['post_title' => 'Interactive code block demo!','post_content' => '<!-- wp:wordpress-playground/interactive-code {\"code\":\"PD9waHAKCmVjaG8gIlRoaXMgY29kZSBzbmlwcGV0IGlzIGludGVyYWN0aXZlISI7Cg==\",\"cachedOutput\":\"VGhpcyBjb2RlIHNuaXBwZXQgaXMgaW50ZXJhY3RpdmUh\"} --><div class=\"wp-block-wordpress-playground-interactive-code\">PD9waHAKCmVjaG8gIlRoaXMgY29kZSBzbmlwcGV0IGlzIGludGVyYWN0aXZlISI7Cg==</div><!-- /wp:wordpress-playground/interactive-code -->', 'post_status' => 'publish', 'post_type' => 'post',]);"
-		}
-	]
+  "landingPage": "/wp-admin/post.php?post=4&action=edit",
+  "steps": [
+    {
+      "step": "login",
+      "username": "admin",
+      "password": "password"
+    },
+    {
+      "step": "installTheme",
+      "themeZipFile": {
+        "resource": "wordpress.org/themes",
+        "slug": "adventurer"
+      }
+    },
+    {
+      "step": "installPlugin",
+      "pluginZipFile": {
+        "resource": "wordpress.org/plugins",
+        "slug": "interactive-code-block"
+      }
+    },
+    {
+      "step": "runPHP",
+      "code": "<?php require '/wordpress/wp-load.php'; wp_insert_post(['post_title' => 'Interactive code block demo!','post_content' => '<!-- wp:wordpress-playground/interactive-code {\"code\":\"PD9waHAKCmVjaG8gIlRoaXMgY29kZSBzbmlwcGV0IGlzIGludGVyYWN0aXZlISI7Cg==\",\"cachedOutput\":\"VGhpcyBjb2RlIHNuaXBwZXQgaXMgaW50ZXJhY3RpdmUh\"} --><div class=\"wp-block-wordpress-playground-interactive-code\">PD9waHAKCmVjaG8gIlRoaXMgY29kZSBzbmlwcGV0IGlzIGludGVyYWN0aXZlISI7Cg==</div><!-- /wp:wordpress-playground/interactive-code -->', 'post_status' => 'publish', 'post_type' => 'post',]);"
+    }
+  ]
 }
