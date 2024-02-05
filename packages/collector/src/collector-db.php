@@ -2,62 +2,62 @@
 
 defined('ABSPATH') || exit;
 
-function collector_esc_sql_identifier($tableName)
+function collector_stringify_insert_data($records)
 {
-	return str_replace('`', '``', esc_sql($tableName));
+	return implode(
+		', ',
+		array_map(
+			function ($f) {
+				return "`" . esc_sql($f) . "`";
+			},
+			$records
+		)
+	);
 }
 
 function collector_dump_db($zip)
 {
-	$tables   = collector_get_db_tables();
-	$sql_dump = '';
-
-	$sql_dump .= sprintf("-- %s\n", json_encode(['SECTION START' => 'SCHEMA']));
-
-	foreach ($tables as $table) {
-		$sql_dump .= sprintf("-- %s\n", json_encode(['ACTION' => 'DROP', 'TABLE' => $table]));
-		$sql_dump .= sprintf("DROP TABLE IF EXISTS `%s`;\n", collector_esc_sql_identifier($table));
-		$sql_dump .= sprintf("-- %s\n", json_encode(['ACTION' => 'CREATE', 'TABLE' => $table]));
-		$sql_dump .= preg_replace("/\s+/", " ", collector_dump_db_schema($table)) . "\n";
-	}
-
-	$sql_dump .= sprintf("-- %s\n", json_encode(['SECTION END' => 'SCHEMA']));
-	$sql_dump .= sprintf("-- %s\n", json_encode(['SECTION START' => 'RECORDS']));
-
 	global $wpdb;
 
+	$tables   = collector_get_db_tables();
+	$sql_dump = [];
+
+	foreach ($tables as $table) {
+		array_push(
+			$sql_dump,
+			sprintf("DROP TABLE IF EXISTS `%s`;", esc_sql($table)),
+			preg_replace("/\s+/", " ", collector_dump_db_schema($table))
+		);
+	}
+
 	// Process in reverse order so wp_users comes before wp_options
-	// meaning the fakepass will be cleared before transients are
-	// dumped to the schema backup in the zip
 	foreach (array_reverse($tables) as $table) {
-		$sql_dump .= sprintf("-- %s\n", json_encode(['ACTION' => 'INSERT', 'TABLE' => $table]));
+		$records = $wpdb->get_results(
+			sprintf(
+				'SELECT * FROM `%s`',
+				esc_sql($table)
+			),
+			ARRAY_A
+		);
 
-		$wpdb->query(sprintf('SELECT * FROM `%s`', collector_esc_sql_identifier($table)));
-
-		$remaining = $wpdb->result->num_rows;
-
-		if (!$remaining) {
+		if ($wpdb->last_error) {
+			error_log($wpdb->last_error);
 			continue;
 		}
 
-		foreach ($wpdb->result as $record) {
-			$insert = sprintf(
-				'INSERT INTO `%s` (%s) VALUES (%s);',
-				esc_sql($table),
-				implode(', ', array_map(fn ($f) => "`" . collector_esc_sql_identifier($f) . "`", array_keys($record))),
-				implode(', ', array_map(fn ($f) => "'" . esc_sql($f) . "'", array_values($record))),
+		foreach ($records as $record) {
+			array_push(
+				$sql_dump,
+				sprintf(
+					'INSERT INTO `%s` (%s) VALUES (%s);',
+					esc_sql($table),
+					implode(', ', array_map('esc_sql', array_keys($record))),
+					implode(', ', array_map(fn ($f) => "'" . esc_sql($f) . "'", array_values($record))),
+				)
 			);
-
-			$sql_dump .= $insert . "\n";
-
-			if (--$remaining <= 0) {
-				break;
-			}
 		}
 	}
-
-	$sql_dump .= sprintf("-- %s\n", json_encode(['SECTION END' => 'RECORDS']));
-	$zip->addFile('schema/_Schema.sql', $sql_dump);
+	$zip->addFile('schema/_Schema.sql', implode("\n", $sql_dump));
 }
 
 function collector_get_db_tables()
@@ -70,7 +70,16 @@ function collector_get_db_tables()
 function collector_dump_db_schema($table)
 {
 	global $wpdb;
-	return $wpdb
-		->get_row(sprintf('SHOW CREATE TABLE `%s`', esc_sql($table)), OBJECT)
-		->{'Create Table'};
+	$schema = $wpdb->get_row(
+		sprintf('SHOW CREATE TABLE `%s`', esc_sql($table)),
+		ARRAY_A
+	);
+	if ($wpdb->last_error) {
+		error_log($wpdb->last_error);
+		return '';
+	}
+	if (!isset($schema['Create Table'])) {
+		return '';
+	}
+	return $schema['Create Table'];
 }
