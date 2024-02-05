@@ -1,4 +1,7 @@
 <?php
+
+defined('ABSPATH') || exit;
+
 use ZipStream\ZipStream;
 use ZipStream\Option\Archive;
 
@@ -6,12 +9,9 @@ use ZipStream\Option\Archive;
 function collector_zip_wp_content($zip)
 {
 	$callback = function ($realPath, $packPath) use ($zip, &$callback) {
-		if(is_file($realPath))
-		{
+		if (is_file($realPath)) {
 			$zip->addFileFromPath($packPath, $realPath);
-		}
-		else if(is_dir($realPath))
-		{
+		} else if (is_dir($realPath)) {
 			collector_iterate_directory($realPath, ABSPATH, $callback);
 		}
 	};
@@ -24,7 +24,7 @@ function collector_open_zip()
 	$options = new Archive();
 	$options->setSendHttpHeaders(true);
 	$zip = new ZipStream(
-		collector_get_tmpfile('collector', 'zip'),
+		'collector-package-' . date('Y-m-d_H-i-s') . '.zip',
 		$options
 	);
 	return $zip;
