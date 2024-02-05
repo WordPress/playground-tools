@@ -10,6 +10,9 @@ import { NodePHP } from '@php-wasm/node';
 import startWPNow from './wp-now';
 import { output } from './output';
 import { addTrailingSlash } from './add-trailing-slash';
+import crypto from 'crypto';
+
+global.crypto = crypto as Crypto;
 
 function requestBodyToMultipartFormData(json, boundary) {
 	let multipartData = '';
