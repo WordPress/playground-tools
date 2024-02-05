@@ -2,24 +2,35 @@
 
 defined('ABSPATH') || exit;
 
+require __DIR__ . '/collector-db.php';
+
 use ZipStream\ZipStream;
 use ZipStream\Option\Archive;
 
-
 function collector_zip_wp_content($zip)
 {
-	$callback = function ($realPath, $packPath) use ($zip, &$callback) {
-		if (is_file($realPath)) {
-			$zip->addFileFromPath($packPath, $realPath);
-		} else if (is_dir($realPath)) {
-			collector_iterate_directory($realPath, ABSPATH, $callback);
+	$root_dir = WP_CONTENT_DIR;
+	$directory = new \RecursiveDirectoryIterator($root_dir, \FilesystemIterator::FOLLOW_SYMLINKS);
+	$iterator = new \RecursiveIteratorIterator($directory);
+	$regex = new \RegexIterator($iterator, '/^.+\/(?!.*\.\.).+$/i', \RecursiveRegexIterator::GET_MATCH);
+	foreach ($regex as $file) {
+		if (empty($file)) {
+			continue;
 		}
-	};
+		$file = $file[0];
 
-	collector_iterate_directory(ABSPATH . '/wp-content/', ABSPATH, $callback);
+		if (is_dir($file)) {
+			continue;
+		}
+
+		$zip->addFileFromPath(
+			str_replace($root_dir, '/wp-content', $file),
+			$file
+		);
+	}
 }
 
-function collector_open_zip()
+function collector_zip_collect()
 {
 	$options = new Archive();
 	$options->setSendHttpHeaders(true);
@@ -27,18 +38,9 @@ function collector_open_zip()
 		'collector-package-' . date('Y-m-d_H-i-s') . '.zip',
 		$options
 	);
-	return $zip;
-}
 
-function collector_close_zip($zip)
-{
-	$zip->finish();
-}
-
-function collector_zip_collect()
-{
-	$zip = collector_open_zip();
 	collector_zip_wp_content($zip);
 	collector_dump_db($zip);
-	collector_close_zip($zip);
+
+	$zip->finish();
 }

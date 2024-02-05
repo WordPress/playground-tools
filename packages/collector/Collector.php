@@ -21,8 +21,6 @@ define('COLLECTOR_WP_VERSION', $wp_version);
 define('COLLECTOR_PHP_VERSION', implode('.', sscanf(phpversion(), '%d.%d')));
 
 require __DIR__ . '/vendor/autoload.php';
-require __DIR__ . '/src/collector-content.php';
-require __DIR__ . '/src/collector-db.php';
 require __DIR__ . '/src/collector-zip.php';
 
 add_action('admin_menu', 'collector_plugin_menu');
