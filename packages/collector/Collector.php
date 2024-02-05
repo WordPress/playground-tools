@@ -11,7 +11,6 @@ defined('ABSPATH') || exit;
 
 const COLLECTOR_DOWNLOAD_PATH = '?page=collector_download_package';
 const COLLECTOR_ADMIN_PAGE_SLUG = 'collector_render_playground_page';
-const COLLECTOR_PLAYGROUND_PACKAGE = 'https://playground.wordpress.net/client/index.js';
 const TRANSLATE_DOMAIN = 'playground-collector';
 const ADMIN_PAGE_CAPABILITY = 'manage_options';
 
@@ -48,7 +47,14 @@ function collector_enqueue_scripts($current_screen_id)
 		'zipUrl' => esc_url(get_collector_admin_page_url()),
 		'wpVersion' => COLLECTOR_WP_VERSION,
 		'phpVersion' => COLLECTOR_PHP_VERSION,
-		'playgroundPackageUrl' => COLLECTOR_PLAYGROUND_PACKAGE,
+		'playgroundPackageUrl' => apply_filters(
+			'collector_playground_package_url',
+			esc_url('https://playground.wordpress.net/client/index.js'),
+		),
+		'playgroundRemoteUrl' => apply_filters(
+			'collector_playground_remote_url',
+			esc_url('https://playground.wordpress.net/remote.html'),
+		)
 	]);
 	wp_enqueue_script('collector');
 }
