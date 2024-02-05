@@ -9,7 +9,6 @@ Version: 0.0.1
 
 defined('ABSPATH') || exit;
 
-const COLLECTOR_DOWNLOAD_PATH = '?page=collector_download_package';
 const COLLECTOR_ADMIN_PAGE_SLUG = 'collector_render_playground_page';
 const TRANSLATE_DOMAIN = 'playground-collector';
 const ADMIN_PAGE_CAPABILITY = 'manage_options';
@@ -36,13 +35,13 @@ function collector_init()
 
 function collector_enqueue_scripts($current_screen_id)
 {
-	if ($current_screen_id !== 'admin_page_collector_render_playground_page') {
+	if ($current_screen_id !== 'admin_page_' . COLLECTOR_ADMIN_PAGE_SLUG) {
 		return;
 	}
 	wp_enqueue_style('collector', plugin_dir_url(__FILE__) . 'assets/css/collector.css', [], COLLECTOR_VERSION);
 	wp_register_script('collector', plugin_dir_url(__FILE__) . 'assets/js/collector.js', [], COLLECTOR_VERSION, true);
 	wp_localize_script('collector', 'collector', [
-		'zipUrl' => esc_url(get_collector_admin_page_url()),
+		'zipUrl' => esc_url(get_collector_download_page_url()),
 		'wpVersion' => COLLECTOR_WP_VERSION,
 		'phpVersion' => COLLECTOR_PHP_VERSION,
 		'playgroundPackageUrl' => apply_filters(
@@ -57,21 +56,39 @@ function collector_enqueue_scripts($current_screen_id)
 	wp_enqueue_script('collector');
 }
 
-function get_collector_admin_page_url()
+function get_collector_download_page_url()
 {
-	return admin_url(COLLECTOR_DOWNLOAD_PATH);
+	return add_query_arg(
+		[
+			'download' => 1,
+		],
+		admin_url('admin.php?page=' . COLLECTOR_ADMIN_PAGE_SLUG)
+	);
 }
 
 function collector_plugins_loaded()
 {
+	if (!is_admin()) {
+		return;
+	}
 	if (!current_user_can(ADMIN_PAGE_CAPABILITY)) {
 		return;
 	}
 
-	if (home_url($_SERVER['REQUEST_URI']) === get_collector_admin_page_url()) {
-		collector_zip_collect();
-		exit();
+	global $pagenow;
+	if ('admin.php' !== $pagenow) {
+		return;
 	}
+
+	if (!isset($_GET['page']) || COLLECTOR_ADMIN_PAGE_SLUG !== $_GET['page']) {
+		return;
+	}
+	if (!isset($_GET['download'])) {
+		return;
+	}
+
+	collector_zip_collect();
+	wp_die();
 }
 
 function collector_plugin_menu()

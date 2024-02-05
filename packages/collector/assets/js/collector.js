@@ -1,9 +1,7 @@
 (function () {
 	const query = new URLSearchParams(window.location.search);
 
-	const blueprintUrl = query
-		.get('blueprintUrl')
-		.replace('https://wordpress.org', 'http://localhost:8010/proxy');
+	const blueprintUrl = query.get('blueprintUrl');
 	(async () => {
 		const { startPlaygroundWeb } = await import(
 			collector.playgroundPackageUrl
