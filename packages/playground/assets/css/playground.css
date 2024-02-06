@@ -1,19 +1,20 @@
-.admin_page_collector_render_playground_page #wpbody-content,
-.admin_page_collector_render_playground_page #wpcontent {
+.admin_page_playground #wpbody-content,
+.admin_page_playground #wpcontent {
 	padding-left: 0px !important;
 }
 
-.admin_page_collector_render_playground_page #wpwrap,
-.admin_page_collector_render_playground_page #wpbody,
-.admin_page_collector_render_playground_page #wpbody-content {
+.admin_page_playground #wpwrap,
+.admin_page_playground #wpbody,
+.admin_page_playground #wpbody-content {
 	padding-bottom: 0px;
 	height: 100%;
 }
 
-.admin_page_collector_render_playground_page #wpwrap,
-.admin_page_collector_render_playground_page #wpbody {
+.admin_page_playground #wpwrap,
+.admin_page_playground #wpbody {
 	position: initial;
 }
+
 #wp-playground-toolbar {
 	background-color: #eaaa00;
 	font-weight: bold;
@@ -27,7 +28,7 @@
 	box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
 	position: relative;
 	z-index: 1999999;
-	animation: collector-fade-in 0.25s 0.65s
+	animation: playground-fade-in 0.25s 0.65s
 		cubic-bezier(0.175, 0.885, 0.5, 1.85) 1 forwards;
 	transform: translateY(-100%);
 }
@@ -56,7 +57,7 @@
 	flex-direction: column;
 }
 
-@keyframes collector-fade-in {
+@keyframes playground-fade-in {
 	from {
 		transform: translateY(-100%);
 	}

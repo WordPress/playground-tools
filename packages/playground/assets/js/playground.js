@@ -1,10 +1,12 @@
 (function () {
 	const query = new URLSearchParams(window.location.search);
 
-	const blueprintUrl = query.get('blueprintUrl');
+	const blueprintUrl = query
+		.get('blueprintUrl')
+		.replace('https://wordpress.org', 'http://localhost:8010/proxy');
 	(async () => {
 		const { startPlaygroundWeb } = await import(
-			collector.playgroundPackageUrl
+			playground.playgroundPackageUrl
 		);
 		const blueprint = await (await fetch(blueprintUrl)).json();
 
@@ -14,7 +16,7 @@
 				step: 'unzip',
 				zipFile: {
 					resource: 'url',
-					url: collector.zipUrl,
+					url: playground.zipUrl,
 				},
 				extractToPath: '/wordpress',
 			},
@@ -29,8 +31,8 @@
 		];
 
 		blueprint.preferredVersions = {
-			wp: collector.wpVersion,
-			php: collector.phpVersion,
+			wp: playground.wpVersion,
+			php: playground.phpVersion,
 		};
 
 		const client = await startPlaygroundWeb({

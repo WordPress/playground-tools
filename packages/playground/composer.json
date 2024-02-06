@@ -1,5 +1,5 @@
 {
-	"name": "wordpress/collector",
+	"name": "wordpress/playground",
 	"description": "A WordPress plugin for collecting the content of a site and spinning up WordPress Playground with a copy of the site content.",
 	"require": {
 		"maennchen/zipstream-php": "^2.2"

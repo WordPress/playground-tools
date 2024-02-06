@@ -2,12 +2,12 @@
 
 defined('ABSPATH') || exit;
 
-require __DIR__ . '/collector-db.php';
+require __DIR__ . '/playground-db.php';
 
 use ZipStream\ZipStream;
 use ZipStream\Option\Archive;
 
-function collector_zip_wp_content($zip)
+function playground_zip_wp_content($zip)
 {
 	$root_dir = WP_CONTENT_DIR;
 	$directory = new \RecursiveDirectoryIterator($root_dir, \FilesystemIterator::FOLLOW_SYMLINKS);
@@ -30,17 +30,17 @@ function collector_zip_wp_content($zip)
 	}
 }
 
-function collector_zip_collect()
+function playground_zip_collect()
 {
 	$options = new Archive();
 	$options->setSendHttpHeaders(true);
 	$zip = new ZipStream(
-		'collector-package-' . date('Y-m-d_H-i-s') . '.zip',
+		'playground-package-' . date('Y-m-d_H-i-s') . '.zip',
 		$options
 	);
 
-	collector_zip_wp_content($zip);
-	collector_dump_db($zip);
+	playground_zip_wp_content($zip);
+	playground_dump_db($zip);
 
 	$zip->finish();
 }

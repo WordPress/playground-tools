@@ -1,4 +1,4 @@
-# Collector
+# WordPress Playground
 
 _v0.0.0_
 
@@ -9,7 +9,7 @@ The current version of the plugin allows you to preview a plugin installation fr
 ## Development
 
 -   Install and activate the plugin in your WordPress install
--   Replace the `blueprintUrl` variable in `collector.php` with
+-   Replace the `blueprintUrl` variable in `playground.php` with
 
 ```js
 const blueprintUrl = query.get('blueprintUrl').replace('https://wordpress.org', 'http://localhost:8010/proxy');`

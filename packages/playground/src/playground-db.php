@@ -2,7 +2,7 @@
 
 defined('ABSPATH') || exit;
 
-function collector_escape_array($array)
+function playground_escape_array($array)
 {
 	global $wpdb;
 	$escaped = array();
@@ -15,18 +15,18 @@ function collector_escape_array($array)
 	return implode(',', $escaped);
 }
 
-function collector_dump_db($zip)
+function playground_dump_db($zip)
 {
 	global $wpdb;
 
-	$tables   = collector_get_db_tables();
+	$tables   = playground_get_db_tables();
 	$sql_dump = array();
 
 	foreach ($tables as $table) {
 		array_push(
 			$sql_dump,
 			sprintf("DROP TABLE IF EXISTS `%s`;", esc_sql($table)),
-			collector_dump_db_schema($table)
+			playground_dump_db_schema($table)
 		);
 	}
 
@@ -51,10 +51,10 @@ function collector_dump_db($zip)
 				sprintf(
 					'INSERT INTO `%1$s` (%2$s) VALUES (%3$s);',
 					esc_sql($table),
-					collector_escape_array(
+					playground_escape_array(
 						array_keys($record)
 					),
-					collector_escape_array(array_values($record))
+					playground_escape_array(array_values($record))
 				)
 			);
 		}
@@ -63,14 +63,14 @@ function collector_dump_db($zip)
 
 }
 
-function collector_get_db_tables()
+function playground_get_db_tables()
 {
 	global $wpdb;
 	$tables = $wpdb->get_results('SHOW TABLES', ARRAY_N);
 	return array_map(fn ($t) => $t[0], $tables);
 }
 
-function collector_dump_db_schema($table)
+function playground_dump_db_schema($table)
 {
 	global $wpdb;
 	$schema = $wpdb->get_row(
