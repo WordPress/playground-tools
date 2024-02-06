@@ -84,5 +84,6 @@ function playground_dump_db_schema($table)
 	if (!isset($schema['Create Table'])) {
 		return '';
 	}
-	return preg_replace("/\s+/", " ", $schema['Create Table']);
+	// A query needs to be on a single line
+	return preg_replace("/\r?\n/", "", $schema['Create Table']);
 }
