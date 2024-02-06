@@ -1,5 +1,7 @@
 <?php
 
+namespace WordPress\Playground;
+
 defined('ABSPATH') || exit;
 
 ?>

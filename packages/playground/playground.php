@@ -7,6 +7,8 @@ Author: WordPress Contributors
 Version: 0.0.1
 */
 
+namespace WordPress\Playground;
+
 defined('ABSPATH') || exit;
 
 const PLAYGROUND_ADMIN_PAGE_SLUG = 'playground';
@@ -22,18 +24,26 @@ define('PLAYGROUND_PHP_VERSION', implode('.', sscanf(phpversion(), '%d.%d')));
 require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/src/playground-zip.php';
 
-add_action('admin_menu', 'playground_plugin_menu');
-add_action('admin_init', 'playground_init');
-add_action('plugins_loaded', 'playground_plugins_loaded');
+add_action('admin_menu', __NAMESPACE__ . '\plugin_menu');
+add_action('admin_init', __NAMESPACE__ . '\init');
+add_action('plugins_loaded', __NAMESPACE__ . '\plugins_loaded');
 
-function playground_init()
+/**
+ * Initialize the plugin.
+ */
+function init()
 {
-	add_action('admin_enqueue_scripts', 'playground_enqueue_scripts');
-	add_filter('plugin_install_action_links', 'playground_plugin_install_action_links', 10, 2);
-	add_filter('plugins_api_args', 'playground_plugins_api_args', 10, 2);
+	add_action('admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts');
+	add_filter('plugin_install_action_links', __NAMESPACE__ . '\plugin_install_action_links', 10, 2);
+	add_filter('plugins_api_args', __NAMESPACE__ . '\plugins_api_args', 10, 2);
 }
 
-function playground_enqueue_scripts($current_screen_id)
+/**
+ * Enqueue scripts and styles for the plugin.
+ *
+ * @param string $current_screen_id The current screen ID.
+ */
+function enqueue_scripts($current_screen_id)
 {
 	if ($current_screen_id !== 'tools_page_' . PLAYGROUND_ADMIN_PAGE_SLUG) {
 		return;
@@ -41,22 +51,27 @@ function playground_enqueue_scripts($current_screen_id)
 	wp_enqueue_style('playground', plugin_dir_url(__FILE__) . 'assets/css/playground.css', [], PLAYGROUND_VERSION);
 	wp_register_script('playground', plugin_dir_url(__FILE__) . 'assets/js/playground.js', [], PLAYGROUND_VERSION, true);
 	wp_localize_script('playground', 'playground', [
-		'zipUrl' => esc_url(get_playground_download_page_url()),
+		'zipUrl' => esc_url(get_download_page_url()),
 		'wpVersion' => PLAYGROUND_WP_VERSION,
 		'phpVersion' => PLAYGROUND_PHP_VERSION,
 		'playgroundPackageUrl' => apply_filters(
-			'playground_playground_package_url',
+			'playground_package_url',
 			esc_url('https://playground.wordpress.net/client/index.js'),
 		),
 		'playgroundRemoteUrl' => apply_filters(
-			'playground_playground_remote_url',
+			'playground_remote_url',
 			esc_url('https://playground.wordpress.net/remote.html'),
 		)
 	]);
 	wp_enqueue_script('playground');
 }
 
-function get_playground_download_page_url()
+/**
+ * Get the URL to download the playground package.
+ *
+ * @return string The URL to download the playground package.
+ */
+function get_download_page_url()
 {
 	return add_query_arg(
 		[
@@ -66,7 +81,10 @@ function get_playground_download_page_url()
 	);
 }
 
-function playground_plugins_loaded()
+/**
+ * Collect the WordPress package and package it into a zip file.
+ */
+function plugins_loaded()
 {
 	if (!is_admin()) {
 		return;
@@ -87,11 +105,14 @@ function playground_plugins_loaded()
 		return;
 	}
 
-	playground_zip_collect();
+	zip_collect();
 	wp_die();
 }
 
-function playground_plugin_menu()
+/**
+ * Add the WordPress Playground page to the Tools menu.
+ */
+function plugin_menu()
 {
 	add_submenu_page(
 		'tools.php',
@@ -99,12 +120,15 @@ function playground_plugin_menu()
 		'Sandbox Site',
 		ADMIN_PAGE_CAPABILITY,
 		PLAYGROUND_ADMIN_PAGE_SLUG,
-		'playground_render_playground_page',
+		__NAMESPACE__ . '\render_playground_page',
 		NULL
 	);
 }
 
-function playground_render_playground_page()
+/**
+ * Render the WordPress Playground page.
+ */
+function render_playground_page()
 {
 	if (isset($_GET['download'])) {
 		return;
@@ -112,7 +136,14 @@ function playground_render_playground_page()
 	include __DIR__ . '/templates/playground-page.php';
 }
 
-function playground_plugin_install_action_links($action_links, $plugin)
+/**
+ * Add a "Preview Now" button to the plugin install screen.
+ *
+ * @param array $action_links An array of plugin action links.
+ * @param array $plugin The plugin data.
+ * @return array The modified array of plugin action links.
+ */
+function plugin_install_action_links($action_links, $plugin)
 {
 	if (empty($plugin['blueprints'])) {
 		return $action_links;
@@ -150,7 +181,14 @@ function playground_plugin_install_action_links($action_links, $plugin)
 	return $action_links;
 }
 
-function playground_plugins_api_args($args, $action)
+/**
+ * Add the blueprints field to the plugins API response.
+ *
+ * @param object $args The plugins API arguments.
+ * @param string $action The plugins API action.
+ * @return object The modified plugins API arguments.
+ */
+function plugins_api_args($args, $action)
 {
 	if ($action === 'query_plugins') {
 		$args->fields = ($args->fields ?? '') . 'blueprints';

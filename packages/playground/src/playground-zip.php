@@ -1,5 +1,7 @@
 <?php
 
+namespace WordPress\Playground;
+
 defined('ABSPATH') || exit;
 
 require __DIR__ . '/playground-db.php';
@@ -7,7 +9,12 @@ require __DIR__ . '/playground-db.php';
 use ZipStream\ZipStream;
 use ZipStream\Option\Archive;
 
-function playground_zip_wp_content($zip)
+/**
+ * Add the wp-content directory to a zip archive.
+ *
+ * @param ZipStream $zip The zip archive to add the wp-content directory to.
+ */
+function zip_wp_content($zip)
 {
 	$root_dir = WP_CONTENT_DIR;
 	$directory = new \RecursiveDirectoryIterator($root_dir, \FilesystemIterator::FOLLOW_SYMLINKS);
@@ -32,7 +39,10 @@ function playground_zip_wp_content($zip)
 	}
 }
 
-function playground_zip_collect()
+/**
+ * Collect the wp-content directory and database dump, add them to a zip archive and send it to the browser.
+ */
+function zip_collect()
 {
 	$options = new Archive();
 	$options->setSendHttpHeaders(true);
@@ -41,8 +51,8 @@ function playground_zip_collect()
 		$options
 	);
 
-	playground_zip_wp_content($zip);
-	playground_dump_db($zip);
+	zip_wp_content($zip);
+	dump_db($zip);
 
 	$zip->finish();
 }

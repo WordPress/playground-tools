@@ -1,8 +1,16 @@
 <?php
 
+namespace WordPress\Playground;
+
 defined('ABSPATH') || exit;
 
-function playground_escape_array($array)
+/**
+ * Escape an array of values for use in a SQL query.
+ *
+ * @param array $array The array of values to escape.
+ * @return string The escaped values, separated by commas.
+ */
+function escape_array($array)
 {
 	global $wpdb;
 	$escaped = array();
@@ -16,11 +24,16 @@ function playground_escape_array($array)
 	return implode(',', $escaped);
 }
 
-function playground_dump_db($zip)
+/**
+ * Create a database dump and add it to a zip archive.
+ *
+ * @param ZipArchive $zip The zip archive to add the database dump to.
+ */
+function dump_db($zip)
 {
 	global $wpdb;
 
-	$tables   = playground_get_db_tables();
+	$tables   = get_db_tables();
 	$sql_dump = array();
 
 	foreach ($tables as $table) {
@@ -30,7 +43,7 @@ function playground_dump_db($zip)
 				"DROP TABLE IF EXISTS %s;",
 				$wpdb->quote_identifier($table)
 			),
-			playground_dump_db_schema($table)
+			dump_db_schema($table)
 		);
 	}
 
@@ -54,10 +67,10 @@ function playground_dump_db($zip)
 				sprintf(
 					'INSERT INTO %1$s (%2$s) VALUES (%3$s);',
 					$wpdb->quote_identifier($table),
-					playground_escape_array(
+					escape_array(
 						array_keys($record)
 					),
-					playground_escape_array(array_values($record))
+					escape_array(array_values($record))
 				)
 			);
 		}
@@ -66,14 +79,25 @@ function playground_dump_db($zip)
 
 }
 
-function playground_get_db_tables()
+/**
+ * Get a list of all the tables in the database.
+ *
+ * @return array The list of tables in the database.
+ */
+function get_db_tables()
 {
 	global $wpdb;
 	$tables = $wpdb->get_results('SHOW TABLES', ARRAY_N);
 	return array_column($tables, 0);
 }
 
-function playground_dump_db_schema($table)
+/**
+ * Get the schema for a database table.
+ *
+ * @param string $table The name of the table to get the schema for.
+ * @return string The schema for the table.
+ */
+function dump_db_schema($table)
 {
 	global $wpdb;
 	$schema = $wpdb->get_row(
