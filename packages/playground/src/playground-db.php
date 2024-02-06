@@ -7,10 +7,11 @@ function playground_escape_array($array)
 	global $wpdb;
 	$escaped = array();
 	foreach ($array as $value) {
-		if (is_numeric($value))
+		if (is_numeric($value)) {
 			$escaped[] = $wpdb->prepare('%d', $value);
-		else
+		} else {
 			$escaped[] = $wpdb->prepare('%s', $value);
+		}
 	}
 	return implode(',', $escaped);
 }
