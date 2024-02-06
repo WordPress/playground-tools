@@ -95,8 +95,8 @@ function playground_plugin_menu()
 {
 	add_submenu_page(
 		'tools.php',
-		'Start Playground',
-		'Start Playground',
+		'WordPress Playground',
+		'Sandbox Site',
 		ADMIN_PAGE_CAPABILITY,
 		PLAYGROUND_ADMIN_PAGE_SLUG,
 		'playground_render_playground_page',
