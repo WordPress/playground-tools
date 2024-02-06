@@ -2,17 +2,17 @@
 
 defined('ABSPATH') || exit;
 
-function collector_stringify_insert_data($records)
+function collector_escape_array($array)
 {
-	return implode(
-		', ',
-		array_map(
-			function ($f) {
-				return "`" . esc_sql($f) . "`";
-			},
-			$records
-		)
-	);
+	global $wpdb;
+	$escaped = array();
+	foreach ($array as $value) {
+		if (is_numeric($value))
+			$escaped[] = $wpdb->prepare('%d', $value);
+		else
+			$escaped[] = $wpdb->prepare('%s', $value);
+	}
+	return implode(',', $escaped);
 }
 
 function collector_dump_db($zip)
@@ -20,13 +20,13 @@ function collector_dump_db($zip)
 	global $wpdb;
 
 	$tables   = collector_get_db_tables();
-	$sql_dump = [];
+	$sql_dump = array();
 
 	foreach ($tables as $table) {
 		array_push(
 			$sql_dump,
 			sprintf("DROP TABLE IF EXISTS `%s`;", esc_sql($table)),
-			preg_replace("/\s+/", " ", collector_dump_db_schema($table))
+			collector_dump_db_schema($table)
 		);
 	}
 
@@ -49,15 +49,18 @@ function collector_dump_db($zip)
 			array_push(
 				$sql_dump,
 				sprintf(
-					'INSERT INTO `%s` (%s) VALUES (%s);',
+					'INSERT INTO `%1$s` (%2$s) VALUES (%3$s);',
 					esc_sql($table),
-					implode(', ', array_map('esc_sql', array_keys($record))),
-					implode(', ', array_map(fn ($f) => "'" . esc_sql($f) . "'", array_values($record))),
+					collector_escape_array(
+						array_keys($record)
+					),
+					collector_escape_array(array_values($record))
 				)
 			);
 		}
 	}
 	$zip->addFile('schema/_Schema.sql', implode("\n", $sql_dump));
+
 }
 
 function collector_get_db_tables()
@@ -81,5 +84,5 @@ function collector_dump_db_schema($table)
 	if (!isset($schema['Create Table'])) {
 		return '';
 	}
-	return $schema['Create Table'];
+	return preg_replace("/\s+/", " ", $schema['Create Table']);
 }
