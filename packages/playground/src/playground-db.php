@@ -26,7 +26,10 @@ function playground_dump_db($zip)
 	foreach ($tables as $table) {
 		array_push(
 			$sql_dump,
-			sprintf("DROP TABLE IF EXISTS `%s`;", esc_sql($table)),
+			sprintf(
+				"DROP TABLE IF EXISTS %s;",
+				$wpdb->quote_identifier($table)
+			),
 			playground_dump_db_schema($table)
 		);
 	}
@@ -34,8 +37,8 @@ function playground_dump_db($zip)
 	foreach ($tables as $table) {
 		$records = $wpdb->get_results(
 			sprintf(
-				'SELECT * FROM `%s`',
-				esc_sql($table)
+				'SELECT * FROM %s',
+				$wpdb->quote_identifier($table)
 			),
 			ARRAY_A
 		);
@@ -49,8 +52,8 @@ function playground_dump_db($zip)
 			array_push(
 				$sql_dump,
 				sprintf(
-					'INSERT INTO `%1$s` (%2$s) VALUES (%3$s);',
-					esc_sql($table),
+					'INSERT INTO %1$s (%2$s) VALUES (%3$s);',
+					$wpdb->quote_identifier($table),
 					playground_escape_array(
 						array_keys($record)
 					),
@@ -74,7 +77,7 @@ function playground_dump_db_schema($table)
 {
 	global $wpdb;
 	$schema = $wpdb->get_row(
-		sprintf('SHOW CREATE TABLE `%s`', esc_sql($table)),
+		sprintf('SHOW CREATE TABLE %s', $wpdb->quote_identifier($table)),
 		ARRAY_A
 	);
 	if ($wpdb->last_error) {
