@@ -30,8 +30,7 @@ function playground_dump_db($zip)
 		);
 	}
 
-	// Process in reverse order so wp_users comes before wp_options
-	foreach (array_reverse($tables) as $table) {
+	foreach ($tables as $table) {
 		$records = $wpdb->get_results(
 			sprintf(
 				'SELECT * FROM `%s`',
