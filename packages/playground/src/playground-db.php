@@ -67,7 +67,7 @@ function playground_get_db_tables()
 {
 	global $wpdb;
 	$tables = $wpdb->get_results('SHOW TABLES', ARRAY_N);
-	return array_map(fn ($t) => $t[0], $tables);
+	return array_column($tables, 0);
 }
 
 function playground_dump_db_schema($table)

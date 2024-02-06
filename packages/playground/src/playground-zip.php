@@ -12,7 +12,8 @@ function playground_zip_wp_content($zip)
 	$root_dir = WP_CONTENT_DIR;
 	$directory = new \RecursiveDirectoryIterator($root_dir, \FilesystemIterator::FOLLOW_SYMLINKS);
 	$iterator = new \RecursiveIteratorIterator($directory);
-	$regex = new \RegexIterator($iterator, '/^.+\/(?!.*\.\.).+$/i', \RecursiveRegexIterator::GET_MATCH);
+	// Exclude hidden files and directories (i.e. .git, .github, .gitignore), and parent directory (i.e. ..)
+	$regex = new \RegexIterator($iterator, '/^(?!.*\/\..*)^.+$/i', \RecursiveRegexIterator::GET_MATCH);
 	foreach ($regex as $file) {
 		if (empty($file)) {
 			continue;
