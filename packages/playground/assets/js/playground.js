@@ -1,14 +1,21 @@
 (function () {
 	const query = new URLSearchParams(window.location.search);
+	const defaultBlueprint = {
+		steps: [
+			{
+				step: 'login',
+			}
+		],
+	};
 
-	const blueprintUrl = query
-		.get('blueprintUrl')
-		.replace('https://wordpress.org', 'http://localhost:8010/proxy');
+	const blueprintUrl = query.get('blueprintUrl');
 	(async () => {
 		const { startPlaygroundWeb } = await import(
 			playground.playgroundPackageUrl
 		);
-		const blueprint = await (await fetch(blueprintUrl)).json();
+		const blueprint = blueprintUrl
+			? await (await fetch(blueprintUrl)).json()
+			: defaultBlueprint;
 
 		blueprint.steps = blueprint.steps || [];
 		blueprint.steps = [

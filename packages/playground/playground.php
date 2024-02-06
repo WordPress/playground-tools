@@ -35,7 +35,7 @@ function playground_init()
 
 function playground_enqueue_scripts($current_screen_id)
 {
-	if ($current_screen_id !== 'admin_page_' . PLAYGROUND_ADMIN_PAGE_SLUG) {
+	if ($current_screen_id !== 'tools_page_' . PLAYGROUND_ADMIN_PAGE_SLUG) {
 		return;
 	}
 	wp_enqueue_style('playground', plugin_dir_url(__FILE__) . 'assets/css/playground.css', [], PLAYGROUND_VERSION);
@@ -94,9 +94,9 @@ function playground_plugins_loaded()
 function playground_plugin_menu()
 {
 	add_submenu_page(
-		NULL,
-		__('WordPress Playground', TRANSLATE_DOMAIN),
-		__('WordPress Playground', TRANSLATE_DOMAIN),
+		'tools.php',
+		'Start Playground',
+		'Start Playground',
 		ADMIN_PAGE_CAPABILITY,
 		PLAYGROUND_ADMIN_PAGE_SLUG,
 		'playground_render_playground_page',

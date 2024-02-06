@@ -1,17 +1,17 @@
-.admin_page_playground #wpbody-content,
-.admin_page_playground #wpcontent {
+.tools_page_playground #wpbody-content,
+.tools_page_playground #wpcontent {
 	padding-left: 0px !important;
 }
 
-.admin_page_playground #wpwrap,
-.admin_page_playground #wpbody,
-.admin_page_playground #wpbody-content {
+.tools_page_playground #wpwrap,
+.tools_page_playground #wpbody,
+.tools_page_playground #wpbody-content {
 	padding-bottom: 0px;
 	height: 100%;
 }
 
-.admin_page_playground #wpwrap,
-.admin_page_playground #wpbody {
+.tools_page_playground #wpwrap,
+.tools_page_playground #wpbody {
 	position: initial;
 }
 
