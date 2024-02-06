@@ -106,6 +106,9 @@ function playground_plugin_menu()
 
 function playground_render_playground_page()
 {
+	if (isset($_GET['download'])) {
+		return;
+	}
 	include __DIR__ . '/templates/playground-page.php';
 }
 
