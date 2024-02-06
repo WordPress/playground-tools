@@ -10,7 +10,6 @@
 
 		blueprint.steps = blueprint.steps || [];
 		blueprint.steps = [
-			...blueprint.steps,
 			{
 				step: 'unzip',
 				zipFile: {
@@ -26,9 +25,7 @@
 					path: '/wordpress/schema/_Schema.sql',
 				},
 			},
-			{
-				step: 'login',
-			},
+			...blueprint.steps,
 		];
 
 		blueprint.preferredVersions = {
