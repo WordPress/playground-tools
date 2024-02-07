@@ -65,14 +65,8 @@ function zip_database($zip)
 			array_push(
 				$sql_dump,
 				sprintf(
-					'INSERT INTO %1$s (%2$s) VALUES (%3$s);',
+					'INSERT INTO %1$s VALUES (%2$s);',
 					$wpdb->quote_identifier($table),
-					implode(',', array_map(
-						function ($column) use ($wpdb) {
-							return $wpdb->quote_identifier($column);
-						},
-						array_keys($record)
-					)),
 					escape_array(array_values($record))
 				)
 			);
