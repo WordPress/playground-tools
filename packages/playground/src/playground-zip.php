@@ -52,7 +52,7 @@ function zip_collect()
 	);
 
 	zip_wp_content($zip);
-	dump_db($zip);
+	zip_database($zip);
 
 	$zip->finish();
 }

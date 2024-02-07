@@ -29,7 +29,7 @@ function escape_array($array)
  *
  * @param ZipArchive $zip The zip archive to add the database dump to.
  */
-function dump_db($zip)
+function zip_database($zip)
 {
 	global $wpdb;
 
@@ -67,16 +67,18 @@ function dump_db($zip)
 				sprintf(
 					'INSERT INTO %1$s (%2$s) VALUES (%3$s);',
 					$wpdb->quote_identifier($table),
-					escape_array(
+					implode(',', array_map(
+						function ($column) use ($wpdb) {
+							return $wpdb->quote_identifier($column);
+						},
 						array_keys($record)
-					),
+					)),
 					escape_array(array_values($record))
 				)
 			);
 		}
 	}
 	$zip->addFile('schema/_Schema.sql', implode("\n", $sql_dump));
-
 }
 
 /**
