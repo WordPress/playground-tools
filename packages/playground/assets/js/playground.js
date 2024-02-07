@@ -4,7 +4,7 @@
 		steps: [
 			{
 				step: 'login',
-			}
+			},
 		],
 	};
 
@@ -44,7 +44,7 @@
 
 		const client = await startPlaygroundWeb({
 			iframe: document.getElementById('wp-playground'),
-			remoteUrl: `https://playground.wordpress.net/remote.html`,
+			remoteUrl: playground.playgroundRemoteUrl,
 			blueprint,
 		});
 
