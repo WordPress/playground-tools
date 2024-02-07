@@ -8,14 +8,11 @@
 		],
 	};
 
-	const blueprintUrl = query.get('blueprintUrl');
 	(async () => {
 		const { startPlaygroundWeb } = await import(
 			playground.playgroundPackageUrl
 		);
-		const blueprint = blueprintUrl
-			? await (await fetch(blueprintUrl)).json()
-			: defaultBlueprint;
+		const blueprint = playground.blueprint || defaultBlueprint;
 
 		blueprint.steps = blueprint.steps || [];
 		blueprint.steps = [

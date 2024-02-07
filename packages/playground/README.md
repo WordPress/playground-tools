@@ -6,20 +6,8 @@ A WordPress plugin for collecting the content of a site and spinning up WordPres
 
 The current version of the plugin allows you to preview a plugin installation from the WordPress.org repository in a WordPress Playground instance.
 
-## Development
+## Testing
 
--   Install and activate the plugin in your WordPress install
--   Replace the `blueprintUrl` variable in `playground.php` with
-
-```js
-const blueprintUrl = query.get('blueprintUrl').replace('https://wordpress.org', 'http://localhost:8010/proxy');`
-```
-
--   Start the CORS proxy:
-
-```bash
-npm install -g local-cors-proxy
-npx lcp --proxyUrl https://wordpress.org/
-```
-
--   On your site open the _Add Plugins_ page and click the _Preview Now_ button
+- Install and activate the plugin in your WordPress install
+- On your site open the _Add Plugins_ page and click the _Preview Now_ button
+- Click on _Sandbox Site_ in the _Tools_ menu to load the WordPress Playground with the plugin installed

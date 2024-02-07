@@ -61,7 +61,8 @@ function enqueue_scripts($current_screen_id)
 		'playgroundRemoteUrl' => apply_filters(
 			'playground_remote_url',
 			esc_url('https://playground.wordpress.net/remote.html'),
-		)
+		),
+		'blueprint' => isset($_GET['blueprintUrl']) ? get_blueprint_from_url(esc_url($_GET['blueprintUrl'])) : false,
 	]);
 	wp_enqueue_script('playground');
 }
@@ -123,6 +124,22 @@ function plugin_menu()
 		__NAMESPACE__ . '\render_playground_page',
 		NULL
 	);
+}
+
+/**
+ * Get Blueprint from URL
+ *
+ * @param string $url The URL to fetch the blueprint from.
+ * @return array|false The blueprint, or false if the request failed.
+ */
+function get_blueprint_from_url($url)
+{
+	$response = wp_safe_remote_get($url);
+	if (is_wp_error($response)) {
+		return false;
+	}
+	$blueprint = json_decode(wp_remote_retrieve_body($response), true);
+	return $blueprint;
 }
 
 /**
