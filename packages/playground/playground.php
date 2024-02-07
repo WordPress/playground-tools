@@ -35,7 +35,6 @@ function init()
 {
 	add_action('admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts');
 	add_filter('plugin_install_action_links', __NAMESPACE__ . '\plugin_install_action_links', 10, 2);
-	add_filter('plugins_api_args', __NAMESPACE__ . '\plugins_api_args', 10, 2);
 }
 
 /**
@@ -62,7 +61,7 @@ function enqueue_scripts($current_screen_id)
 			'playground_remote_url',
 			esc_url('https://playground.wordpress.net/remote.html'),
 		),
-		'blueprint' => isset($_GET['blueprintUrl']) ? get_blueprint_from_url(esc_url($_GET['blueprintUrl'])) : false,
+		'pluginSlug' => isset($_GET['pluginSlug']) ? $_GET['pluginSlug'] : false,
 	]);
 	wp_enqueue_script('playground');
 }
@@ -127,22 +126,6 @@ function plugin_menu()
 }
 
 /**
- * Get Blueprint from URL
- *
- * @param string $url The URL to fetch the blueprint from.
- * @return array|false The blueprint, or false if the request failed.
- */
-function get_blueprint_from_url($url)
-{
-	$response = wp_safe_remote_get($url);
-	if (is_wp_error($response)) {
-		return false;
-	}
-	$blueprint = json_decode(wp_remote_retrieve_body($response), true);
-	return $blueprint;
-}
-
-/**
  * Render the WordPress Playground page.
  */
 function render_playground_page()
@@ -162,18 +145,12 @@ function render_playground_page()
  */
 function plugin_install_action_links($action_links, $plugin)
 {
-	if (empty($plugin['blueprints'])) {
-		return $action_links;
-	}
-
-	$blueprint = $plugin['blueprints'][0];
-
 	$retUrl = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . urlencode('?' . http_build_query($_GET));
 
 	$preview_url = add_query_arg(
 		[
-			'blueprintUrl' => esc_url($blueprint['url']),
-			'returnUrl'    => esc_attr($retUrl),
+			'pluginSlug' => esc_attr($plugin['slug']),
+			'returnUrl' => esc_attr($retUrl),
 		],
 		admin_url('admin.php?page=' . PLAYGROUND_ADMIN_PAGE_SLUG)
 	);
@@ -196,20 +173,4 @@ function plugin_install_action_links($action_links, $plugin)
 	array_unshift($action_links, $preview_button);
 
 	return $action_links;
-}
-
-/**
- * Add the blueprints field to the plugins API response.
- *
- * @param object $args The plugins API arguments.
- * @param string $action The plugins API action.
- * @return object The modified plugins API arguments.
- */
-function plugins_api_args($args, $action)
-{
-	if ($action === 'query_plugins') {
-		$args->fields = ($args->fields ?? '') . 'blueprints';
-	}
-
-	return $args;
 }

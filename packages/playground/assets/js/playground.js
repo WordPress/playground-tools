@@ -1,21 +1,16 @@
-(function () {
-	const query = new URLSearchParams(window.location.search);
-	const defaultBlueprint = {
+(async () => {
+	const { startPlaygroundWeb } = await import(
+		playground.playgroundPackageUrl
+	);
+	const blueprint = {
+		features: {
+			networking: true,
+		},
+		preferredVersions: {
+			wp: playground.wpVersion,
+			php: playground.phpVersion,
+		},
 		steps: [
-			{
-				step: 'login',
-			},
-		],
-	};
-
-	(async () => {
-		const { startPlaygroundWeb } = await import(
-			playground.playgroundPackageUrl
-		);
-		const blueprint = playground.blueprint || defaultBlueprint;
-
-		blueprint.steps = blueprint.steps || [];
-		blueprint.steps = [
 			{
 				step: 'unzip',
 				zipFile: {
@@ -31,22 +26,36 @@
 					path: '/wordpress/schema/_Schema.sql',
 				},
 			},
-			...blueprint.steps,
-		];
+			{
+				step: 'login',
+			},
+		],
+	};
 
-		blueprint.preferredVersions = {
-			wp: playground.wpVersion,
-			php: playground.phpVersion,
-		};
-
-		const client = await startPlaygroundWeb({
-			iframe: document.getElementById('wp-playground'),
-			remoteUrl: playground.playgroundRemoteUrl,
-			blueprint,
+	if (playground.pluginSlug) {
+		blueprint.steps.push({
+			"step": "installPlugin",
+			"pluginZipFile": {
+				"resource": "wordpress.org/plugins",
+				"slug": playground.pluginSlug
+			},
+			"options": {
+				"activate": true
+			}
 		});
+	}
 
-		await client.isReady();
+	const client = await startPlaygroundWeb({
+		iframe: document.getElementById('wp-playground'),
+		remoteUrl: playground.playgroundRemoteUrl,
+		blueprint,
+	});
 
+	await client.isReady();
+
+	if ( playground.pluginSlug ) {
 		client.goTo('/wp-admin/plugins.php');
-	})();
+	} else {
+		client.goTo('/wp-admin');
+	}
 })();
