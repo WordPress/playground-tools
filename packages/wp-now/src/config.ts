@@ -77,7 +77,13 @@ async function getAbsoluteURL() {
 		return getCodeSpaceURL(port);
 	}
 	if (isWebContainer()) {
-		return HostURL.parse('http://localhost:' + port).toString();
+		return (
+			HostURL.parse('http://localhost:' + port)
+				.toString()
+				// Correct the bug in HostURL.parse – it should return https://
+				// instead of http://
+				.replace('http://', 'https://')
+		);
 	}
 
 	if (absoluteUrlFromBlueprint) {
