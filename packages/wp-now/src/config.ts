@@ -12,6 +12,7 @@ import { portFinder } from './port-finder';
 import { isValidWordPressVersion } from './wp-playground-wordpress';
 import getWpNowPath from './get-wp-now-path';
 import { DEFAULT_PHP_VERSION, DEFAULT_WORDPRESS_VERSION } from './constants';
+import { isWebContainer, HostURL } from '@webcontainer/env';
 
 export interface CliOptions {
 	php?: string;
@@ -74,6 +75,15 @@ async function getAbsoluteURL() {
 	const port = await portFinder.getOpenPort();
 	if (isGitHubCodespace) {
 		return getCodeSpaceURL(port);
+	}
+	if (isWebContainer()) {
+		return (
+			HostURL.parse('http://localhost:' + port)
+				.toString()
+				// Correct the bug in HostURL.parse – it should return https://
+				// instead of http://
+				.replace('http://', 'https://')
+		);
 	}
 
 	if (absoluteUrlFromBlueprint) {

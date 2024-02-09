@@ -7,6 +7,7 @@ import compressible from 'compressible';
 import fileUpload from 'express-fileupload';
 import { portFinder } from './port-finder';
 import { NodePHP } from '@php-wasm/node';
+import { isWebContainer } from '@webcontainer/env';
 import startWPNow from './wp-now';
 import { output } from './output';
 import { addTrailingSlash } from './add-trailing-slash';
@@ -103,6 +104,17 @@ export async function startServer(
 				),
 				body: body as string,
 			};
+
+			if (isWebContainer()) {
+				// Unlike a typical Nginx or reverse proxy setup, WebContainers
+				// overwrite the Host header sent by the browser with a localhost
+				// URL. However, WordPress detects when the Host header is different
+				// from the stored site URL and redirects back to the site URL.
+				// For WordPress to work, we need to make sure the host and origin
+				// headers contain  the public-facing site URL.
+				data.headers['host'] = new URL(options.absoluteUrl).hostname;
+				data.headers['origin'] = options.absoluteUrl;
+			}
 			const resp = await php.request(data);
 			res.statusCode = resp.httpStatusCode;
 			Object.keys(resp.headers).forEach((key) => {
