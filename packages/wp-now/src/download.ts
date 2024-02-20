@@ -35,8 +35,11 @@ function httpsGet(url: string, callback: Function) {
 function getWordPressVersionUrl(version = DEFAULT_WORDPRESS_VERSION) {
 	if (!isValidWordPressVersion(version)) {
 		throw new Error(
-			'Unrecognized WordPress version. Please use "latest" or numeric versions such as "6.2", "6.0.1", "6.2-beta1", or "6.2-RC1"'
+			'Unrecognized WordPress version. Please use "latest", "trunk", "nightly", or numeric versions such as "6.2", "6.0.1", "6.2-beta1", or "6.2-RC1"'
 		);
+	}
+	if ( version === 'trunk' || version === 'nightly' ) {
+		return 'https://wordpress.org/nightly-builds/wordpress-latest.zip';
 	}
 	return `https://wordpress.org/wordpress-${version}.zip`;
 }
@@ -126,6 +129,8 @@ async function downloadFileAndUnzip({
 			);
 		}
 
+		const entryPromises: Promise<unknown>[] = [];
+
 		/**
 		 * Using Parse because Extract is broken:
 		 * https://github.com/WordPress/wordpress-playground/issues/248
@@ -140,11 +145,23 @@ async function downloadFileAndUnzip({
 				 */
 				fs.ensureDirSync(path.dirname(filePath));
 
-				if (entry.type !== 'Directory') {
-					entry.pipe(fs.createWriteStream(filePath));
+				if (entry.type === 'File') {
+					const promise = new Promise((resolve, reject) => {
+						entry
+							.pipe(fs.createWriteStream(filePath))
+							.on('close', resolve)
+							.on('error', reject);
+					});
+					entryPromises.push(promise);
+				} else {
+					entryPromises.push(entry.autodrain().promise());
 				}
 			})
 			.promise();
+
+		// Wait until all entries have been extracted before continuing
+		await Promise.all(entryPromises);
+
 		return { downloaded: true, statusCode };
 	} catch (err) {
 		output?.error(`Error downloading or unzipping ${itemName}:`, err);
