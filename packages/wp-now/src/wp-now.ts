@@ -75,8 +75,8 @@ export default async function startWPNow(
 		});
 		return { php, phpInstances, options };
 	}
-	if ( options.wordPressVersion === 'nightly' ) {
-		options.wordPressVersion = 'trunk';
+	if ( options.wordPressVersion === 'trunk' ) {
+		options.wordPressVersion = 'nightly';
 	}
 	output?.log(`wp: ${options.wordPressVersion}`);
 	await Promise.all([
