@@ -38,7 +38,7 @@ function getWordPressVersionUrl(version = DEFAULT_WORDPRESS_VERSION) {
 			'Unrecognized WordPress version. Please use "latest", "trunk", "nightly", or numeric versions such as "6.2", "6.0.1", "6.2-beta1", or "6.2-RC1"'
 		);
 	}
-	if ( version === 'trunk' || version === 'nightly' ) {
+	if (version === 'trunk' || version === 'nightly') {
 		return 'https://wordpress.org/nightly-builds/wordpress-latest.zip';
 	}
 	return `https://wordpress.org/wordpress-${version}.zip`;
