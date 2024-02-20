@@ -75,6 +75,9 @@ export default async function startWPNow(
 		});
 		return { php, phpInstances, options };
 	}
+	if ( options.wordPressVersion === 'nightly' ) {
+		options.wordPressVersion = 'trunk';
+	}
 	output?.log(`wp: ${options.wordPressVersion}`);
 	await Promise.all([
 		downloadWordPress(options.wordPressVersion),
