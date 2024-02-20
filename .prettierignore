@@ -6,3 +6,4 @@ __pycache__
 *.timestamp-1678999213403.mjs
 .local
 .vscode
+packages/playground/vendor
