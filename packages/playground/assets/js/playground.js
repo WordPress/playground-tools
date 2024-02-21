@@ -34,14 +34,14 @@
 
 	if (playground.pluginSlug) {
 		blueprint.steps.push({
-			"step": "installPlugin",
-			"pluginZipFile": {
-				"resource": "wordpress.org/plugins",
-				"slug": playground.pluginSlug
+			step: 'installPlugin',
+			pluginZipFile: {
+				resource: 'wordpress.org/plugins',
+				slug: playground.pluginSlug,
 			},
-			"options": {
-				"activate": true
-			}
+			options: {
+				activate: true,
+			},
 		});
 	}
 
@@ -53,7 +53,7 @@
 
 	await client.isReady();
 
-	if ( playground.pluginSlug ) {
+	if (playground.pluginSlug) {
 		client.goTo('/wp-admin/plugins.php');
 	} else {
 		client.goTo('/wp-admin');

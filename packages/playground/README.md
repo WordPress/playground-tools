@@ -8,6 +8,6 @@ The current version of the plugin allows you to preview a plugin installation fr
 
 ## Testing
 
-- Install and activate the plugin in your WordPress install
-- On your site open the _Add Plugins_ page and click the _Preview Now_ button
-- Click on _Sandbox Site_ in the _Tools_ menu to load the WordPress Playground with the plugin installed
+-   Install and activate the plugin in your WordPress install
+-   On your site open the _Add Plugins_ page and click the _Preview Now_ button
+-   Click on _Sandbox Site_ in the _Tools_ menu to load the WordPress Playground with the plugin installed

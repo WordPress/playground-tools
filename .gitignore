@@ -51,3 +51,6 @@ Thumbs.db
 
 # Playground artifacts
 php.js.bak
+
+# NX Cache
+.nx/cache
