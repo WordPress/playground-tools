@@ -217,4 +217,10 @@ export async function downloadMuPlugins() {
 		);
 	} );`
 	);
+	fs.writeFile(
+		path.join(getWpNowPath(), 'mu-plugins', '1-pretty-permalinks.php'),
+		`<?php
+	// Support permalinks without "index.php"
+	add_filter( 'got_url_rewrite', '__return_true' );`
+	);
 }
