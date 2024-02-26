@@ -28,6 +28,39 @@
 		flex-wrap: wrap;
 	}
 
+	.demo-footer {
+		$spacing: 4px;
+		$background-color: #1d2327;
+		$color: rgba(240, 246, 252, .7);
+		$hover-color: #72aee6;
+
+		padding: $spacing 2*$spacing;
+		background-color: $background-color;
+		> a {
+			span {
+				color: $color;
+				text-decoration: none;
+				font-size: 14px;
+				line-height: 1;
+				display: inline-block;
+				vertical-align: middle;
+			}
+			> svg {
+				margin-right: $spacing;
+				fill: $color;
+				vertical-align: middle;
+			}
+			&:hover {
+				span {
+					color: $hover-color;
+				}
+				> svg {
+					fill: $hover-color;
+				}
+			}
+		}
+	}
+
 	.code-container {
 		flex: 1;
 		display: flex;
