@@ -449,9 +449,16 @@ export default function PlaygroundPreview({
 				></iframe>
 			</main>
 			<footer className="demo-footer">
-				<a href="https://w.org/playground" target="_blank">
-					<span>Powered by WordPress Playground</span>
-					<Icon icon={wordpress} />
+				<span className="demo-footer__powered">Powered by </span>
+				<a
+					href="https://w.org/playground"
+					className="demo-footer__link"
+					target="_blank"
+				>
+					<Icon className="demo-footer__icon" icon={wordpress} />
+					<span className="demo-footer__link-text">
+						WordPress Playground
+					</span>
 				</a>
 			</footer>
 		</>
