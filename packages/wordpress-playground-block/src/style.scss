@@ -36,17 +36,18 @@
 
 		padding: $spacing 2 * $spacing;
 		background-color: $background-color;
+		text-align: right;
 		> a {
 			span {
 				color: $color;
 				text-decoration: none;
-				font-size: 14px;
+				font-size: 12px;
 				line-height: 1;
 				display: inline-block;
 				vertical-align: middle;
 			}
 			> svg {
-				margin-right: $spacing;
+				margin-left: $spacing;
 				fill: $color;
 				vertical-align: middle;
 			}
