@@ -107,7 +107,10 @@ async function downloadFileAndUnzip({
 	checkFinalPath,
 	itemName,
 }): Promise<DownloadFileAndUnzipResult> {
-	if (fs.existsSync(checkFinalPath)) {
+	if (
+		fs.existsSync(checkFinalPath) &&
+		fs.readdirSync(checkFinalPath).length > 0
+	) {
 		output?.log(`${itemName} folder already exists. Skipping download.`);
 		return { downloaded: false, statusCode: 0 };
 	}
