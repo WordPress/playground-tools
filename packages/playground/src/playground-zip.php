@@ -32,7 +32,8 @@ function zip_wp_content($zip)
 			continue;
 		}
 
-		if (apply_filters('playground_zip_exclude_file', false, $file)) {
+		$file = apply_filters('playground_exported_file', $file);
+		if ( false !== $file ) {
 			continue;
 		}
 		$zip->addFileFromPath(
