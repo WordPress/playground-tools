@@ -5,7 +5,12 @@ import { IncomingMessage } from 'http';
 import os from 'os';
 import path from 'path';
 import unzipper from 'unzipper';
-import { DEFAULT_WORDPRESS_VERSION, SQLITE_URL, WP_CLI_URL } from './constants';
+import {
+	DEFAULT_WORDPRESS_VERSION,
+	SQLITE_FILENAME,
+	SQLITE_URL,
+	WP_CLI_URL,
+} from './constants';
 import getSqlitePath from './get-sqlite-path';
 import getWordpressVersionsPath from './get-wordpress-versions-path';
 import getWpCliPath from './get-wp-cli-path';
@@ -218,6 +223,19 @@ export async function downloadMuPlugins() {
 			'api.wordpress.org',
 			'downloads.wordpress.org',
 		);
+	} );`
+	);
+	fs.writeFile(
+		path.join(
+			getWpNowPath(),
+			'mu-plugins',
+			'1-disable-sqlite-plugin-updates.php'
+		),
+		`<?php
+	// Disable SQLite plugin updates
+	add_filter('site_transient_update_plugins', function($value) {
+		unset($value->response['${SQLITE_FILENAME}/load.php']);
+		return $value;
 	} );`
 	);
 }

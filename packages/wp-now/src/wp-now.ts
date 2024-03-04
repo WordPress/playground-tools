@@ -173,7 +173,7 @@ async function runWpContentMode(
 
 	php.mount(projectPath, `${documentRoot}/wp-content`);
 
-	mountSqlitePlugin(php, documentRoot, wpContentPath);
+	mountSqlitePlugin(php, documentRoot);
 	mountSqliteDatabaseDirectory(php, documentRoot, wpContentPath);
 	mountMuPlugins(php, documentRoot);
 }
@@ -206,7 +206,7 @@ async function runWordPressMode(
 		initializeDefaultDatabase ||
 		fs.existsSync(path.join(wpContentPath, 'database'))
 	) {
-		mountSqlitePlugin(php, documentRoot, wpContentPath);
+		mountSqlitePlugin(php, documentRoot);
 		mountSqliteDatabaseDirectory(php, documentRoot, wpContentPath);
 	}
 
@@ -261,8 +261,7 @@ async function runPluginOrThemeMode(
 			}
 		}
 	}
-
-	mountSqlitePlugin(php, documentRoot, wpContentPath);
+	mountSqlitePlugin(php, documentRoot);
 	mountMuPlugins(php, documentRoot);
 }
 
@@ -284,7 +283,7 @@ async function runWpPlaygroundMode(
 	);
 	php.mount(wpContentPath, `${documentRoot}/wp-content`);
 
-	mountSqlitePlugin(php, documentRoot, wpContentPath);
+	mountSqlitePlugin(php, documentRoot);
 	mountMuPlugins(php, documentRoot);
 }
 
@@ -362,20 +361,12 @@ function mountMuPlugins(php: NodePHP, vfsDocumentRoot: string) {
 	);
 }
 
-function mountSqlitePlugin(
-	php: NodePHP,
-	vfsDocumentRoot: string,
-	wpContentPath: string
-) {
-	const sqlitePluginPath = path.join(
-		wpContentPath,
-		'plugins',
-		SQLITE_FILENAME
-	);
+function mountSqlitePlugin(php: NodePHP, vfsDocumentRoot: string) {
+	const sqlitePluginPath = `${vfsDocumentRoot}/wp-content/plugins/${SQLITE_FILENAME}`;
 	if (php.listFiles(sqlitePluginPath).length === 0) {
-		fs.copySync(getSqlitePath(), sqlitePluginPath);
+		php.mount(getSqlitePath(), sqlitePluginPath);
 		php.mount(
-			path.join(sqlitePluginPath, 'db.copy'),
+			path.join(getSqlitePath(), 'db.copy'),
 			`${vfsDocumentRoot}/wp-content/db.php`
 		);
 	}
