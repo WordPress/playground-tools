@@ -30,7 +30,7 @@ import {
 import { output } from './output';
 import getWpNowPath from './get-wp-now-path';
 import getWordpressVersionsPath from './get-wordpress-versions-path';
-import getSqlitePath from './get-sqlite-path';
+import getSqlitePath, { getSqliteDbCopyPath } from './get-sqlite-path';
 
 async function applyToInstances(phpInstances: NodePHP[], callback: Function) {
 	for (let i = 0; i < phpInstances.length; i++) {
@@ -81,8 +81,8 @@ export default async function startWPNow(
 	output?.log(`wp: ${options.wordPressVersion}`);
 	await Promise.all([
 		downloadWordPress(options.wordPressVersion),
-		downloadSqliteIntegrationPlugin(),
 		downloadMuPlugins(),
+		downloadSqliteIntegrationPlugin(),
 	]);
 
 	if (options.reset) {
@@ -362,11 +362,14 @@ function mountMuPlugins(php: NodePHP, vfsDocumentRoot: string) {
 }
 
 function mountSqlitePlugin(php: NodePHP, vfsDocumentRoot: string) {
-	const sqlitePluginPath = `${vfsDocumentRoot}/wp-content/plugins/${SQLITE_FILENAME}`;
+	const sqlitePluginPath = `${vfsDocumentRoot}/wp-content/mu-plugins/${SQLITE_FILENAME}`;
 	if (php.listFiles(sqlitePluginPath).length === 0) {
 		php.mount(getSqlitePath(), sqlitePluginPath);
+	}
+	const sqliteDbPhpPath = `${vfsDocumentRoot}/wp-content/db.php`;
+	if (!php.fileExists(sqliteDbPhpPath)) {
 		php.mount(
-			path.join(getSqlitePath(), 'db.copy'),
+			getSqliteDbCopyPath(),
 			`${vfsDocumentRoot}/wp-content/db.php`
 		);
 	}

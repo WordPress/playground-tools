@@ -338,12 +338,7 @@ describe('Test starting different modes', () => {
 
 		const { php, options: wpNowOptions } = await startWPNow(options);
 
-		const mountPointPaths = [
-			'database',
-			'db.php',
-			'mu-plugins',
-			'plugins/sqlite-database-integration',
-		];
+		const mountPointPaths = ['database', 'db.php', 'mu-plugins'];
 
 		expectEmptyMountPoints(mountPointPaths, projectPath);
 
@@ -377,7 +372,6 @@ describe('Test starting different modes', () => {
 			'wp-content/database',
 			'wp-content/db.php',
 			'wp-content/mu-plugins',
-			'wp-content/plugins/sqlite-database-integration',
 		];
 
 		expectEmptyMountPoints(mountPointPaths, projectPath);
@@ -412,11 +406,7 @@ describe('Test starting different modes', () => {
 
 		expectEmptyMountPoints(mountPointPaths, projectPath);
 
-		const forbiddenPaths = [
-			'wp-content/database',
-			'wp-content/db.php',
-			'wp-content/plugins/sqlite-database-integration',
-		];
+		const forbiddenPaths = ['wp-content/database', 'wp-content/db.php'];
 
 		expectForbiddenProjectFiles(forbiddenPaths, projectPath);
 

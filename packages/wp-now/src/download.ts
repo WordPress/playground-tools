@@ -11,7 +11,7 @@ import {
 	SQLITE_URL,
 	WP_CLI_URL,
 } from './constants';
-import getSqlitePath from './get-sqlite-path';
+import getSqlitePath, { getSqliteDbCopyPath } from './get-sqlite-path';
 import getWordpressVersionsPath from './get-wordpress-versions-path';
 import getWpCliPath from './get-wp-cli-path';
 import getWpNowPath from './get-wp-now-path';
@@ -202,12 +202,32 @@ export async function downloadWordPress(
 }
 
 export async function downloadSqliteIntegrationPlugin() {
-	return downloadFileAndUnzip({
+	// Remove the old SQLite plugin if it exists
+	const oldSqlitePath = path.join(getWpNowPath(), `${SQLITE_FILENAME}-main`);
+	if (fs.existsSync(oldSqlitePath)) {
+		fs.rmSync(oldSqlitePath, {
+			recursive: true,
+		});
+	}
+
+	await downloadFileAndUnzip({
 		url: SQLITE_URL,
-		destinationFolder: getWpNowPath(),
+		destinationFolder: path.join(getWpNowPath(), 'mu-plugins'),
 		checkFinalPath: getSqlitePath(),
 		itemName: 'SQLite',
 	});
+
+	// Replace {SQLITE_IMPLEMENTATION_FOLDER_PATH} with the actual path
+	fs.writeFileSync(
+		getSqliteDbCopyPath(),
+		fs
+			.readFileSync(getSqliteDbCopyPath())
+			.toString()
+			.replace(
+				"'{SQLITE_IMPLEMENTATION_FOLDER_PATH}'",
+				`realpath( __DIR__ . '/mu-plugins/${SQLITE_FILENAME}-main' )`
+			)
+	);
 }
 
 export async function downloadMuPlugins() {
@@ -223,19 +243,6 @@ export async function downloadMuPlugins() {
 			'api.wordpress.org',
 			'downloads.wordpress.org',
 		);
-	} );`
-	);
-	fs.writeFile(
-		path.join(
-			getWpNowPath(),
-			'mu-plugins',
-			'1-disable-sqlite-plugin-updates.php'
-		),
-		`<?php
-	// Disable SQLite plugin updates
-	add_filter('site_transient_update_plugins', function($value) {
-		unset($value->response['${SQLITE_FILENAME}/load.php']);
-		return $value;
 	} );`
 	);
 }
