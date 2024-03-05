@@ -1,5 +1,6 @@
 import { registerBlockType } from '@wordpress/blocks';
-import Edit from './edit';
+import { Component, createElement, useEffect, useState } from '@wordpress/element';
+
 import metadata from './block.json';
 import './style.scss';
 
@@ -33,7 +34,32 @@ export type Attributes = {
 		| 'blueprint-json';
 };
 
+// Load the edit component asynchronously. This may take a while,
+// and it seem to involve a few top-level async resolutions which
+// delay the `registerBlockType()` call below when imported directly.
+// As a result, the editor sometimes displays a "Block is not available" error.
+// The dynamic import below is async and allows the registerBlockType()
+// call to be synchronous, which allows the block to reliably load.
+const EditComponentPromise = import('./edit');
+let EditComponent: Component | undefined = undefined;
+EditComponentPromise.then((module) => {
+	EditComponent = module.default as any as Component;	
+});
+
 // @ts-ignore
 registerBlockType<Attributes>(metadata.name, {
-	edit: Edit,
+	edit: (props) => {
+		const [isLoaded, setIsLoaded] = useState(!!EditComponent);
+		useEffect(() => {
+			if (!isLoaded) {
+				EditComponentPromise.then(() => {
+					setIsLoaded(true);
+				});
+			}
+		}, []);
+		if (!isLoaded) {
+			return createElement('span', {}, ['Loading the WordPress Playground Block...']);
+		}
+		return createElement(EditComponent as any, props);
+	},
 });
