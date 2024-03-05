@@ -50,13 +50,15 @@
 		}
 		.demo-footer__link {
 			.demo-footer__icon {
-				margin: 0 $spacing/2 0 $spacing;
+				margin: 0 $spacing/2;
 				fill: $color;
 				vertical-align: middle;
 			}
 			&:hover {
-				.demo-footer__link-text {
+				.demo-footer__link-text,
+				.demo-footer__powered {
 					color: $hover-color;
+					opacity: 1;
 				}
 				.demo-footer__icon {
 					fill: $hover-color;
