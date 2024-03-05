@@ -93,8 +93,8 @@ The `wordpress-playground-block` package is part of a larger monorepo, sharing i
 
 To publish a new version of `wordpress-playground-block`, you'll need to have:
 
-* A local working copy of the SVN repo at http://plugins.svn.wordpress.org/interactive-code-block 
-* A WordPress.org account with the appropriate permissions.
+-   A local working copy of the SVN repo at http://plugins.svn.wordpress.org/interactive-code-block
+-   A WordPress.org account with the appropriate permissions.
 
 With those in place, the publishing process looks as follows:
 
