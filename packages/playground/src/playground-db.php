@@ -84,7 +84,10 @@ function get_db_tables()
 {
 	global $wpdb;
 	$tables = $wpdb->get_results('SHOW TABLES', ARRAY_N);
-	return array_column($tables, 0);
+	return apply_filters(
+		'playground_db_tables',
+		array_column($tables, 0)
+	);
 }
 
 /**

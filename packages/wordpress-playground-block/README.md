@@ -91,19 +91,17 @@ There are no automated unit tests for the `wordpress-playground-block` package y
 
 The `wordpress-playground-block` package is part of a larger monorepo, sharing its space with other sibling packages. Even though it has a package.json file, it doesn't actually get published to NPM. Instead, it is a WordPress plugin that is published to the WordPress.org plugin repository.
 
-To publish a new version of `wordpress-playground-block`, you'll need to have a WordPress.org account with the appropriate permissions. Once you have that, you can run the following command in the repo root:
+To publish a new version of `wordpress-playground-block`, you'll need to have:
 
-```bash
-# Build the block
-npx nx build wordpress-playground-block
-```
+-   A local working copy of the SVN repo at http://plugins.svn.wordpress.org/interactive-code-block
+-   A WordPress.org account with the appropriate permissions.
 
-This will:
+With those in place, the publishing process looks as follows:
 
--   Bundle the plugin into the `dist/packages/wordpress-playground-block` directory.
--   Create a `wordpress-playground-block.zip` file in the `dist/wordpress-playground-block` directory.
-
-You can then copy the contents of the `wordpress-playground-block` directory into your local working copy of the SVN repository for the plugin, update the version number in README.txt, and then commit the changes to the remote SVN repository.
+1. Build the WordPress Playgorund block by running `npx nx build wordpress-playground-block` in the **git repo root**
+2. Copy the built files from `dist/packages/wordpress-playground-block` to the SVN repo's `trunk` directory
+3. Update the version number in `trunk/README.txt` in the SVN repo
+4. Commmit the SVN changes
 
 ## Caveats
 
