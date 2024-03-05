@@ -102,7 +102,7 @@ export default function PlaygroundPreview({
 		withErrorLog: codeEditorErrorLog,
 		getErrors: async () =>
 			(await playgroundClientRef.current?.readFileAsText(
-				'/tmp/stderr'
+				'/internal/stderr'
 			)) || '',
 	});
 
