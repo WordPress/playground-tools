@@ -12,7 +12,6 @@ namespace WordPress\Playground;
 defined('ABSPATH') || exit;
 
 const PLAYGROUND_ADMIN_PAGE_SLUG = 'playground';
-const TRANSLATE_DOMAIN = 'playground';
 const ADMIN_PAGE_CAPABILITY = 'manage_options';
 
 global $wp_version;
@@ -61,6 +60,7 @@ function enqueue_scripts($current_screen_id)
 			'playground_remote_url',
 			esc_url('https://playground.wordpress.net/remote.html'),
 		),
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		'pluginSlug' => isset($_GET['pluginSlug']) ? $_GET['pluginSlug'] : false,
 	]);
 	wp_enqueue_script('playground');
@@ -98,9 +98,12 @@ function plugins_loaded()
 		return;
 	}
 
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if (!isset($_GET['page']) || PLAYGROUND_ADMIN_PAGE_SLUG !== $_GET['page']) {
 		return;
 	}
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if (!isset($_GET['download'])) {
 		return;
 	}
@@ -130,6 +133,7 @@ function plugin_menu()
  */
 function render_playground_page()
 {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if (isset($_GET['download'])) {
 		return;
 	}
@@ -145,7 +149,8 @@ function render_playground_page()
  */
 function plugin_install_action_links($action_links, $plugin)
 {
-	$retUrl = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . urlencode('?' . http_build_query($_GET));
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$retUrl = wp_parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . urlencode('?' . http_build_query($_GET));
 
 	$preview_url = add_query_arg(
 		[
@@ -167,7 +172,7 @@ function plugin_install_action_links($action_links, $plugin)
 			)
 		),
 		esc_attr($plugin['name']),
-		__('Preview Now', TRANSLATE_DOMAIN)
+		__('Preview Now', 'playground')
 	);
 
 	array_unshift($action_links, $preview_button);

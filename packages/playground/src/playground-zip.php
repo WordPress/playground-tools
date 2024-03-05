@@ -33,7 +33,7 @@ function zip_wp_content($zip)
 		}
 
 		$file = apply_filters('playground_exported_file', $file);
-		if ( false !== $file ) {
+		if (false === $file) {
 			continue;
 		}
 		$zip->addFileFromPath(
@@ -51,7 +51,7 @@ function zip_collect()
 	$options = new Archive();
 	$options->setSendHttpHeaders(true);
 	$zip = new ZipStream(
-		'playground-package-' . date('Y-m-d_H-i-s') . '.zip',
+		'playground-package-' . gmdate('Y-m-d_H-i-s') . '.zip',
 		$options
 	);
 
