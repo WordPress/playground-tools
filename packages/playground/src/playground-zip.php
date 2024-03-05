@@ -32,6 +32,10 @@ function zip_wp_content($zip)
 			continue;
 		}
 
+		$file = apply_filters('playground_exported_file', $file);
+		if ( false !== $file ) {
+			continue;
+		}
 		$zip->addFileFromPath(
 			str_replace($root_dir, '/wp-content', $file),
 			$file
