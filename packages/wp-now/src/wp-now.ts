@@ -361,8 +361,12 @@ function mountMuPlugins(php: NodePHP, vfsDocumentRoot: string) {
 	);
 }
 
+function getSqlitePluginPath(vfsDocumentRoot: string) {
+	return `${vfsDocumentRoot}/wp-content/mu-plugins/${SQLITE_FILENAME}`;
+}
+
 function mountSqlitePlugin(php: NodePHP, vfsDocumentRoot: string) {
-	const sqlitePluginPath = `${vfsDocumentRoot}/wp-content/mu-plugins/${SQLITE_FILENAME}`;
+	const sqlitePluginPath = getSqlitePluginPath(vfsDocumentRoot);
 	if (php.listFiles(sqlitePluginPath).length === 0) {
 		php.mount(getSqlitePath(), sqlitePluginPath);
 		php.mount(

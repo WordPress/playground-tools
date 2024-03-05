@@ -203,7 +203,7 @@ export async function downloadWordPress(
 
 export async function downloadSqliteIntegrationPlugin() {
 	// Remove the old SQLite plugin if it exists
-	const oldSqlitePath = path.join(getWpNowPath(), `${SQLITE_FILENAME}-main`);
+	const oldSqlitePath = path.join(getWpNowPath(), `${SQLITE_FILENAME}`);
 	if (fs.existsSync(oldSqlitePath)) {
 		fs.rmSync(oldSqlitePath, {
 			recursive: true,
@@ -218,16 +218,16 @@ export async function downloadSqliteIntegrationPlugin() {
 	});
 
 	// Replace {SQLITE_IMPLEMENTATION_FOLDER_PATH} with the actual path
-	fs.writeFileSync(
-		getSqliteDbCopyPath(),
-		fs
-			.readFileSync(getSqliteDbCopyPath())
-			.toString()
-			.replace(
+	const dbCopyContent = fs.readFileSync(getSqliteDbCopyPath()).toString();
+	if (dbCopyContent.includes("'{SQLITE_IMPLEMENTATION_FOLDER_PATH}'")) {
+		fs.writeFileSync(
+			getSqliteDbCopyPath(),
+			dbCopyContent.replace(
 				"'{SQLITE_IMPLEMENTATION_FOLDER_PATH}'",
-				`realpath( __DIR__ . '/mu-plugins/${SQLITE_FILENAME}-main' )`
+				`realpath( __DIR__ . '/mu-plugins/${SQLITE_FILENAME}' )`
 			)
-	);
+		);
+	}
 }
 
 export async function downloadMuPlugins() {
@@ -250,5 +250,22 @@ export async function downloadMuPlugins() {
 		`<?php
 	// Support permalinks without "index.php"
 	add_filter( 'got_url_rewrite', '__return_true' );`
+	);
+	fs.writeFile(
+		path.join(
+			getWpNowPath(),
+			'mu-plugins',
+			'2-deactivate-sqlite-plugin.php'
+		),
+		`<?php
+	add_action(
+		'admin_footer',
+		function() {
+			if ( ! function_exists( 'deactivate_plugins' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/plugin.php';
+			}
+			// The SQLite plugin is automatically activated, but wp-now use it as a a mu-plugin, so we need to deactivate it to prevent notices.
+			deactivate_plugins( 'sqlite-database-integration/load.php' );
+	}, 100 );`
 	);
 }
