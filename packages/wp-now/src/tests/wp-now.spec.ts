@@ -338,7 +338,7 @@ describe('Test starting different modes', () => {
 
 		const { php, options: wpNowOptions } = await startWPNow(options);
 
-		const mountPointPaths = ['database', 'db.php', 'mu-plugins'];
+		const mountPointPaths = ['database', 'db.php'];
 
 		expectEmptyMountPoints(mountPointPaths, projectPath);
 
@@ -368,11 +368,7 @@ describe('Test starting different modes', () => {
 
 		const { php, options: wpNowOptions } = await startWPNow(options);
 
-		const mountPointPaths = [
-			'wp-content/database',
-			'wp-content/db.php',
-			'wp-content/mu-plugins',
-		];
+		const mountPointPaths = ['wp-content/database', 'wp-content/db.php'];
 
 		expectEmptyMountPoints(mountPointPaths, projectPath);
 

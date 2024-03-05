@@ -365,9 +365,6 @@ function mountSqlitePlugin(php: NodePHP, vfsDocumentRoot: string) {
 	const sqlitePluginPath = `${vfsDocumentRoot}/wp-content/mu-plugins/${SQLITE_FILENAME}`;
 	if (php.listFiles(sqlitePluginPath).length === 0) {
 		php.mount(getSqlitePath(), sqlitePluginPath);
-	}
-	const sqliteDbPhpPath = `${vfsDocumentRoot}/wp-content/db.php`;
-	if (!php.fileExists(sqliteDbPhpPath)) {
 		php.mount(
 			getSqliteDbCopyPath(),
 			`${vfsDocumentRoot}/wp-content/db.php`
