@@ -9,17 +9,20 @@ defined('ABSPATH') || exit;
     <div id="wp-playground-toolbar">
         <span>
             <?php
-            printf(
-                __(
-                    'WordPress Playground preview for %s',
-                    TRANSLATE_DOMAIN
-                ),
-                get_bloginfo('name')
+            echo esc_attr(
+                sprintf(
+                    // translators: %s: Site name.
+                    __(
+                        'WordPress Playground preview for %s',
+                        'playground'
+                    ),
+                    get_bloginfo('name')
+                )
             );
             ?>
         </span>
-        <a href="<?php echo admin_url('plugin-install.php'); ?>" id="goBack">
-            <?php _e('Go Back', TRANSLATE_DOMAIN); ?>
+        <a href="<?php echo esc_url(admin_url('plugin-install.php')); ?>" id="goBack">
+            <?php esc_attr_e('Go Back', 'playground'); ?>
         </a>
     </div>
     <div id="wp-playground-main-area">

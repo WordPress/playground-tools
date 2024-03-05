@@ -1,5 +1,5 @@
 <?php
-
+// phpcs:ignoreFile WordPress.DB.DirectDatabaseQuery.DirectQuery
 namespace WordPress\Playground;
 
 defined('ABSPATH') || exit;
@@ -49,10 +49,8 @@ function zip_database($zip)
 
 	foreach ($tables as $table) {
 		$records = $wpdb->get_results(
-			sprintf(
-				'SELECT * FROM %s',
-				$wpdb->quote_identifier($table)
-			),
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			sprintf('SELECT * FROM %s', $wpdb->quote_identifier($table)),
 			ARRAY_A
 		);
 
@@ -100,6 +98,7 @@ function dump_db_schema($table)
 {
 	global $wpdb;
 	$schema = $wpdb->get_row(
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		sprintf('SHOW CREATE TABLE %s', $wpdb->quote_identifier($table)),
 		ARRAY_A
 	);
