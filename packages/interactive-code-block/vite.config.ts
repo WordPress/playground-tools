@@ -73,7 +73,6 @@ export default defineConfig({
 			preserveEntrySignatures: 'strict',
 			plugins: [react()],
 			input: {
-				['playground-client']: '@wp-playground/client',
 				['comlink']: 'comlink/dist/esm/comlink.mjs',
 				['editor']: path('src/lib/block/editor.tsx'),
 				['view']: path('src/lib/block/view.ts'),

@@ -9,9 +9,10 @@ import { json } from '@codemirror/lang-json';
 import { php } from '@codemirror/lang-php';
 import {
 	startPlaygroundWeb,
-	PlaygroundClient,
+	type PlaygroundClient,
 	phpVar,
-} from '@wp-playground/client';
+	// @ts-ignore
+} from 'https://playground.wordpress.net/client/index.js';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import {

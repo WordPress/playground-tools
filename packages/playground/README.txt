@@ -1,13 +1,16 @@
-=== WordPress Playground ===
+=== Playground ===
 Contributors: wordpressdotorg, antoniosejas, berislavgrgicak, zieladam
 Tags: playground, staging, sandbox
 Requires at least: 6.0
 Tested up to: 6.4
-Stable tag: 0.1.0
+Stable tag: 0.0.1
 Requires PHP: 7.0
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Early preview: Enables running a sandbox of your site using WordPress Playground (https://github.com/WordPress/wordpress-playground)
+
+= Short description =
+
+Enables running a sandbox of your site using WordPress Playground (https://github.com/WordPress/wordpress-playground)
 
 == Description ==
 

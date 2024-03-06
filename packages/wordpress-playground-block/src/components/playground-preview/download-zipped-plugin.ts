@@ -1,4 +1,8 @@
-import { PlaygroundClient, phpVar } from '@wp-playground/client';
+import {
+	type PlaygroundClient,
+	phpVar,
+	// @ts-ignore
+} from 'https://playground.wordpress.net/client/index.js';
 
 export default async function downloadZippedPlugin(client: PlaygroundClient) {
 	const docroot = await client.documentRoot;
