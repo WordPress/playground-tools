@@ -1,7 +1,9 @@
 import type { EditorFile } from '../../index';
-// @ts-ignore
-import { PlaygroundClient } from 'https://playground.wordpress.net/client/index.js';
-import { activatePlugin } from '@wp-playground/blueprints';
+import {
+	PlaygroundClient,
+	activatePlugin,
+	// @ts-ignore
+} from 'https://playground.wordpress.net/client/index.js';
 
 export const writePluginFiles = async (
 	client: PlaygroundClient,

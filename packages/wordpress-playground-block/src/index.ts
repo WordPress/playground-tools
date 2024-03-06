@@ -1,5 +1,10 @@
 import { registerBlockType } from '@wordpress/blocks';
-import { Component, createElement, useEffect, useState } from '@wordpress/element';
+import {
+	Component,
+	createElement,
+	useEffect,
+	useState,
+} from '@wordpress/element';
 
 import metadata from './block.json';
 import './style.scss';
@@ -43,7 +48,7 @@ export type Attributes = {
 const EditComponentPromise = import('./edit');
 let EditComponent: Component | undefined = undefined;
 EditComponentPromise.then((module) => {
-	EditComponent = module.default as any as Component;	
+	EditComponent = module.default as any as Component;
 });
 
 // @ts-ignore
@@ -58,7 +63,9 @@ registerBlockType<Attributes>(metadata.name, {
 			}
 		}, []);
 		if (!isLoaded) {
-			return createElement('span', {}, ['Loading the WordPress Playground Block...']);
+			return createElement('span', {}, [
+				'Loading the WordPress Playground Block...',
+			]);
 		}
 		return createElement(EditComponent as any, props);
 	},
