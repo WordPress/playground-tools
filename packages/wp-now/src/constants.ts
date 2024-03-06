@@ -6,7 +6,7 @@ export const WP_NOW_HIDDEN_FOLDER = '.wp-now';
 /**
  * The file name for the SQLite plugin name.
  */
-export const SQLITE_FILENAME = 'sqlite-database-integration';
+export const SQLITE_FILENAME = 'sqlite-database-integration-main';
 
 /**
  * The URL for downloading the "SQLite database integration" WordPress Plugin.
