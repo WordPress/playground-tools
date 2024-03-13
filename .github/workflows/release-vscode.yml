@@ -1,0 +1,47 @@
+name: Release the VS Code extension
+on:
+    push:
+        branches:
+            - trunk
+    pull_request:
+
+jobs:
+    release:
+        if: >
+            github.ref == 'refs/heads/trunk' && (
+                github.actor == 'adamziel' ||
+                github.actor == 'dmsnell' ||
+                github.actor == 'bgrgicak' ||
+                github.actor == 'sejas' ||
+                github.actor == 'danielbachchuber'
+            )
+
+        # Specify runner + deployment step
+        runs-on: ubuntu-latest
+        environment:
+            name: npm
+        env:
+            NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN }}
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  ref: ${{ github.event.pull_request.head.ref }}
+                  clean: true
+                  fetch-depth: 0
+                  persist-credentials: false
+            - name: Config git user
+              run: |
+                  git config --global user.name "deployment_bot"
+                  git config --global user.email "deployment_bot@users.noreply.github.com"
+                  git remote set-url origin https://${{ secrets.GH_ACTOR }}:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}
+            - name: Install dependencies
+              run: npm ci
+            - name: Bump version
+              run: |
+                  cd packages/vscode-extension
+                  npm version patch -m "VSCode Extension: Version %s"
+                  git push --follow-tags
+            - name: Authenticate with VS Code Marketplace
+              run: vsce login WordPressPlayground -p ${{ secrets.VSCODE_PERSONAL_ACCESS_TOKEN }}
+            - name: Publish to VS Code Marketplace
+              run: npm run release:vscode
