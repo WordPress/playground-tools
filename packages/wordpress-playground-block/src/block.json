@@ -98,6 +98,10 @@
 		},
 		"blueprint": {
 			"type": "string"
+		},
+		"requireLivePreviewActivation": {
+			"type": "boolean",
+			"default": true
 		}
 	},
 	"supports": {

@@ -89,6 +89,7 @@ export default function PlaygroundPreview({
 	showAddNewFile = false,
 	showFileControls = false,
 	codeEditorErrorLog = false,
+	requireLivePreviewActivation = true,
 	onStateChange,
 }: PlaygroundDemoProps) {
 	const {
@@ -110,7 +111,8 @@ export default function PlaygroundPreview({
 	const iframeRef = useRef<HTMLIFrameElement>(null);
 	const playgroundClientRef = useRef<PlaygroundClient | null>(null);
 
-	const [isActivated, setActivated] = useState(false);
+	const [isLivePreviewActivated, setLivePreviewActivated] =
+		useState(!requireLivePreviewActivation);
 	const [currentPostId, setCurrentPostId] = useState(0);
 	const [isNewFileModalOpen, setNewFileModalOpen] = useState(false);
 	const [isEditFileNameModalOpen, setEditFileNameModalOpen] = useState(false);
@@ -130,7 +132,7 @@ export default function PlaygroundPreview({
 
 	useEffect(() => {
 		async function initPlayground() {
-			if (!isActivated) {
+			if (!isLivePreviewActivated) {
 				return;
 			}
 			if (!iframeRef.current) {
@@ -223,7 +225,7 @@ export default function PlaygroundPreview({
 
 		initPlayground();
 	}, [
-		isActivated,
+		isLivePreviewActivated,
 		blueprint,
 		blueprintUrl,
 		configurationSource,
@@ -448,17 +450,17 @@ export default function PlaygroundPreview({
 						</div>
 					</div>
 				)}
-				{!isActivated && (
+				{!isLivePreviewActivated && (
 					<div className="playground-activation-placeholder">
 						<Button
 							className="wordpress-playground-activate-button"
-							onClick={() => setActivated(true)}
+							onClick={() => setLivePreviewActivated(true)}
 						>
 							Activate Live Preview
 						</Button>
 					</div>
 				)}
-				{isActivated && (
+				{isLivePreviewActivated && (
 					<iframe
 						key="playground-iframe"
 						ref={iframeRef}

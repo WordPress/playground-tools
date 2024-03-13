@@ -42,6 +42,7 @@ export default function Edit({
 		codeEditorErrorLog,
 		blueprintUrl,
 		configurationSource,
+		requireLivePreviewActivation,
 	} = attributes;
 
 	return (
@@ -117,6 +118,22 @@ export default function Edit({
 										setAttributes({
 											codeEditorMultipleFiles:
 												!codeEditorMultipleFiles,
+										});
+									}}
+								/>
+								<ToggleControl
+									label="Require live preview activation"
+									help={
+										// TODO: Fix line lengths
+										requireLivePreviewActivation
+											? 'Load live preview after activation.'
+											: 'Load live preview immediately.'
+									}
+									checked={requireLivePreviewActivation}
+									onChange={() => {
+										setAttributes({
+											requireLivePreviewActivation:
+												!requireLivePreviewActivation
 										});
 									}}
 								/>
