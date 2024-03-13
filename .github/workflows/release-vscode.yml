@@ -26,8 +26,10 @@ jobs:
               uses: webfactory/ssh-agent@v0.5.3
               with:
                   ssh-private-key: ${{ secrets.GH_DEPLOY_KEY }}
-            - name: Install VSCE toolkit
-              run: npm install -g @vscode/vsce
+            - name: Install VSCE toolkit and NX
+              run: |
+                  npm install -g @vscode/vsce
+                  npm install -g nx
             - name: Install dependencies
               run: npm ci
             - name: Bump version
