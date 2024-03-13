@@ -1,9 +1,6 @@
 name: Release the VS Code extension
 on:
-    push:
-        branches:
-            - trunk
-    pull_request:
+    workflow_dispatch:
 
 jobs:
     release:
