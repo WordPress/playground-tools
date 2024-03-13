@@ -456,6 +456,11 @@ export default function PlaygroundPreview({
 						<Button
 							className="wordpress-playground-activate-button"
 							onClick={() => setLivePreviewActivated(true)}
+							aria-description={
+								'This button creates an iframe containing ' +
+								'a full WordPress website which may be ' +
+								'a challenge for screen readers.'
+							}
 						>
 							Activate Live Preview
 						</Button>
