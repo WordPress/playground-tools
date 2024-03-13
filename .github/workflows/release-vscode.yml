@@ -37,7 +37,8 @@ jobs:
                   git config --global user.email "deployment_bot@users.noreply.github.com"
                   npm version patch -m "VSCode Extension: Version %s"
                   git push git@github.com:wordpress/playground-tools.git --follow-tags
-            - name: Authenticate with VS Code Marketplace
-              run: vsce login WordPressPlayground -p ${{ secrets.VSCODE_PERSONAL_ACCESS_TOKEN }}
             - name: Publish to VS Code Marketplace
-              run: npm run release:vscode
+              run: |
+                  nx build vscode-extension
+                  cd dist/packages/vscode-extension
+                  vsce publish -p ${{ secrets.VSCODE_PERSONAL_ACCESS_TOKEN }}
