@@ -133,7 +133,7 @@ export default function Edit({
 									onChange={() => {
 										setAttributes({
 											requireLivePreviewActivation:
-												!requireLivePreviewActivation
+												!requireLivePreviewActivation,
 										});
 									}}
 								/>

@@ -111,8 +111,9 @@ export default function PlaygroundPreview({
 	const iframeRef = useRef<HTMLIFrameElement>(null);
 	const playgroundClientRef = useRef<PlaygroundClient | null>(null);
 
-	const [isLivePreviewActivated, setLivePreviewActivated] =
-		useState(!requireLivePreviewActivation);
+	const [isLivePreviewActivated, setLivePreviewActivated] = useState(
+		!requireLivePreviewActivation
+	);
 	const [currentPostId, setCurrentPostId] = useState(0);
 	const [isNewFileModalOpen, setNewFileModalOpen] = useState(false);
 	const [isEditFileNameModalOpen, setEditFileNameModalOpen] = useState(false);
