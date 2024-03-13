@@ -26,16 +26,16 @@ jobs:
               uses: webfactory/ssh-agent@v0.5.3
               with:
                   ssh-private-key: ${{ secrets.GH_DEPLOY_KEY }}
+            - name: Install dependencies
+              run: npm ci
             - name: Bump version
               run: |
                   cd packages/vscode-extension
-                  npm version patch -m "VSCode Extension: Version %s"
                   git config --global user.name "deployment_bot"
                   git config --global user.email "deployment_bot@users.noreply.github.com"
-                  git push --follow-tags
+                  npm version patch -m "VSCode Extension: Version %s"
+                  git push git@github.com:wordpress/playground-tools.git --follow-tags
             - name: Authenticate with VS Code Marketplace
               run: vsce login WordPressPlayground -p ${{ secrets.VSCODE_PERSONAL_ACCESS_TOKEN }}
-            - name: Install dependencies
-              run: npm ci
             - name: Publish to VS Code Marketplace
               run: npm run release:vscode
