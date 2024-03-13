@@ -127,10 +127,16 @@ export default async function startWPNow(
 	}
 
 	await installationStep2(php);
-	await login(php, {
-		username: 'admin',
-		password: 'password',
-	});
+	try {
+		await login(php, {
+			username: 'admin',
+			password: 'password',
+		});
+	} catch (e) {
+		// It's okay if the user customized the username and password
+		// and the login fails now.
+		output?.error('Login failed');
+	}
 
 	if (
 		isFirstTimeProject &&
