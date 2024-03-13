@@ -12,10 +12,9 @@ import {
 // @TODO Move to @wp-playground/wordpress package
 const SupportedWordPressVersions = {
 	latest: 'Latest (auto-updated)',
+	'6.4': '6.4',
+	'6.3': '6.3',
 	'6.2': '6.2',
-	'6.1': '6.1',
-	'6.0': '6.0',
-	'5.9': '5.9',
 } as Record<string, string>;
 
 // @ts-ignore
