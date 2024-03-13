@@ -1,5 +1,5 @@
 .wp-block-wordpress-playground-playground {
-	$container-height: 700px;
+	$playground-height: 700px;
 
 	border-radius: 10px;
 
@@ -27,17 +27,11 @@
 		cursor: pointer;
 	}
 
-	.wordpress-playground-activate-button {
-		margin: auto;
-		font-size: 20px;
-	}
-
 	.demo-container {
 		display: flex;
 		flex-wrap: wrap;
 		box-shadow: #03254b47 0px 12px 50px 0px;
 		overflow: hidden;
-		height: $container-height;
 	}
 
 	.demo-footer {
@@ -156,14 +150,28 @@
 		white-space: pre-wrap;
 	}
 
-	.playground-iframe {
+	@mixin playground-pane {
 		flex: 1;
-		height: $container-height;
+		height: $playground-height;
 		max-height: 100%;
 		// Set width to height so the iframe is square
-		width: $container-height;
+		width: $playground-height;
 		max-width: 100%;
 		border: 0;
+	}
+
+	.playground-iframe {
+		@include playground-pane;
+	}
+
+	.playground-activation-placeholder {
+		@include playground-pane;
+		display: flex;
+	}
+
+	.wordpress-playground-activate-button {
+		margin: auto;
+		font-size: 20px;
 	}
 
 	.actions-bar {

@@ -301,167 +301,169 @@ export default function PlaygroundPreview({
 	return (
 		<>
 			<main className="demo-container">
+				{codeEditor && (
+					<div className={codeContainerClass}>
+						<div className="file-tabs">
+							{files.map((file, index) => (
+								<Button
+									key={file.name}
+									variant="primary"
+									className={`file-tab ${
+										index === activeFileIndex &&
+										'file-tab-active'
+									}`}
+									onClick={() => {
+										setActiveFileIndex(index);
+									}}
+									onDoubleClick={() => {
+										setEditFileNameModalOpen(true);
+									}}
+								>
+									{file.name}
+								</Button>
+							))}
+							{showAddNewFile && (
+								<Button
+									variant="secondary"
+									className="file-tab file-tab-extra"
+									onClick={() => setNewFileModalOpen(true)}
+								>
+									<Icon icon={plus} />
+								</Button>
+							)}
+							<Button
+								variant="secondary"
+								className="file-tab file-tab-extra"
+								onClick={() => {
+									if (playgroundClientRef.current) {
+										downloadZippedPlugin(
+											playgroundClientRef.current
+										);
+									}
+								}}
+							>
+								<Icon icon={download} />
+							</Button>
+							{isNewFileModalOpen && (
+								<FileNameModal
+									title="Create new file"
+									onRequestClose={() =>
+										setNewFileModalOpen(false)
+									}
+									onSave={(newFileName) => {
+										addFile({
+											name: newFileName,
+											contents: '',
+										});
+										setActiveFileIndex(files.length);
+										setNewFileModalOpen(false);
+									}}
+								/>
+							)}
+						</div>
+						<div className="code-editor-wrapper">
+							<ReactCodeMirror
+								value={activeFile.contents}
+								extensions={[
+									keymapExtension,
+									EditorView.lineWrapping,
+									...getLanguageExtensions(
+										currentFileExtension || 'js'
+									),
+								]}
+								readOnly={codeEditorReadOnly}
+								onChange={(value) =>
+									updateFile((file) => ({
+										...file,
+										contents: value,
+									}))
+								}
+							/>
+						</div>
+						<div className="actions-bar">
+							{showFileControls ? (
+								<div className="file-actions">
+									{!activeFile && (
+										<button
+											type="button"
+											onClick={() => {
+												setEditFileNameModalOpen(true);
+											}}
+											className="wordpress-playground-block-button button-non-destructive"
+										>
+											<Icon icon={edit} /> Edit file name
+										</button>
+									)}
+									{!isErrorLogFile(activeFile) &&
+										files.filter(
+											(file) => !isErrorLogFile(file)
+										).length > 1 && (
+											<button
+												type="button"
+												className="wordpress-playground-block-button button-destructive"
+												onClick={() => {
+													setActiveFileIndex(0);
+													removeFile(activeFileIndex);
+												}}
+											>
+												<Icon
+													icon={cancelCircleFilled}
+												/>{' '}
+												Remove file
+											</button>
+										)}
+									{isEditFileNameModalOpen && (
+										<FileNameModal
+											title="Edit file name"
+											initialFilename={
+												files[activeFileIndex].name
+											}
+											onRequestClose={() =>
+												setEditFileNameModalOpen(false)
+											}
+											onSave={(fileName) => {
+												updateFile((file) => ({
+													...file,
+													name: fileName,
+												}));
+												setEditFileNameModalOpen(false);
+											}}
+										/>
+									)}
+								</div>
+							) : (
+								<div className="file-actions"></div>
+							)}
+							<Button
+								variant="primary"
+								icon="controls-play"
+								iconPosition="right"
+								onClick={() => {
+									handleReRunCode();
+								}}
+								className="wordpress-playground-run-button"
+							>
+								Run
+							</Button>
+						</div>
+					</div>
+				)}
 				{!isActivated && (
-					<Button
-						className="wordpress-playground-activate-button"
-						onClick={() => setActivated(true)}
-					>Activate WordPress Playground</Button>
+					<div className="playground-activation-placeholder">
+						<Button
+							className="wordpress-playground-activate-button"
+							onClick={() => setActivated(true)}
+						>
+							Activate Live Preview
+						</Button>
+					</div>
 				)}
 				{isActivated && (
-					<>
-					    {codeEditor && (
-					    	<div className={codeContainerClass}>
-					    		<div className="file-tabs">
-					    			{files.map((file, index) => (
-					    				<Button
-					    					key={file.name}
-					    					variant="primary"
-					    					className={`file-tab ${
-					    						index === activeFileIndex &&
-					    						'file-tab-active'
-					    					}`}
-					    					onClick={() => {
-					    						setActiveFileIndex(index);
-					    					}}
-					    					onDoubleClick={() => {
-					    						setEditFileNameModalOpen(true);
-					    					}}
-					    				>
-					    					{file.name}
-					    				</Button>
-					    			))}
-					    			{showAddNewFile && (
-					    				<Button
-					    					variant="secondary"
-					    					className="file-tab file-tab-extra"
-					    					onClick={() => setNewFileModalOpen(true)}
-					    				>
-					    					<Icon icon={plus} />
-					    				</Button>
-					    			)}
-					    			<Button
-					    				variant="secondary"
-					    				className="file-tab file-tab-extra"
-					    				onClick={() => {
-					    					if (playgroundClientRef.current) {
-					    						downloadZippedPlugin(
-					    							playgroundClientRef.current
-					    						);
-					    					}
-					    				}}
-					    			>
-					    				<Icon icon={download} />
-					    			</Button>
-					    			{isNewFileModalOpen && (
-					    				<FileNameModal
-					    					title="Create new file"
-					    					onRequestClose={() =>
-					    						setNewFileModalOpen(false)
-					    					}
-					    					onSave={(newFileName) => {
-					    						addFile({
-					    							name: newFileName,
-					    							contents: '',
-					    						});
-					    						setActiveFileIndex(files.length);
-					    						setNewFileModalOpen(false);
-					    					}}
-					    				/>
-					    			)}
-					    		</div>
-					    		<div className="code-editor-wrapper">
-					    			<ReactCodeMirror
-					    				value={activeFile.contents}
-					    				extensions={[
-					    					keymapExtension,
-					    					EditorView.lineWrapping,
-					    					...getLanguageExtensions(
-					    						currentFileExtension || 'js'
-					    					),
-					    				]}
-					    				readOnly={codeEditorReadOnly}
-					    				onChange={(value) =>
-					    					updateFile((file) => ({
-					    						...file,
-					    						contents: value,
-					    					}))
-					    				}
-					    			/>
-					    		</div>
-					    		<div className="actions-bar">
-					    			{showFileControls ? (
-					    				<div className="file-actions">
-					    					{!activeFile && (
-					    						<button
-					    							type="button"
-					    							onClick={() => {
-					    								setEditFileNameModalOpen(true);
-					    							}}
-					    							className="wordpress-playground-block-button button-non-destructive"
-					    						>
-					    							<Icon icon={edit} /> Edit file name
-					    						</button>
-					    					)}
-					    					{!isErrorLogFile(activeFile) &&
-					    						files.filter(
-					    							(file) => !isErrorLogFile(file)
-					    						).length > 1 && (
-					    							<button
-					    								type="button"
-					    								className="wordpress-playground-block-button button-destructive"
-					    								onClick={() => {
-					    									setActiveFileIndex(0);
-					    									removeFile(activeFileIndex);
-					    								}}
-					    							>
-					    								<Icon
-					    									icon={cancelCircleFilled}
-					    								/>{' '}
-					    								Remove file
-					    							</button>
-					    						)}
-					    					{isEditFileNameModalOpen && (
-					    						<FileNameModal
-					    							title="Edit file name"
-					    							initialFilename={
-					    								files[activeFileIndex].name
-					    							}
-					    							onRequestClose={() =>
-					    								setEditFileNameModalOpen(false)
-					    							}
-					    							onSave={(fileName) => {
-					    								updateFile((file) => ({
-					    									...file,
-					    									name: fileName,
-					    								}));
-					    								setEditFileNameModalOpen(false);
-					    							}}
-					    						/>
-					    					)}
-					    				</div>
-					    			) : (
-					    				<div className="file-actions"></div>
-					    			)}
-					    			<Button
-					    				variant="primary"
-					    				icon="controls-play"
-					    				iconPosition="right"
-					    				onClick={() => {
-					    					handleReRunCode();
-					    				}}
-					    				className="wordpress-playground-run-button"
-					    			>
-					    				Run
-					    			</Button>
-					    		</div>
-					    	</div>
-					    )}
-					    <iframe
-					    	key="playground-iframe"
-					    	ref={iframeRef}
-					    	className="playground-iframe"
-					    ></iframe>
-					</>
+					<iframe
+						key="playground-iframe"
+						ref={iframeRef}
+						className="playground-iframe"
+					></iframe>
 				)}
 			</main>
 			<footer className="demo-footer">
