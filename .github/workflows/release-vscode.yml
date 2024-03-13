@@ -15,8 +15,6 @@ jobs:
 
         # Specify runner + deployment step
         runs-on: ubuntu-latest
-        env:
-            NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN }}
         steps:
             - uses: actions/checkout@v3
               with:
@@ -24,20 +22,20 @@ jobs:
                   clean: true
                   fetch-depth: 0
                   persist-credentials: false
-            - name: Config git user
-              run: |
-                  git config --global user.name "deployment_bot"
-                  git config --global user.email "deployment_bot@users.noreply.github.com"
-            - name: Install dependencies
-              run: npm ci
+            - name: Setup SSH Keys
+              uses: webfactory/ssh-agent@v0.5.3
+              with:
+                  ssh-private-key: ${{ secrets.GH_DEPLOY_KEY }}
             - name: Bump version
               run: |
                   cd packages/vscode-extension
                   npm version patch -m "VSCode Extension: Version %s"
+                  git config --global user.name "deployment_bot"
+                  git config --global user.email "deployment_bot@users.noreply.github.com"
                   git push --follow-tags
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - name: Authenticate with VS Code Marketplace
               run: vsce login WordPressPlayground -p ${{ secrets.VSCODE_PERSONAL_ACCESS_TOKEN }}
+            - name: Install dependencies
+              run: npm ci
             - name: Publish to VS Code Marketplace
               run: npm run release:vscode
