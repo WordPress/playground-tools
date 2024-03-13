@@ -10,7 +10,8 @@
             "request": "launch",
             "args": [
                 "--extensionDevelopmentPath=${workspaceFolder}/dist/packages/vscode-extension"
-            ]
+            ],
+            "preLaunchTask": "build-vscode-extension"
         },
         {
           "name": "Heap Profiler",
