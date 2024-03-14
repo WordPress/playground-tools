@@ -124,10 +124,9 @@ export default function Edit({
 								<ToggleControl
 									label="Require live preview activation"
 									help={
-										// TODO: Fix line lengths
 										requireLivePreviewActivation
-											? 'Load live preview after activation.'
-											: 'Load live preview immediately.'
+											? 'User must click to load the preview.'
+											: 'Preview begins loading immediately.'
 									}
 									checked={requireLivePreviewActivation}
 									onChange={() => {
