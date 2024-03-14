@@ -455,6 +455,7 @@ export default function PlaygroundPreview({
 					<div className="playground-activation-placeholder">
 						<Button
 							className="wordpress-playground-activate-button"
+							variant="primary"
 							onClick={() => setLivePreviewActivated(true)}
 							aria-description={
 								'This button creates an iframe containing ' +
