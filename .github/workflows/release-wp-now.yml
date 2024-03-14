@@ -2,16 +2,6 @@ name: Release wp-now
 
 on:
     workflow_dispatch:
-        # Require a version bump (patch, minor, major) and an optional dist tag
-        inputs:
-            version_bump:
-                description: 'Version bump (patch, minor, or major)'
-                required: true
-                default: 'patch'
-            dist_tag:
-                description: 'Dist tag (latest, next, etc.)'
-                required: false
-                default: 'latest'
 
 jobs:
     release:
