@@ -167,6 +167,7 @@
 	.playground-activation-placeholder {
 		@include playground-pane;
 		display: flex;
+		background-color: #eee;
 	}
 
 	.wordpress-playground-activate-button {
