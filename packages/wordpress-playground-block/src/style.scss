@@ -135,13 +135,26 @@
 
 		> div {
 			height: 100%;
+			// Make this a "positioned" element so a nested editor element
+			// may be absolutely positioned relative to this one.
+			position: relative;
 		}
 	}
 
-	.cm-editor {
+	.is-full-width .cm-editor {
 		width: 100%;
 		height: 100%;
 		max-height: min(450px, 80vh);
+	}
+
+	.is-half-width .cm-editor {
+		// Override the editor's `position: relative !important` style in order
+		// to explicitly set dimensions relative to the positioned editor root.
+		position: absolute !important;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		right: 0;
 	}
 
 	.cm-content {
