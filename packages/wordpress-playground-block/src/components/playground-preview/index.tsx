@@ -89,6 +89,7 @@ export default function PlaygroundPreview({
 	showAddNewFile = false,
 	showFileControls = false,
 	codeEditorErrorLog = false,
+	requireLivePreviewActivation = true,
 	onStateChange,
 }: PlaygroundDemoProps) {
 	const {
@@ -110,6 +111,9 @@ export default function PlaygroundPreview({
 	const iframeRef = useRef<HTMLIFrameElement>(null);
 	const playgroundClientRef = useRef<PlaygroundClient | null>(null);
 
+	const [isLivePreviewActivated, setLivePreviewActivated] = useState(
+		!requireLivePreviewActivation
+	);
 	const [currentPostId, setCurrentPostId] = useState(0);
 	const [isNewFileModalOpen, setNewFileModalOpen] = useState(false);
 	const [isEditFileNameModalOpen, setEditFileNameModalOpen] = useState(false);
@@ -129,6 +133,9 @@ export default function PlaygroundPreview({
 
 	useEffect(() => {
 		async function initPlayground() {
+			if (!isLivePreviewActivated) {
+				return;
+			}
 			if (!iframeRef.current) {
 				return;
 			}
@@ -219,6 +226,7 @@ export default function PlaygroundPreview({
 
 		initPlayground();
 	}, [
+		isLivePreviewActivated,
 		blueprint,
 		blueprintUrl,
 		configurationSource,
@@ -271,7 +279,13 @@ export default function PlaygroundPreview({
 			const lastPath = await playgroundClientRef.current!.getCurrentURL();
 			await playgroundClientRef.current!.goTo(getRefreshPath(lastPath));
 		}
-		doHandleRun();
+
+		if (!isLivePreviewActivated) {
+			// Activate and let the code be run by Playground init
+			setLivePreviewActivated(true);
+		} else {
+			doHandleRun();
+		}
 	}, [reinstallEditedPlugin]);
 
 	const keymapExtension = useMemo(
@@ -292,6 +306,10 @@ export default function PlaygroundPreview({
 		'is-full-width': !codeEditorSideBySide,
 		'is-half-width': codeEditorSideBySide,
 	});
+
+	const iframeCreationWarning =
+		'This button creates an iframe containing a full WordPress website ' +
+		'which may be a challenge for screen readers.';
 
 	return (
 		<>
@@ -437,17 +455,36 @@ export default function PlaygroundPreview({
 									handleReRunCode();
 								}}
 								className="wordpress-playground-run-button"
+								aria-description={
+									requireLivePreviewActivation
+										? iframeCreationWarning
+										: undefined
+								}
 							>
 								Run
 							</Button>
 						</div>
 					</div>
 				)}
-				<iframe
-					key="playground-iframe"
-					ref={iframeRef}
-					className="playground-iframe"
-				></iframe>
+				{!isLivePreviewActivated && (
+					<div className="playground-activation-placeholder">
+						<Button
+							className="wordpress-playground-activate-button"
+							variant="primary"
+							onClick={() => setLivePreviewActivated(true)}
+							aria-description={iframeCreationWarning}
+						>
+							Activate Live Preview
+						</Button>
+					</div>
+				)}
+				{isLivePreviewActivated && (
+					<iframe
+						key="playground-iframe"
+						ref={iframeRef}
+						className="playground-iframe"
+					></iframe>
+				)}
 			</main>
 			<footer className="demo-footer">
 				<a

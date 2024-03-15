@@ -37,6 +37,7 @@ export type Attributes = {
 		| 'block-attributes'
 		| 'blueprint-url'
 		| 'blueprint-json';
+	requireLivePreviewActivation: boolean;
 };
 
 // Load the edit component asynchronously. This may take a while,
