@@ -307,7 +307,7 @@ export default function PlaygroundPreview({
 		'is-half-width': codeEditorSideBySide,
 	});
 
-	const iframeCreationWarning = 
+	const iframeCreationWarning =
 		'This button creates an iframe containing a full WordPress website ' +
 		'which may be a challenge for screen readers.';
 
