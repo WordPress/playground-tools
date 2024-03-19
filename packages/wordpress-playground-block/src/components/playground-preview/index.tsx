@@ -480,7 +480,7 @@ export default function PlaygroundPreview({
 				)}
 				{isLivePreviewActivated && (
 					<iframe
-						name="Live Preview in WordPress Playground"
+						aria-label="Live Preview in WordPress Playground"
 						key="playground-iframe"
 						ref={iframeRef}
 						className="playground-iframe"
