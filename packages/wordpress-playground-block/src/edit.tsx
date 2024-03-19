@@ -146,64 +146,79 @@ export default function Edit({
 										});
 									}}
 								/>
-								<SelectControl
-									help={
-										<div>
-											Decide how your code from the editor
-											will be used inside the Playground
-											WordPress installation.
-											<ul>
-												<li>
-													<strong>Plugin</strong>: all
-													the files will be placed in
-													a separate plugin which will
-													be automatically enabled in
-													the Playground.
-												</li>
-												<li>
-													<strong>
-														Editor script
-													</strong>
-													: the code will be executed
-													directly in the Gutenberg
-													editor (using{' '}
-													<code>
-														<small>
-															wp_add_inline_script
-														</small>
-													</code>{' '}
-													with{' '}
-													<code>
-														<small>wp-block</small>
-													</code>
-													dependency)
-												</li>
-											</ul>
-										</div>
-									}
-									label="Mode"
-									options={[
-										{
-											disabled: true,
-											label: 'Select an Option',
-											value: '',
-										},
-										{
-											label: 'Editor script',
-											value: 'editor-script',
-										},
-										{
-											label: 'Plugin',
-											value: 'plugin',
-										},
-									]}
-									value={codeEditorMode}
-									onChange={(value) => {
-										setAttributes({
-											codeEditorMode: value,
-										});
-									}}
-								/>
+								{/*
+								Editor script mode breaks the preview
+
+								The Editor script mode isn't a critical feature so the hidden div
+								below is a UX workaround – we're simply hiding the select control
+								to prevent the user from selecting the Editor script mode.
+
+								@see https://github.com/WordPress/playground-tools/issues/196
+								*/}
+								<div style={{ display: 'none' }}>
+									<SelectControl
+										help={
+											<div>
+												Decide how your code from the
+												editor will be used inside the
+												Playground WordPress
+												installation.
+												<ul>
+													<li>
+														<strong>Plugin</strong>:
+														all the files will be
+														placed in a separate
+														plugin which will be
+														automatically enabled in
+														the Playground.
+													</li>
+													<li>
+														<strong>
+															Editor script
+														</strong>
+														: the code will be
+														executed directly in the
+														Gutenberg editor (using{' '}
+														<code>
+															<small>
+																wp_add_inline_script
+															</small>
+														</code>{' '}
+														with{' '}
+														<code>
+															<small>
+																wp-block
+															</small>
+														</code>
+														dependency)
+													</li>
+												</ul>
+											</div>
+										}
+										label="Mode"
+										options={[
+											{
+												disabled: true,
+												label: 'Select an Option',
+												value: '',
+											},
+											{
+												label: 'Editor script',
+												value: 'editor-script',
+											},
+											{
+												label: 'Plugin',
+												value: 'plugin',
+											},
+										]}
+										value={codeEditorMode}
+										onChange={(value) => {
+											setAttributes({
+												codeEditorMode: value,
+											});
+										}}
+									/>
+								</div>
 							</>
 						)}
 					</PanelBody>
