@@ -121,6 +121,12 @@
 	"editorScript": "file:./index.js",
 	"editorStyle": "file:./index.css",
 	"style": ["file:./style-index.css", "wp-components"],
-	"viewScript": ["file:./view.js", "react", "react-dom", "wp-components"],
+	"viewScript": [
+		"file:./view.js",
+		"react",
+		"react-dom",
+		"wp-components",
+		"wp-i18n"
+	],
 	"render": "file:./render.php"
 }

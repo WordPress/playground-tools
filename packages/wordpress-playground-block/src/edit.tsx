@@ -16,6 +16,7 @@ import {
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 import PlaygroundPreview from './components/playground-preview';
+import { __ } from '@wordpress/i18n';
 import './editor.scss';
 
 export default function Edit({
@@ -58,14 +59,17 @@ export default function Edit({
 				{...attributes}
 			/>
 			<InspectorControls>
-				<Panel header="Settings">
-					<PanelBody title="Code editor" initialOpen={true}>
+				<Panel header={__('Settings', 'interactive-code-editor')}>
+					<PanelBody
+						title={__('Code editor', 'interactive-code-editor')}
+						initialOpen={true}
+					>
 						<ToggleControl
-							label="Code editor"
+							label={__('Code editor', 'interactive-code-editor')}
 							help={
 								codeEditor
-									? 'Code editor enabled.'
-									: 'Code editor disabled.'
+									? __('Code editor enabled.', 'interactive-code-editor')
+									: __('Code editor disabled.', 'interactive-code-editor')
 							}
 							checked={codeEditor}
 							onChange={() => {
@@ -77,11 +81,14 @@ export default function Edit({
 						{codeEditor && (
 							<>
 								<ToggleControl
-									label="Side by side"
+									label={__(
+										'Side by side',
+										'interactive-code-editor'
+									)}
 									help={
 										codeEditorSideBySide
-											? 'Code editor is to the left.'
-											: 'Code editor is at the top.'
+											? __('Code editor is to the left.', 'interactive-code-editor')
+											: __('Code editor is at the top.', 'interactive-code-editor')
 									}
 									checked={codeEditorSideBySide}
 									onChange={() => {
@@ -92,11 +99,14 @@ export default function Edit({
 									}}
 								/>
 								<ToggleControl
-									label="Read only"
+									label={__(
+										'Read only',
+										'interactive-code-editor'
+									)}
 									help={
 										codeEditorReadOnly
-											? 'Code editor is read only.'
-											: 'Code editor is editable.'
+											? __('Code editor is read only.', 'interactive-code-block')
+											: __('Code editor is editable.', 'interactive-code-block')
 									}
 									checked={codeEditorReadOnly}
 									onChange={() => {
@@ -107,11 +117,14 @@ export default function Edit({
 									}}
 								/>
 								<ToggleControl
-									label="Multiple files"
+									label={__(
+										'Multiple files',
+										'interactive-code-block'
+									)}
 									help={
 										codeEditorMultipleFiles
-											? 'Multiple files allowed.'
-											: 'Single file allowed.'
+											? __('Multiple files allowed.', 'interactive-code-block')
+											: __('Single file allowed.', 'interactive-code-block')
 									}
 									checked={codeEditorMultipleFiles}
 									onChange={() => {
@@ -122,11 +135,14 @@ export default function Edit({
 									}}
 								/>
 								<ToggleControl
-									label="Require live preview activation"
+									label={__(
+										'Require live preview activation',
+										'interactive-code-block'
+									)}
 									help={
 										requireLivePreviewActivation
-											? 'User must click to load the preview.'
-											: 'Preview begins loading immediately.'
+											? __('User must click to load the preview.', 'interactive-code-block')
+											: __('Preview begins loading immediately.', 'interactive-code-block')
 									}
 									checked={requireLivePreviewActivation}
 									onChange={() => {
@@ -137,7 +153,10 @@ export default function Edit({
 									}}
 								/>
 								<ToggleControl
-									label='Include "error_log" file'
+									label={__(
+										'Include "error_log" file',
+										'interactive-code-block'
+									)}
 									checked={codeEditorErrorLog}
 									onChange={() => {
 										setAttributes({
@@ -195,19 +214,31 @@ export default function Edit({
 												</ul>
 											</div>
 										}
-										label="Mode"
+										label={__(
+											'Mode',
+											'interactive-code-block'
+										)}
 										options={[
 											{
 												disabled: true,
-												label: 'Select an Option',
+												label: __(
+													'Select an Option',
+													'interactive-code-block'
+												),
 												value: '',
 											},
 											{
-												label: 'Editor script',
+												label: __(
+													'Editor script',
+													'interactive-code-block'
+												),
 												value: 'editor-script',
 											},
 											{
-												label: 'Plugin',
+												label: __(
+													'Plugin',
+													'interactive-code-block'
+												),
 												value: 'plugin',
 											},
 										]}
@@ -222,21 +253,33 @@ export default function Edit({
 							</>
 						)}
 					</PanelBody>
-					<PanelBody title="Blueprint" initialOpen={false}>
+					<PanelBody
+						title={__('Blueprint', 'interactive-code-block')}
+						initialOpen={false}
+					>
 						<SelectControl
-							label="Blueprint source"
+							label={__(
+								'Blueprint source',
+								'interactive-code-block'
+							)}
 							value={configurationSource}
 							options={[
 								{
-									label: 'Generate from block attributes',
+									label: __(
+										'Generate from block attributes',
+										'interactive-code-block'
+									),
 									value: 'block-attributes',
 								},
 								{
-									label: 'URL',
+									label: __('URL', 'interactive-code-block'),
 									value: 'blueprint-url',
 								},
 								{
-									label: 'JSON (paste it below)',
+									label: __(
+										'JSON (paste it below)',
+										'interactive-code-block'
+									),
 									value: 'blueprint-json',
 								},
 							]}
@@ -245,10 +288,11 @@ export default function Edit({
 									configurationSource: newConfigurationSource,
 								});
 							}}
-							help={
+							help={__(
 								'Playground is configured using Blueprints. Select the source ' +
-								"of the Blueprint you'd like to use for this Playground instance."
-							}
+									"of the Blueprint you'd like to use for this Playground instance.",
+								'interactive-code-block'
+							)}
 						/>
 						{configurationSource === 'block-attributes' && (
 							<>
@@ -256,8 +300,8 @@ export default function Edit({
 									label="Log in automatically"
 									help={
 										logInUser
-											? 'User will be logged in.'
-											: "User won't be logged in."
+											? __('User will be logged in.', 'interactive-code-block')
+											: __("User won't be logged in.", 'interactive-code-block')
 									}
 									checked={logInUser}
 									onChange={() => {
@@ -267,11 +311,14 @@ export default function Edit({
 									}}
 								/>
 								<ToggleControl
-									label="Create new post or page"
+									label={__(
+										'Create new post or page',
+										'interactive-code-block'
+									)}
 									help={
 										createNewPost
-											? 'New post or page will be created.'
-											: 'No new posts or pages will be created.'
+											? __('New post or page will be created.', 'interactive-code-block')
+											: __('No new posts or pages will be created.', 'interactive-code-block')
 									}
 									checked={createNewPost}
 									onChange={() => {
@@ -283,7 +330,10 @@ export default function Edit({
 								{createNewPost && (
 									<>
 										<ToggleGroupControl
-											label="Create new: post type"
+											label={__(
+												'Create new: post type',
+												'interactive-code-block'
+											)}
 											value={createNewPostType}
 											onChange={(value: any) => {
 												setAttributes({
@@ -295,11 +345,17 @@ export default function Edit({
 										>
 											<ToggleGroupControlOption
 												value="post"
-												label="Post"
+												label={__(
+													'Post',
+													'interactive-code-block'
+												)}
 											/>
 											<ToggleGroupControlOption
 												value="page"
-												label="Page"
+												label={__(
+													'Page',
+													'interactive-code-block'
+												)}
 											/>
 										</ToggleGroupControl>
 										<InputControl
@@ -309,8 +365,14 @@ export default function Edit({
 													createNewPostTitle: value,
 												});
 											}}
-											label="Create new: title"
-											placeholder="Hello World!"
+											label={__(
+												'Create new: title',
+												'interactive-code-block'
+											)}
+											placeholder={__(
+												'Hello World!',
+												'interactive-code-block'
+											)}
 										/>
 										<TextareaControl
 											value={createNewPostContent}
@@ -319,15 +381,24 @@ export default function Edit({
 													createNewPostContent: value,
 												});
 											}}
-											label="Create new: content"
-											help="Gutenberg editor content of the post"
+											label={__(
+												'Create new: content',
+												'interactive-code-block'
+											)}
+											help={__(
+												'Gutenberg editor content of the post',
+												'interactive-code-block'
+											)}
 										/>
 										<ToggleControl
-											label="Create new: redirect to post"
+											label={__(
+												'Create new: redirect to post',
+												'interactive-code-block'
+											)}
 											help={
 												redirectToPost
-													? 'User will be redirected.'
-													: "User won't be redirected."
+													? __('User will be redirected.', 'interactive-code-block')
+													: __("User won't be redirected.", 'interactive-code-block')
 											}
 											checked={redirectToPost}
 											onChange={() => {
@@ -339,7 +410,10 @@ export default function Edit({
 										/>
 										{redirectToPost && (
 											<ToggleGroupControl
-												label="Create new redirect: redirect to"
+												label={__(
+													'Create new redirect: redirect to',
+													'interactive-code-block'
+												)}
 												value={redirectToPostType}
 												onChange={(value: any) => {
 													setAttributes({
@@ -351,11 +425,17 @@ export default function Edit({
 											>
 												<ToggleGroupControlOption
 													value="front"
-													label="Front page"
+													label={__(
+														'Front page',
+														'interactive-code-block'
+													)}
 												/>
 												<ToggleGroupControlOption
 													value="admin"
-													label="Edit screen"
+													label={__(
+														'Edit screen',
+														'interactive-code-block'
+													)}
 												/>
 											</ToggleGroupControl>
 										)}
@@ -369,9 +449,18 @@ export default function Edit({
 												landingPageUrl: value,
 											});
 										}}
-										label="Landing page"
-										help="Define where to redirect after Playground is loaded."
-										placeholder="URL to redirect to after load (eg. /wp-admin/)"
+										label={__(
+											'Landing page',
+											'interactive-code-block'
+										)}
+										help={__(
+											'Define where to redirect after Playground is loaded.',
+											'interactive-code-block'
+										)}
+										placeholder={__(
+											'URL to redirect to after load (eg. /wp-admin/)',
+											'interactive-code-block'
+										)}
 									/>
 								)}
 								{['WP_DEBUG', 'WP_SCRIPT_DEBUG'].map(
@@ -409,9 +498,18 @@ export default function Edit({
 										blueprintUrl: value,
 									});
 								}}
-								label="Blueprint URL"
-								help="Load Blueprint from this URL."
-								placeholder="URL to load the Blueprint from"
+								label={__(
+									'Blueprint URL',
+									'interactive-code-block'
+								)}
+								help={__(
+									'Load Blueprint from this URL.',
+									'interactive-code-block'
+								)}
+								placeholder={__(
+									'URL to load the Blueprint from',
+									'interactive-code-block'
+								)}
 							/>
 						)}
 						{configurationSource === 'blueprint-json' && (
@@ -422,8 +520,14 @@ export default function Edit({
 										blueprint: value,
 									});
 								}}
-								label="Blueprint"
-								help="JSON file with playground blueprint"
+								label={__(
+									'Blueprint',
+									'interactive-code-block'
+								)}
+								help={__(
+									'JSON file with playground blueprint',
+									'interactive-code-block'
+								)}
 							/>
 						)}
 					</PanelBody>

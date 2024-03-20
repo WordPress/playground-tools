@@ -29,6 +29,7 @@ import { LanguageSupport } from '@codemirror/language';
 import { writePluginFiles } from './write-plugin-files';
 import downloadZippedPlugin from './download-zipped-plugin';
 import classnames from 'classnames';
+import { __ } from '@wordpress/i18n';
 
 export type PlaygroundDemoProps = Attributes & {
 	showAddNewFile: boolean;
@@ -80,7 +81,7 @@ export default function PlaygroundPreview({
 	logInUser,
 	createNewPost,
 	createNewPostType = 'post',
-	createNewPostTitle = 'New post',
+	createNewPostTitle = __('New post', 'interactive-code-block'),
 	createNewPostContent = '',
 	redirectToPost,
 	redirectToPostType = 'front',
@@ -187,7 +188,9 @@ export default function PlaygroundPreview({
 			if (finalBlueprint) {
 				configuration['blueprint'] = finalBlueprint;
 			}
-			console.log('Initializing Playground');
+			console.log(
+				__('Initializing Playground', 'interactive-code-block')
+			);
 			const client = await startPlaygroundWeb(configuration);
 
 			await client.isReady();
@@ -307,9 +310,11 @@ export default function PlaygroundPreview({
 		'is-half-width': codeEditorSideBySide,
 	});
 
-	const iframeCreationWarning =
+	const iframeCreationWarning = __(
 		'This button creates an iframe containing a full WordPress website ' +
-		'which may be a challenge for screen readers.';
+			'which may be a challenge for screen readers.',
+		'interactive-code-block'
+	);
 
 	return (
 		<>
@@ -359,7 +364,10 @@ export default function PlaygroundPreview({
 							</Button>
 							{isNewFileModalOpen && (
 								<FileNameModal
-									title="Create new file"
+									title={__(
+										'Create new file',
+										'interactive-code-block'
+									)}
 									onRequestClose={() =>
 										setNewFileModalOpen(false)
 									}
@@ -404,7 +412,11 @@ export default function PlaygroundPreview({
 											}}
 											className="wordpress-playground-block-button button-non-destructive"
 										>
-											<Icon icon={edit} /> Edit file name
+											<Icon icon={edit} />{' '}
+											{__(
+												'Edit file name',
+												'interactive-code-block'
+											)}
 										</button>
 									)}
 									{!isErrorLogFile(activeFile) &&
@@ -422,12 +434,18 @@ export default function PlaygroundPreview({
 												<Icon
 													icon={cancelCircleFilled}
 												/>{' '}
-												Remove file
+												{__(
+													'Remove file',
+													'interactive-code-block'
+												)}
 											</button>
 										)}
 									{isEditFileNameModalOpen && (
 										<FileNameModal
-											title="Edit file name"
+											title={__(
+												'Edit file name',
+												'interactive-code-block'
+											)}
 											initialFilename={
 												files[activeFileIndex].name
 											}
@@ -461,7 +479,7 @@ export default function PlaygroundPreview({
 										: undefined
 								}
 							>
-								Run
+								{__('Run', 'interactive-code-block')}
 							</Button>
 						</div>
 					</div>
@@ -474,13 +492,19 @@ export default function PlaygroundPreview({
 							onClick={() => setLivePreviewActivated(true)}
 							aria-description={iframeCreationWarning}
 						>
-							Activate Live Preview
+							{__(
+								'Activate Live Preview',
+								'interactive-code-block'
+							)}
 						</Button>
 					</div>
 				)}
 				{isLivePreviewActivated && (
 					<iframe
-						aria-label="Live Preview in WordPress Playground"
+						aria-label={__(
+							'Live Preview in WordPress Playground',
+							'interactive-code-block'
+						)}
 						key="playground-iframe"
 						ref={iframeRef}
 						className="playground-iframe"
@@ -493,10 +517,12 @@ export default function PlaygroundPreview({
 					className="demo-footer__link"
 					target="_blank"
 				>
-					<span className="demo-footer__powered">Powered by</span>
+					<span className="demo-footer__powered">
+						{__('Powered by', 'interactive-code-block')}
+					</span>
 					<Icon className="demo-footer__icon" icon={wordpress} />
 					<span className="demo-footer__link-text">
-						WordPress Playground
+						{__('WordPress Playground', 'interactive-code-block')}
 					</span>
 				</a>
 			</footer>
