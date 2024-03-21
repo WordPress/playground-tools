@@ -1,9 +1,5 @@
 import fs from 'fs-extra';
-import {
-	NodePHP,
-	PHPRequestHandlerConfiguration,
-	rotatePHPRuntime,
-} from '@php-wasm/node';
+import { NodePHP, PHPRequestHandlerConfiguration } from '@php-wasm/node';
 import path from 'path';
 import { SQLITE_FILENAME } from './constants';
 import {
@@ -35,6 +31,7 @@ import { output } from './output';
 import getWpNowPath from './get-wp-now-path';
 import getWordpressVersionsPath from './get-wordpress-versions-path';
 import getSqlitePath, { getSqliteDbCopyPath } from './get-sqlite-path';
+import { rotatePHPRuntime } from '@php-wasm/universal';
 
 async function applyToInstances(phpInstances: NodePHP[], callback: Function) {
 	for (let i = 0; i < phpInstances.length; i++) {
