@@ -27,7 +27,21 @@
 				},
 			},
 			{
-				step: 'login',
+				step: 'writeFile',
+				path: '/wordpress/wp-content/mu-plugins/0-login.php',
+				data: `<?php
+					add_action( 'setup_theme', function() {
+						if ( is_user_logged_in() ) {
+							return;
+						}
+						$user = get_user_by( 'id', ${playground.userId} );
+						if( $user ) {
+							wp_set_current_user( $user->ID, $user->user_login );
+							wp_set_auth_cookie( $user->ID );
+							do_action( 'wp_login', $user->user_login, $user );
+						}
+					} );
+				`,
 			},
 		],
 	};
@@ -52,10 +66,11 @@
 	});
 
 	await client.isReady();
+	await client.goTo('/');
 
-	if (playground.pluginSlug) {
-		client.goTo('/wp-admin/plugins.php');
-	} else {
-		client.goTo('/wp-admin');
-	}
+	// if (playground.pluginSlug) {
+	// 	await client.goTo('/wp-admin/plugins.php');
+	// } else {
+	// 	await client.goTo('/wp-admin/');
+	// }
 })();
