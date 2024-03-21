@@ -3,6 +3,7 @@ import {
 	phpVar,
 	// @ts-ignore
 } from 'https://playground.wordpress.net/client/index.js';
+import { __ } from '@wordpress/i18n';
 
 export default async function downloadZippedPlugin(client: PlaygroundClient) {
 	const docroot = await client.documentRoot;
@@ -50,7 +51,7 @@ async function zipPlaygroundFiles(client: PlaygroundClient, path: string) {
 			`,
 	});
 	if (result.text !== 'done') {
-		console.log('Error creating zip file');
+		console.log(__('Error creating zip file', 'interactive-code-block'));
 		console.log(result.errors);
 		console.log(result.text);
 	}

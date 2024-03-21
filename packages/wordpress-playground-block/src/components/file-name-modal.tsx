@@ -5,6 +5,7 @@ import {
 	__experimentalInputControl as InputControl,
 } from '@wordpress/components';
 import { useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 interface FileNameModalProps {
 	title: string;
@@ -39,7 +40,7 @@ export function FileNameModal({
 				/>
 				<br />
 				<Button variant="primary" type="submit">
-					Done
+					{__('Done', 'interactive-code-block')}
 				</Button>
 			</form>
 		</Modal>
