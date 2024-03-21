@@ -58,7 +58,7 @@ export default async function startWPNow(
 	await rotatePHPRuntime({
 		php,
 		recreateRuntime: loadRuntime,
-		maxRequests: 400,
+		maxRequests: 100,
 	});
 
 	phpInstances.forEach((_php) => {
