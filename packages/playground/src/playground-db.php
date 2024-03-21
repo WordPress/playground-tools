@@ -18,7 +18,7 @@ function escape_array($array)
 		if (is_numeric($value)) {
 			$escaped[] = $wpdb->prepare('%d', $value);
 		} else {
-			$escaped[] = $wpdb->prepare('%s', str_replace("\n", "\\n", $value));
+			$escaped[] = $wpdb->prepare('%s', $value);
 		}
 	}
 	return implode(',', $escaped);
