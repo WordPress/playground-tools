@@ -75,7 +75,9 @@ Any time you make change to the the code, click the reload button at the top of 
 
 The WordPress Playground VS Code Extension is published independently of the other projects in this repository. However, to ensure they're using the same codebase, a new version of `wp-now` should be released prior to publishing the VS Code Extension.
 
-[@adamziel](https://github.com/adamziel) and [@danielbachhuber](https://github.com/danielbachhuber/) have permissions to publish. The extension is managed in the [VS Code extension marketplace](https://marketplace.visualstudio.com/manage/publishers/wordpressplayground).
+The easiest way to publish is via the [Release the VS Code extension](https://github.com/WordPress/playground-tools/actions/workflows/release-vscode.yml) GitHub action.
+
+For manual releases, [@adamziel](https://github.com/adamziel) and [@danielbachhuber](https://github.com/danielbachhuber/) have permissions to publish. The extension is managed in the [VS Code extension marketplace](https://marketplace.visualstudio.com/manage/publishers/wordpressplayground).
 
 Publish a new version by following these steps:
 

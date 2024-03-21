@@ -7,7 +7,13 @@
 	"category": "widgets",
 	"icon": "wordpress",
 	"description": "Display demo in WordPress Playground",
-	"keywords": [ "playground" ],
+	"keywords": [
+		"playground",
+		"wordpress",
+		"wordpress playground",
+		"play",
+		"code"
+	],
 	"attributes": {
 		"align": {
 			"type": "string",
@@ -92,6 +98,10 @@
 		},
 		"blueprint": {
 			"type": "string"
+		},
+		"requireLivePreviewActivation": {
+			"type": "boolean",
+			"default": true
 		}
 	},
 	"supports": {

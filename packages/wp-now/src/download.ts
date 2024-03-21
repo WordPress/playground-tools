@@ -5,8 +5,13 @@ import { IncomingMessage } from 'http';
 import os from 'os';
 import path from 'path';
 import unzipper from 'unzipper';
-import { DEFAULT_WORDPRESS_VERSION, SQLITE_URL, WP_CLI_URL } from './constants';
-import getSqlitePath from './get-sqlite-path';
+import {
+	DEFAULT_WORDPRESS_VERSION,
+	SQLITE_FILENAME,
+	SQLITE_URL,
+	WP_CLI_URL,
+} from './constants';
+import getSqlitePath, { getSqliteDbCopyPath } from './get-sqlite-path';
 import getWordpressVersionsPath from './get-wordpress-versions-path';
 import getWpCliPath from './get-wp-cli-path';
 import getWpNowPath from './get-wp-now-path';
@@ -35,8 +40,11 @@ function httpsGet(url: string, callback: Function) {
 function getWordPressVersionUrl(version = DEFAULT_WORDPRESS_VERSION) {
 	if (!isValidWordPressVersion(version)) {
 		throw new Error(
-			'Unrecognized WordPress version. Please use "latest" or numeric versions such as "6.2", "6.0.1", "6.2-beta1", or "6.2-RC1"'
+			'Unrecognized WordPress version. Please use "latest", "trunk", "nightly", or numeric versions such as "6.2", "6.0.1", "6.2-beta1", or "6.2-RC1"'
 		);
+	}
+	if (version === 'trunk' || version === 'nightly') {
+		return 'https://wordpress.org/nightly-builds/wordpress-latest.zip';
 	}
 	return `https://wordpress.org/wordpress-${version}.zip`;
 }
@@ -104,7 +112,10 @@ async function downloadFileAndUnzip({
 	checkFinalPath,
 	itemName,
 }): Promise<DownloadFileAndUnzipResult> {
-	if (fs.existsSync(checkFinalPath)) {
+	if (
+		fs.existsSync(checkFinalPath) &&
+		fs.readdirSync(checkFinalPath).length > 0
+	) {
 		output?.log(`${itemName} folder already exists. Skipping download.`);
 		return { downloaded: false, statusCode: 0 };
 	}
@@ -126,6 +137,8 @@ async function downloadFileAndUnzip({
 			);
 		}
 
+		const entryPromises: Promise<unknown>[] = [];
+
 		/**
 		 * Using Parse because Extract is broken:
 		 * https://github.com/WordPress/wordpress-playground/issues/248
@@ -140,11 +153,23 @@ async function downloadFileAndUnzip({
 				 */
 				fs.ensureDirSync(path.dirname(filePath));
 
-				if (entry.type !== 'Directory') {
-					entry.pipe(fs.createWriteStream(filePath));
+				if (entry.type === 'File') {
+					const promise = new Promise((resolve, reject) => {
+						entry
+							.pipe(fs.createWriteStream(filePath))
+							.on('close', resolve)
+							.on('error', reject);
+					});
+					entryPromises.push(promise);
+				} else {
+					entryPromises.push(entry.autodrain().promise());
 				}
 			})
 			.promise();
+
+		// Wait until all entries have been extracted before continuing
+		await Promise.all(entryPromises);
+
 		return { downloaded: true, statusCode };
 	} catch (err) {
 		output?.error(`Error downloading or unzipping ${itemName}:`, err);
@@ -177,12 +202,32 @@ export async function downloadWordPress(
 }
 
 export async function downloadSqliteIntegrationPlugin() {
-	return downloadFileAndUnzip({
+	// Remove the old SQLite plugin if it exists
+	const oldSqlitePath = path.join(getWpNowPath(), `${SQLITE_FILENAME}`);
+	if (fs.existsSync(oldSqlitePath)) {
+		fs.rmSync(oldSqlitePath, {
+			recursive: true,
+		});
+	}
+
+	await downloadFileAndUnzip({
 		url: SQLITE_URL,
-		destinationFolder: getWpNowPath(),
+		destinationFolder: path.join(getWpNowPath(), 'mu-plugins'),
 		checkFinalPath: getSqlitePath(),
 		itemName: 'SQLite',
 	});
+
+	// Replace {SQLITE_IMPLEMENTATION_FOLDER_PATH} with the actual path
+	const dbCopyContent = fs.readFileSync(getSqliteDbCopyPath()).toString();
+	if (dbCopyContent.includes("'{SQLITE_IMPLEMENTATION_FOLDER_PATH}'")) {
+		fs.writeFileSync(
+			getSqliteDbCopyPath(),
+			dbCopyContent.replace(
+				"'{SQLITE_IMPLEMENTATION_FOLDER_PATH}'",
+				`realpath( __DIR__ . '/mu-plugins/${SQLITE_FILENAME}' )`
+			)
+		);
+	}
 }
 
 export async function downloadMuPlugins() {
@@ -199,5 +244,28 @@ export async function downloadMuPlugins() {
 			'downloads.wordpress.org',
 		);
 	} );`
+	);
+	fs.writeFile(
+		path.join(getWpNowPath(), 'mu-plugins', '1-pretty-permalinks.php'),
+		`<?php
+	// Support permalinks without "index.php"
+	add_filter( 'got_url_rewrite', '__return_true' );`
+	);
+	fs.writeFile(
+		path.join(
+			getWpNowPath(),
+			'mu-plugins',
+			'2-deactivate-sqlite-plugin.php'
+		),
+		`<?php
+	add_action(
+		'admin_footer',
+		function() {
+			if ( ! function_exists( 'deactivate_plugins' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/plugin.php';
+			}
+			// The SQLite plugin is automatically activated, but wp-now use it as a a mu-plugin, so we need to deactivate it to prevent notices.
+			deactivate_plugins( 'sqlite-database-integration/load.php' );
+	}, 100 );`
 	);
 }
