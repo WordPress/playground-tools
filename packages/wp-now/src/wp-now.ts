@@ -1,6 +1,5 @@
 import fs from 'fs-extra';
-import { NodePHP, PHPRequestHandlerConfiguration } from '@php-wasm/node';
-import { rotatePHPRuntime } from '@php-wasm/universal';
+import { NodePHP, PHPLoaderOptions } from '@php-wasm/node';
 import path from 'path';
 import { SQLITE_FILENAME } from './constants';
 import {
@@ -43,23 +42,20 @@ export default async function startWPNow(
 	options: Partial<WPNowOptions> = {}
 ): Promise<{ php: NodePHP; phpInstances: NodePHP[]; options: WPNowOptions }> {
 	const { documentRoot } = options;
-	const nodePHPOptions: PHPRequestHandlerConfiguration = {
-		documentRoot,
-		absoluteUrl: options.absoluteUrl,
+	const nodePHPOptions: PHPLoaderOptions = {
+		requestHandler: {
+			documentRoot,
+			absoluteUrl: options.absoluteUrl,
+		},
 	};
 
 	const phpInstances = [];
-	const loadRuntime = async () =>
-		await NodePHP.loadRuntime(options.phpVersion);
 	for (let i = 0; i < Math.max(options.numberOfPhpInstances, 1); i++) {
-		phpInstances.push(new NodePHP(await loadRuntime(), nodePHPOptions));
+		phpInstances.push(
+			await NodePHP.load(options.phpVersion, nodePHPOptions)
+		);
 	}
 	const php = phpInstances[0];
-	await rotatePHPRuntime({
-		php,
-		recreateRuntime: loadRuntime,
-		maxRequests: 100,
-	});
 
 	phpInstances.forEach((_php) => {
 		_php.mkdirTree(documentRoot);
