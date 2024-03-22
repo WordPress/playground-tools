@@ -1,0 +1,2 @@
+export const __dangerousOptInToUnstableAPIsOnlyForCoreModules =
+	window.wp.privateApis.__dangerousOptInToUnstableAPIsOnlyForCoreModules;

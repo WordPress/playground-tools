@@ -1,0 +1,13 @@
+export const __ = window.wp.i18n.__;
+export const _n = window.wp.i18n._n;
+export const _nx = window.wp.i18n._nx;
+export const _x = window.wp.i18n._x;
+export const createI18n = window.wp.i18n.createI18n;
+export const defaultI18n = window.wp.i18n.defaultI18n;
+export const getLocaleData = window.wp.i18n.getLocaleData;
+export const hasTranslation = window.wp.i18n.hasTranslation;
+export const isRTL = window.wp.i18n.isRTL;
+export const resetLocaleData = window.wp.i18n.resetLocaleData;
+export const setLocaleData = window.wp.i18n.setLocaleData;
+export const sprintf = window.wp.i18n.sprintf;
+export const subscribe = window.wp.i18n.subscribe;
