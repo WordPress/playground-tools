@@ -1,5 +1,5 @@
 import fs from 'fs-extra';
-import { NodePHP, PHPLoaderOptions } from '@php-wasm/node';
+import { NodePHP, PHPRequestHandlerConfiguration } from '@php-wasm/node';
 import path from 'path';
 import { SQLITE_FILENAME } from './constants';
 import {
@@ -31,49 +31,19 @@ import { output } from './output';
 import getWpNowPath from './get-wp-now-path';
 import getWordpressVersionsPath from './get-wordpress-versions-path';
 import getSqlitePath, { getSqliteDbCopyPath } from './get-sqlite-path';
+import { rotatePHPRuntime } from '@php-wasm/universal';
 
-async function applyToInstances(phpInstances: NodePHP[], callback: Function) {
-	for (let i = 0; i < phpInstances.length; i++) {
-		await callback(phpInstances[i]);
-	}
-}
-
-export default async function startWPNow(
-	options: Partial<WPNowOptions> = {}
-): Promise<{ php: NodePHP; phpInstances: NodePHP[]; options: WPNowOptions }> {
-	const { documentRoot } = options;
-	const nodePHPOptions: PHPLoaderOptions = {
-		requestHandler: {
-			documentRoot,
-			absoluteUrl: options.absoluteUrl,
-		},
-	};
-
-	const phpInstances = [];
-	for (let i = 0; i < Math.max(options.numberOfPhpInstances, 1); i++) {
-		phpInstances.push(
-			await NodePHP.load(options.phpVersion, nodePHPOptions)
-		);
-	}
-	const php = phpInstances[0];
-
-	phpInstances.forEach((_php) => {
-		_php.mkdirTree(documentRoot);
-		_php.chdir(documentRoot);
-		_php.writeFile(
-			`${documentRoot}/index.php`,
-			`<?php echo 'Hello wp-now!';`
-		);
-	});
+async function mountDirectories(php: NodePHP, options: WPNowOptions) {
+	const documentRoot = options.documentRoot;
+	php.mkdirTree(documentRoot);
+	php.chdir(documentRoot);
 
 	output?.log(`directory: ${options.projectPath}`);
 	output?.log(`mode: ${options.mode}`);
 	output?.log(`php: ${options.phpVersion}`);
 	if (options.mode === WPNowMode.INDEX) {
-		await applyToInstances(phpInstances, async (_php) => {
-			runIndexMode(_php, options);
-		});
-		return { php, phpInstances, options };
+		runIndexMode(php, options);
+		return php;
 	}
 	if (options.wordPressVersion === 'trunk') {
 		options.wordPressVersion = 'nightly';
@@ -93,28 +63,26 @@ export default async function startWPNow(
 	}
 
 	const isFirstTimeProject = !fs.existsSync(options.wpContentPath);
-	await applyToInstances(phpInstances, async (_php) => {
-		switch (options.mode) {
-			case WPNowMode.WP_CONTENT:
-				await runWpContentMode(_php, options);
-				break;
-			case WPNowMode.WORDPRESS_DEVELOP:
-				await runWordPressDevelopMode(_php, options);
-				break;
-			case WPNowMode.WORDPRESS:
-				await runWordPressMode(_php, options);
-				break;
-			case WPNowMode.PLUGIN:
-				await runPluginOrThemeMode(_php, options);
-				break;
-			case WPNowMode.THEME:
-				await runPluginOrThemeMode(_php, options);
-				break;
-			case WPNowMode.PLAYGROUND:
-				await runWpPlaygroundMode(_php, options);
-				break;
-		}
-	});
+	switch (options.mode) {
+		case WPNowMode.WP_CONTENT:
+			await runWpContentMode(php, options);
+			break;
+		case WPNowMode.WORDPRESS_DEVELOP:
+			await runWordPressDevelopMode(php, options);
+			break;
+		case WPNowMode.WORDPRESS:
+			await runWordPressMode(php, options);
+			break;
+		case WPNowMode.PLUGIN:
+			await runPluginOrThemeMode(php, options);
+			break;
+		case WPNowMode.THEME:
+			await runPluginOrThemeMode(php, options);
+			break;
+		case WPNowMode.PLAYGROUND:
+			await runWpPlaygroundMode(php, options);
+			break;
+	}
 
 	if (options.blueprintObject) {
 		output?.log(`blueprint steps: ${options.blueprintObject.steps.length}`);
@@ -144,6 +112,41 @@ export default async function startWPNow(
 	) {
 		await activatePluginOrTheme(php, options);
 	}
+	return php;
+}
+
+export default async function startWPNow(
+	options: Partial<WPNowOptions> = {}
+): Promise<{ php: NodePHP; phpInstances: NodePHP[]; options: WPNowOptions }> {
+	const { documentRoot } = options;
+	const nodePHPOptions: PHPRequestHandlerConfiguration = {
+		documentRoot,
+		absoluteUrl: options.absoluteUrl,
+	};
+
+	const loadRuntime = async (_php?: NodePHP) => {
+		const id = await NodePHP.loadRuntime(options.phpVersion, {
+			requestHandler: nodePHPOptions,
+		});
+		if (_php) {
+			await mountDirectories(_php, options);
+		}
+		return id;
+	};
+
+	const phpInstances = [];
+	for (let i = 0; i < Math.max(options.numberOfPhpInstances, 1); i++) {
+		const _php = new NodePHP(await loadRuntime(), nodePHPOptions);
+		await mountDirectories(_php, options);
+		phpInstances.push(_php);
+	}
+	const php = phpInstances[0];
+
+	await rotatePHPRuntime({
+		php,
+		recreateRuntime: () => loadRuntime(php),
+		maxRequests: 50,
+	});
 
 	return {
 		php,
