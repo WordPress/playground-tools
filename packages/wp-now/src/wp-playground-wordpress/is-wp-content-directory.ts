@@ -16,3 +16,12 @@ export function isWpContentDirectory(projectPath: string): Boolean {
 	}
 	return false;
 }
+
+export function isWpPRDirectory(projectPath: string): Boolean {
+	const wpContentExists = fs.existsSync(path.join(projectPath, 'wp-content'));
+	const wpIncludeExists = fs.existsSync(path.join(projectPath, 'wp-include'));
+	if (wpContentExists && !wpIncludeExists) {
+		return true;
+	}
+	return false;
+}
