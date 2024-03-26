@@ -4,7 +4,7 @@ Plugin Name: Playground
 Plugin URI: https://github.com/WordPress/playground-tools/tree/trunk/packages/playground
 Description: Packages your WordPress install and sends it to Playground.
 Author: WordPress Contributors
-Version: 0.0.1
+Version: 0.0.2
 */
 
 namespace WordPress\Playground;
