@@ -62,6 +62,7 @@ function enqueue_scripts($current_screen_id)
 		),
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		'pluginSlug' => isset($_GET['pluginSlug']) ? $_GET['pluginSlug'] : false,
+		'userId' => get_current_user_id(),
 	]);
 	wp_enqueue_script('playground');
 }

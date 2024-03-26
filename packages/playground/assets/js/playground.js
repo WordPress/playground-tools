@@ -26,9 +26,6 @@
 					path: '/wordpress/schema/_Schema.sql',
 				},
 			},
-			{
-				step: 'login',
-			},
 		],
 	};
 
@@ -53,9 +50,29 @@
 
 	await client.isReady();
 
+	// Login as the current user without a password
+	await client.writeFile(
+		'/wordpress/playground-login.php',
+		`<?php
+		require_once( dirname( __FILE__ ) . '/wp-load.php' );
+		if ( is_user_logged_in() ) {
+			return;
+		}
+		$user = get_user_by( 'id', ${playground.userId} );
+		if( $user ) {
+			wp_set_current_user( $user->ID, $user->user_login );
+			wp_set_auth_cookie( $user->ID );
+			do_action( 'wp_login', $user->user_login, $user );
+		}`
+	);
+	await client.request({
+		url: '/playground-login.php',
+	});
+	await client.unlink('/wordpress/playground-login.php');
+
 	if (playground.pluginSlug) {
-		client.goTo('/wp-admin/plugins.php');
+		await client.goTo('/wp-admin/plugins.php');
 	} else {
-		client.goTo('/wp-admin');
+		await client.goTo('/wp-admin/');
 	}
 })();
