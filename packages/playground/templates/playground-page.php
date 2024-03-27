@@ -3,8 +3,6 @@
 namespace WordPress\Playground;
 
 defined('ABSPATH') || exit;
-
-$return_url = isset($_GET['returnUrl']) ?  esc_url_raw($_GET['returnUrl']) : admin_url();
 ?>
 <div id="wp-playground-wrapper">
     <div id="wp-playground-toolbar">
@@ -22,7 +20,7 @@ $return_url = isset($_GET['returnUrl']) ?  esc_url_raw($_GET['returnUrl']) : adm
             );
             ?>
         </span>
-        <a href="<?php echo esc_url($return_url); ?>" id="goBack">
+        <a href="<?php echo admin_url(); ?>" id="goBack">
             <?php esc_attr_e('Go Back', 'playground'); ?>
         </a>
     </div>
