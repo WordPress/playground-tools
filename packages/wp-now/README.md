@@ -6,8 +6,29 @@ It uses automatic mode detection to provide a fast setup process, regardless of 
 
 ![Demo GIF of wp-now](https://github.com/WordPress/playground-tools/assets/779993/5a2da682-977f-4ca3-80d3-f9e4d773a887)
 
+## Quickstart
+
+### Launching wp-now in a Plugin or Theme Directory
+
+Running wp-now is as simple as accessing your plugin or theme directory and starting wp-now.
+
+```bash
+cd my-plugin-or-theme-directory
+npx @wp-now/wp-now start
+```
+
+### Launching wp-now in the wp-content Directory with Options
+
+You can also start wp-now from any wp-content folder. In this example, we pass parameters to change the PHP and WordPress versions and apply a blueprint file.
+
+```bash
+cd my-wordpress-folder/wp-content
+npx @wp-now/wp-now start  --wp=5.9 --php=7.4 --blueprint=path/to/blueprint-example.json
+```
+
 ## Table of Contents
 
+-   [Quickstart](#quickstart)
 -   [Requirements](#requirements)
 -   [Usage](#usage)
     -   [Automatic Modes](#automatic-modes)
