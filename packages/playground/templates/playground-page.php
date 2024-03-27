@@ -4,6 +4,7 @@ namespace WordPress\Playground;
 
 defined('ABSPATH') || exit;
 
+$return_url = isset($_GET['returnUrl']) ?  esc_url_raw($_GET['returnUrl']) : admin_url();
 ?>
 <div id="wp-playground-wrapper">
     <div id="wp-playground-toolbar">
@@ -21,7 +22,7 @@ defined('ABSPATH') || exit;
             );
             ?>
         </span>
-        <a href="<?php echo esc_url(admin_url('plugin-install.php')); ?>" id="goBack">
+        <a href="<?php echo esc_url($return_url); ?>" id="goBack">
             <?php esc_attr_e('Go Back', 'playground'); ?>
         </a>
     </div>

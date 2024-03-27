@@ -155,12 +155,19 @@ function render_playground_page()
 function plugin_install_action_links($action_links, $plugin)
 {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	$retUrl = wp_parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . urlencode('?' . http_build_query($_GET));
+	$retUrl = add_query_arg(
+		[
+			's' => isset($_GET['s']) ? sanitize_text_field($_GET['s']) : null,
+			'tab' => isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : null,
+			'type' => isset($_GET['type']) ? sanitize_text_field($_GET['type']) : null,
+		],
+		wp_parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)
+	);
 
 	$preview_url = add_query_arg(
 		[
 			'pluginSlug' => esc_attr($plugin['slug']),
-			'returnUrl' => esc_attr($retUrl),
+			'returnUrl' => urlencode(esc_url($retUrl)),
 		],
 		admin_url('admin.php?page=' . PLAYGROUND_ADMIN_PAGE_SLUG)
 	);
