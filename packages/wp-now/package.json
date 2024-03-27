@@ -1,6 +1,6 @@
 {
 	"name": "@wp-now/wp-now",
-	"version": "0.1.66",
+	"version": "0.1.67",
 	"description": "WordPress Playground CLI",
 	"repository": {
 		"type": "git",
