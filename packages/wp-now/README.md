@@ -4,7 +4,7 @@
 
 It uses automatic mode detection to provide a fast setup process, regardless of whether you're working on a plugin or an entire site. You can easily switch between PHP and WordPress versions with just a configuration argument. Under the hood, `wp-now` is powered by WordPress Playground and only requires Node.js.
 
-![Demo GIF of wp-now](https://github.com/WordPress/wordpress-playground/assets/36432/474ecb85-d789-4db9-b820-a19c25da79ad)
+![Demo GIF of wp-now](https://github.com/WordPress/playground-tools/assets/779993/5a2da682-977f-4ca3-80d3-f9e4d773a887)
 
 ## Table of Contents
 
