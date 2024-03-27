@@ -3,7 +3,7 @@
         'name' => 'wordpress/playground',
         'pretty_version' => 'dev-trunk',
         'version' => 'dev-trunk',
-        'reference' => '8a41fea36ad2f5fb4c545d90a7f5f5614b014232',
+        'reference' => '26d447dcfe24874d62a2ab3548748cd643239a67',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -22,7 +22,7 @@
         'wordpress/playground' => array(
             'pretty_version' => 'dev-trunk',
             'version' => 'dev-trunk',
-            'reference' => '8a41fea36ad2f5fb4c545d90a7f5f5614b014232',
+            'reference' => '26d447dcfe24874d62a2ab3548748cd643239a67',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

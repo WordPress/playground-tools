@@ -1,13 +1,15 @@
 <?php
-/*
-Plugin Name: Playground
-Plugin URI: https://github.com/WordPress/playground-tools/tree/trunk/packages/playground
-Description: Packages your WordPress install and sends it to Playground.
-Author: WordPress Contributors
-Version: 0.0.2
-License: GPLv2
-Text Domain: playground
-*/
+
+/**
+ * Plugin Name: Playground
+ * Plugin URI: https://github.com/WordPress/playground-tools/tree/trunk/packages/playground
+ * Description: Packages your WordPress install and sends it to Playground.
+ * Author: WordPress Contributors
+ * Version: 0.0.2
+ * Requires PHP: 8.0
+ * License: GPLv2
+ * Text Domain: playground
+ */
 
 namespace WordPress\Playground;
 

@@ -45,9 +45,7 @@
 				}
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [
-				"MIT"
-			],
+			"license": ["MIT"],
 			"authors": [
 				{
 					"name": "Paul Duncan",
@@ -67,10 +65,7 @@
 				}
 			],
 			"description": "ZipStream is a library for dynamically streaming dynamic zip files from PHP without writing to the disk at all on the server.",
-			"keywords": [
-				"stream",
-				"zip"
-			],
+			"keywords": ["stream", "zip"],
 			"support": {
 				"issues": "https://github.com/maennchen/ZipStream-PHP/issues",
 				"source": "https://github.com/maennchen/ZipStream-PHP/tree/3.1.0"
