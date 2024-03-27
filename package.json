@@ -79,6 +79,7 @@
 		"@rollup/plugin-url": "^8.0.1",
 		"@testing-library/react": "14.0.0",
 		"@tsconfig/docusaurus": "^1.0.5",
+		"@types/express-fileupload": "1.5.0",
 		"@types/file-saver": "^2.0.5",
 		"@types/jest": "^29.4.0",
 		"@types/node": "18.14.2",
