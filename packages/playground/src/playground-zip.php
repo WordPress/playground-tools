@@ -7,7 +7,6 @@ defined('ABSPATH') || exit;
 require __DIR__ . '/playground-db.php';
 
 use ZipStream\ZipStream;
-use ZipStream\Option\Archive;
 
 /**
  * Add the wp-content directory to a zip archive.
@@ -48,11 +47,9 @@ function zip_wp_content($zip)
  */
 function zip_collect()
 {
-	$options = new Archive();
-	$options->setSendHttpHeaders(true);
 	$zip = new ZipStream(
-		'playground-package-' . gmdate('Y-m-d_H-i-s') . '.zip',
-		$options
+		outputName: 'playground-package-' . gmdate('Y-m-d_H-i-s') . '.zip',
+		sendHttpHeaders: true
 	);
 
 	zip_wp_content($zip);
