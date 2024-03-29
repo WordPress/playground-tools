@@ -1,11 +1,15 @@
 <?php
-/*
-Plugin Name: Playground
-Plugin URI: https://github.com/WordPress/playground-tools/tree/trunk/packages/playground
-Description: Packages your WordPress install and sends it to Playground.
-Author: WordPress Contributors
-Version: 0.0.2
-*/
+
+/**
+ * Plugin Name: Playground
+ * Plugin URI: https://github.com/WordPress/playground-tools/tree/trunk/packages/playground
+ * Description: Packages your WordPress install and sends it to Playground.
+ * Author: WordPress Contributors
+ * Version: 0.0.3
+ * Requires PHP: 8.0
+ * License: GPLv2
+ * Text Domain: playground
+ */
 
 namespace WordPress\Playground;
 
@@ -61,7 +65,7 @@ function enqueue_scripts($current_screen_id)
 			esc_url('https://playground.wordpress.net/remote.html'),
 		),
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		'pluginSlug' => isset($_GET['pluginSlug']) ? $_GET['pluginSlug'] : false,
+		'pluginSlug' => isset($_GET['pluginSlug']) ? sanitize_text_field($_GET['pluginSlug']) : false,
 		'userId' => get_current_user_id(),
 	]);
 	wp_enqueue_script('playground');
@@ -150,13 +154,9 @@ function render_playground_page()
  */
 function plugin_install_action_links($action_links, $plugin)
 {
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	$retUrl = wp_parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . urlencode('?' . http_build_query($_GET));
-
 	$preview_url = add_query_arg(
 		[
 			'pluginSlug' => esc_attr($plugin['slug']),
-			'returnUrl' => esc_attr($retUrl),
 		],
 		admin_url('admin.php?page=' . PLAYGROUND_ADMIN_PAGE_SLUG)
 	);
