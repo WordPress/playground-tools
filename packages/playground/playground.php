@@ -5,7 +5,7 @@
  * Plugin URI: https://github.com/WordPress/playground-tools/tree/trunk/packages/playground
  * Description: Packages your WordPress install and sends it to Playground.
  * Author: WordPress Contributors
- * Version: 0.0.3
+ * Version: 0.0.4
  * Requires PHP: 8.0
  * License: GPLv2
  * Text Domain: playground
@@ -168,7 +168,7 @@ function plugin_install_action_links($action_links, $plugin)
 		esc_attr(
 			sprintf(
 				/* translators: %s: Plugin name. */
-				_x('Preview %s now', 'plugin'),
+				_x('Preview %s now', 'playground'),
 				$plugin['name']
 			)
 		),
