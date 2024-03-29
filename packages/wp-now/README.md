@@ -4,10 +4,31 @@
 
 It uses automatic mode detection to provide a fast setup process, regardless of whether you're working on a plugin or an entire site. You can easily switch between PHP and WordPress versions with just a configuration argument. Under the hood, `wp-now` is powered by WordPress Playground and only requires Node.js.
 
-![Demo GIF of wp-now](https://github.com/WordPress/wordpress-playground/assets/36432/474ecb85-d789-4db9-b820-a19c25da79ad)
+![Demo GIF of wp-now](https://github.com/WordPress/playground-tools/assets/779993/302669c3-925e-430f-9e74-c433e67798cd)
+
+## Quickstart
+
+### Launching wp-now in a Plugin or Theme Directory
+
+Running wp-now is as simple as accessing your plugin or theme directory and starting wp-now.
+
+```bash
+cd my-plugin-or-theme-directory
+npx @wp-now/wp-now start
+```
+
+### Launching wp-now in the wp-content Directory with Options
+
+You can also start wp-now from any wp-content folder. In this example, we pass parameters to change the PHP and WordPress versions and apply a blueprint file.
+
+```bash
+cd my-wordpress-folder/wp-content
+npx @wp-now/wp-now start  --wp=5.9 --php=7.4 --blueprint=path/to/blueprint-example.json
+```
 
 ## Table of Contents
 
+-   [Quickstart](#quickstart)
 -   [Requirements](#requirements)
 -   [Usage](#usage)
     -   [Automatic Modes](#automatic-modes)
@@ -32,7 +53,7 @@ Node 18 is the minimum supported version. Node 20 is required for Blueprint supp
 
 <img src="../../assets/wp-now-basics-diagram.png" width="600">
 
-To run `wp-now` with one command, you can use [npx](https://docs.npmjs.com/cli/v10/commands/npx):
+To run `wp-now` with one command, you can use [npx](https://docs.npmjs.com/cli/v10/commands/npx). This is our recommended way to use `wp-now` as it doesn't require any installation or setup.:
 
 ```bash
 npx @wp-now/wp-now start
