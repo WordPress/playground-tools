@@ -845,4 +845,16 @@ describe('wp-cli command', () => {
 		await executeWPCli(['cli', 'version']);
 		expect(output).toMatch(/WP-CLI (\d\.?)+/i);
 	});
+
+	/**
+	 * Test wp-cli eval-file works correctly.
+	 * We will use the context of Playground mode.
+	 */
+	test('wp-cli eval-file works correctly', async () => {
+		await executeWPCli([
+			'eval-file',
+			'/local/packages/wp-now/src/tests/wp-cli-eval-file/total-posts.php',
+		]);
+		expect(output).toMatch('Total published posts: 1');
+	});
 });
