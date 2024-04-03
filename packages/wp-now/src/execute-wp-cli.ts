@@ -26,6 +26,7 @@ export async function executeWPCli(args: string[]) {
 
 	try {
 		const vfsWpCliPath = '/wp-cli/wp-cli.phar';
+		php.mount('.', '/local'); // mount current dir to run "wp-now wp eval-file /local/foo.php"
 		php.mount(dirname(getWpCliPath()), dirname(vfsWpCliPath));
 		await php.cli([
 			'php',
