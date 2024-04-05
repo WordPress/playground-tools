@@ -36,7 +36,7 @@
 					step: 'runSql',
 					sql: {
 						resource: 'vfs',
-						path: '/wordpress/schema/_Schema.sql',
+						path: '/wordpress/wp-content/database/database.sql',
 					},
 				},
 			],

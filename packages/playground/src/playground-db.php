@@ -70,7 +70,7 @@ function zip_database($zip)
 			);
 		}
 	}
-	$zip->addFile('schema/_Schema.sql', implode("\n", $sql_dump));
+	$zip->addFile('wp-content/database/database.sql', implode("\n", $sql_dump));
 }
 
 /**
