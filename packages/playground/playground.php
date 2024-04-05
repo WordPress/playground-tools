@@ -5,7 +5,7 @@
  * Plugin URI: https://github.com/WordPress/playground-tools/tree/trunk/packages/playground
  * Description: Packages your WordPress install and sends it to Playground.
  * Author: WordPress Contributors
- * Version: 0.1.0
+ * Version: 0.1.1
  * Requires PHP: 8.0
  * License: GPLv2
  * Text Domain: playground
