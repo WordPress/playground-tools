@@ -14,11 +14,12 @@ Enables running a sandbox of your site using WordPress Playground (https://githu
 
 == Description ==
 
-Start a sandbox of your site using [WordPress Playground.](https://github.com/WordPress/wordpress-playground)
+With this plugin, you can:
 
-The plugin will collect the content of your site site and spin up WordPress Playground with a copy of the site content.
+* Create a copy of your site in a private WordPress Playground instance.
+* Test plugins from the WordPress plugin directory without actually installing them on your site.
 
-You can also preview a plugin installation from the WordPress.org repository.
+Your site is cloned in Playground by copying all the files and a database into WordPress Playground. It may sound scary, but your data stays safely with you and is **not** uploaded to any cloud service. Instead, your site's data is shipped directly to your web browser where it stays only as long as you keep your browser tab open. That’s right! WordPress Playground runs a copy of your site directly on your device.
 
 == Usage ==
 
@@ -58,5 +59,5 @@ The WordPress Playground Plugin is licensed under the GNU General Public License
 
 == Changelog ==
 
-= 0.1.0 =
+= 0.0.5 =
 * Initial release.
