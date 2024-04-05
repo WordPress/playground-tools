@@ -40,6 +40,7 @@ Your site is cloned in Playground by copying all the files and a database into W
 
 - Start a sandbox of your site
 - Preview a plugin installation from the WordPress.org repository
+- Export Playground snapshots using Tools > Export
 
 == Resources ==
 
@@ -58,6 +59,9 @@ For any issues or questions about the WordPress Playground plugin, please open a
 The WordPress Playground Plugin is licensed under the GNU General Public License v2.0. This is a free software license that allows you to use, modify, and distribute the software, provided you adhere to its terms and conditions.
 
 == Changelog ==
+
+= 0.1.0 =
+* Add export support and error handling.
 
 = 0.0.5 =
 * Initial release.
