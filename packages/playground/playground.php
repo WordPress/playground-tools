@@ -26,6 +26,7 @@ define('PLAYGROUND_PHP_VERSION', implode('.', sscanf(phpversion(), '%d.%d')));
 
 require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/src/playground-zip.php';
+require __DIR__ . '/src/playground-export.php';
 
 add_action('admin_menu', __NAMESPACE__ . '\plugin_menu');
 add_action('admin_init', __NAMESPACE__ . '\init');
@@ -91,13 +92,6 @@ function get_download_page_url()
  */
 function plugins_loaded()
 {
-	if (!is_admin()) {
-		return;
-	}
-	if (!current_user_can(ADMIN_PAGE_CAPABILITY)) {
-		return;
-	}
-
 	global $pagenow;
 	if ('admin.php' !== $pagenow) {
 		return;
@@ -110,6 +104,21 @@ function plugins_loaded()
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if (!isset($_GET['download'])) {
+		return;
+	}
+
+	download_snapshot();
+}
+
+/**
+ * Download the Playground snapshot.
+ */
+function download_snapshot()
+{
+	if (!is_admin()) {
+		return;
+	}
+	if (!current_user_can(ADMIN_PAGE_CAPABILITY)) {
 		return;
 	}
 
