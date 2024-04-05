@@ -83,7 +83,7 @@ function get_download_page_url()
 		[
 			'download' => 1,
 		],
-		admin_url('admin.php?page=' . PLAYGROUND_ADMIN_PAGE_SLUG)
+		admin_url('tools.php?page=' . PLAYGROUND_ADMIN_PAGE_SLUG)
 	);
 }
 
@@ -93,7 +93,7 @@ function get_download_page_url()
 function plugins_loaded()
 {
 	global $pagenow;
-	if ('admin.php' !== $pagenow) {
+	if ('tools.php' !== $pagenow) {
 		return;
 	}
 
@@ -167,7 +167,7 @@ function plugin_install_action_links($action_links, $plugin)
 		[
 			'pluginSlug' => esc_attr($plugin['slug']),
 		],
-		admin_url('admin.php?page=' . PLAYGROUND_ADMIN_PAGE_SLUG)
+		admin_url('tools.php?page=' . PLAYGROUND_ADMIN_PAGE_SLUG)
 	);
 
 	$preview_button = sprintf(
