@@ -5,7 +5,7 @@
  * Plugin URI: https://github.com/WordPress/playground-tools/tree/trunk/packages/playground
  * Description: Packages your WordPress install and sends it to Playground.
  * Author: WordPress Contributors
- * Version: 0.0.5
+ * Version: 0.1.0
  * Requires PHP: 8.0
  * License: GPLv2
  * Text Domain: playground
@@ -26,6 +26,7 @@ define('PLAYGROUND_PHP_VERSION', implode('.', sscanf(phpversion(), '%d.%d')));
 
 require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/src/playground-zip.php';
+require __DIR__ . '/src/playground-export.php';
 
 add_action('admin_menu', __NAMESPACE__ . '\plugin_menu');
 add_action('admin_init', __NAMESPACE__ . '\init');
@@ -82,7 +83,7 @@ function get_download_page_url()
 		[
 			'download' => 1,
 		],
-		admin_url('admin.php?page=' . PLAYGROUND_ADMIN_PAGE_SLUG)
+		admin_url('tools.php?page=' . PLAYGROUND_ADMIN_PAGE_SLUG)
 	);
 }
 
@@ -91,15 +92,8 @@ function get_download_page_url()
  */
 function plugins_loaded()
 {
-	if (!is_admin()) {
-		return;
-	}
-	if (!current_user_can(ADMIN_PAGE_CAPABILITY)) {
-		return;
-	}
-
 	global $pagenow;
-	if ('admin.php' !== $pagenow) {
+	if ('tools.php' !== $pagenow) {
 		return;
 	}
 
@@ -110,6 +104,21 @@ function plugins_loaded()
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if (!isset($_GET['download'])) {
+		return;
+	}
+
+	download_snapshot();
+}
+
+/**
+ * Download the Playground snapshot.
+ */
+function download_snapshot()
+{
+	if (!is_admin()) {
+		return;
+	}
+	if (!current_user_can(ADMIN_PAGE_CAPABILITY)) {
 		return;
 	}
 
@@ -158,7 +167,7 @@ function plugin_install_action_links($action_links, $plugin)
 		[
 			'pluginSlug' => esc_attr($plugin['slug']),
 		],
-		admin_url('admin.php?page=' . PLAYGROUND_ADMIN_PAGE_SLUG)
+		admin_url('tools.php?page=' . PLAYGROUND_ADMIN_PAGE_SLUG)
 	);
 
 	$preview_button = sprintf(

@@ -25,6 +25,6 @@ defined('ABSPATH') || exit;
         </a>
     </div>
     <div id="wp-playground-main-area">
-        <iframe id="wp-playground"></iframe>
+        <iframe credentialless id="wp-playground"></iframe>
     </div>
 </div>
