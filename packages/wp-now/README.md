@@ -51,7 +51,7 @@ Node 18 is the minimum supported version. Node 20 is required for Blueprint supp
 
 ## Usage
 
-<img src="../../assets/wp-now-basics-diagram.png" width="600">
+<img src="https://raw.githubusercontent.com/WordPress/playground-tools/trunk/assets/wp-now-basics-diagram.png" width="600">
 
 To run `wp-now` with one command, you can use [npx](https://docs.npmjs.com/cli/v10/commands/npx). This is our recommended way to use `wp-now` as it doesn't require any installation or setup.:
 
