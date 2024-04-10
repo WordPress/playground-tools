@@ -19,13 +19,12 @@
 }
 
 #wp-playground-toolbar {
-	background-color: #eaaa00;
-	font-weight: bold;
-	text-align: center;
-	font-size: 1rem;
-	padding: 0.75em;
+	background-color: #fff7cc;
+	font-family: "Andale mono", Helvetica, Monospace, Arial;
+	font-weight: 600;
+	padding: 0.5em;
 	display: flex;
-	flex-direction: row;
+	gap: 1rem;
 	align-items: center;
 	justify-content: center;
 	box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
@@ -37,8 +36,16 @@
 }
 
 #wp-playground-toolbar > a {
-	text-transform: capitalize;
-	padding: 0 0.5rem;
+	padding: 0.2rem;
+	color: #1a5687;
+	border: 1px solid;
+	border-radius: 5px;
+	text-decoration: none;
+}
+
+#wp-playground-toolbar > a:hover {
+	background-color: #1a5687;
+	color: #fff7cc;
 }
 
 #wp-playground-main-area {
