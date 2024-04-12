@@ -101,8 +101,9 @@ With those in place, the publishing process looks as follows:
 1. Bump the version number in `wordpress-playground-block.php` in the SVN repo
 2. Build the WordPress Playgorund block by running `npx nx build wordpress-playground-block` in the **git repo root**
 3. Bump the stable tag in `trunk/README.txt` in the SVN repo
-4. Copy the built files from `dist/packages/wordpress-playground-block` to the SVN repo's `tags/{new version}` directory
-5. Commit the SVN changes
+4. Copy the built files from `dist/packages/wordpress-playground-block` to the SVN repo's `tags/{new version}` directory.
+5. Copy the built files from `dist/packages/wordpress-playground-block` to the SVN repo's `trunk` directory. Yes, there latest version should live both in `tags` and `trunk`.
+6. Commit the SVN changes
 
 ## Caveats
 
