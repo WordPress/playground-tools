@@ -46,6 +46,7 @@ export interface WPNowOptions {
 	numberOfPhpInstances?: number;
 	blueprintObject?: Blueprint;
 	reset?: boolean;
+	landingPage?: string;
 }
 
 export const DEFAULT_OPTIONS: WPNowOptions = {
@@ -56,6 +57,7 @@ export const DEFAULT_OPTIONS: WPNowOptions = {
 	mode: WPNowMode.AUTO,
 	numberOfPhpInstances: 1,
 	reset: false,
+	landingPage: '',
 };
 
 export interface WPEnvOptions {
@@ -170,6 +172,10 @@ export default async function getWpNowConfig(
 		if (siteUrl) {
 			options.absoluteUrl = siteUrl;
 			absoluteUrlFromBlueprint = siteUrl;
+		}
+		if (blueprintObject.landingPage) {
+			options.landingPage =
+				(await getAbsoluteURL()) + blueprintObject.landingPage;
 		}
 	}
 	return options;

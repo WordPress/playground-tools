@@ -102,9 +102,9 @@ export async function startServer(
 			output?.trace(e);
 		}
 	});
-	const url = options.absoluteUrl;
+	const url = options.landingPage || options.absoluteUrl;
 	const server = app.listen(port, () => {
-		output?.log(`Server running at ${url}`);
+		output?.log(`Server running at ${options.absoluteUrl}`);
 	});
 
 	return {
