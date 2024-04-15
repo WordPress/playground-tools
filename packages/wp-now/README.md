@@ -189,7 +189,7 @@ Run `wp-now start --blueprint=path/to/blueprint-example.json` where `blueprint-e
 Because we didn't define a method for `defineWpConfigConsts`, and the default method is `rewrite-wp-config`, this blueprint will update your `~/.wp-now/wordpress-versions/latest/wp-config.php` enabling the WP_DEBUG constant and will create a `debug.log` file in the `~/.wp-now/wp-content/${project}/debug.log` directory.
 The next time you execute `wp-now start` in any project, the variable `WP_DEBUG` will still be set to true.
 
-If you prefer to set a custom path for the debug log file, you can set `WP_DEBUG_LOG` to be a directory. Remember that the `php-wasm` server runs udner a VFS (virtual file system) where the default documentRoot for wp-now is always `/var/www/html`.
+If you prefer to set a custom path for the debug log file, you can set `WP_DEBUG_LOG` to be a directory. Remember that the `php-wasm` server runs under a VFS (virtual file system) where the default documentRoot for wp-now is always `/var/www/html`.
 
 For example, if you run `wp-now start --blueprint=path/to/blueprint-example.json` from a theme named `atlas` you could use this directory: `/var/www/html/wp-content/themes/atlas/example.log` and you will find the `example.log` file in your project directory.
 
