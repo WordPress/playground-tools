@@ -9,7 +9,7 @@ assignees: ''
 
 ## First make sure that you search for related issues in the `Playground Tools` repo's [issues](https://github.com/WordPress/playground-tools/issues)
 
-if not found...
+if not found... use whatever sections you want below to describe your issue.
 
 ## Describe the issue
 Please provide a clear and concise description, including step by step instructions to get to the error case you have found. This will include providing info on the configuring, tool, and environmental information. 
