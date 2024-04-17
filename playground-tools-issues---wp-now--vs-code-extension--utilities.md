@@ -72,7 +72,23 @@ If applicable, add screenshots to help explain your problem.
 
 It can be helpful to show the directory structure for certain issues, use your discretion here.
 
-## Desktop environment 
+## Error reporting
+You can use the [Site Health](https://wordpress.org/documentation/article/site-health-screen/) screen to 
+ - submit WordPress environment info
+ - submit local system info
+
+You can use the Playground menu to `Report error`, which will automaticlly send some information and submit to the `#playground-logs` Channel on Making WordPress Slack.
+
+
+## Include Console errors
+<!-- - 
+Copy/paste the error into this section 
+
+-->
+Please include the error you see in the console in a code block. 
+
+
+## Environmental info 
 Please complete the following information
  - OS: [e.g. `'nix'`, 'MacOS', 'Windows' or the exact platform build]
  - Browser [e.g. chrome, safari]
