@@ -20,9 +20,8 @@
 
 #wp-playground-toolbar {
 	background-color: #fff7cc;
-	font-family: "Andale mono", Helvetica, Monospace, Arial;
-	font-weight: 600;
-	padding: 0.5em;
+	font-weight: 500;
+	padding: 0.3em 0.5em;
 	display: flex;
 	gap: 1rem;
 	align-items: center;
@@ -35,17 +34,12 @@
 	transform: translateY(-100%);
 }
 
-#wp-playground-toolbar > a {
-	padding: 0.2rem;
-	color: #1a5687;
-	border: 1px solid;
-	border-radius: 5px;
-	text-decoration: none;
+#wp-playground-toolbar > p {
+	margin: 0;
 }
 
-#wp-playground-toolbar > a:hover {
-	background-color: #1a5687;
-	color: #fff7cc;
+#wp-playground-toolbar > a {
+	color: #1a5687;
 }
 
 #wp-playground-main-area {
