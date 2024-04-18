@@ -14,8 +14,8 @@
 .tools_page_playground #wpbody {
 	position: initial;
 }
-.tools_page_playground #wpadminbar {
-	display: none;
+html.wp-toolbar {
+	padding: inherit;
 }
 
 #wp-playground-toolbar {
