@@ -14,18 +14,16 @@
 .tools_page_playground #wpbody {
 	position: initial;
 }
-.tools_page_playground #wpadminbar {
-	display: none;
+html.wp-toolbar {
+	padding: inherit;
 }
 
 #wp-playground-toolbar {
-	background-color: #eaaa00;
-	font-weight: bold;
-	text-align: center;
-	font-size: 1rem;
-	padding: 0.75em;
+	background-color: #fff7cc;
+	font-weight: 500;
+	padding: 0.3em 0.5em;
 	display: flex;
-	flex-direction: row;
+	gap: 1rem;
 	align-items: center;
 	justify-content: center;
 	box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
@@ -36,9 +34,12 @@
 	transform: translateY(-100%);
 }
 
+#wp-playground-toolbar > p {
+	margin: 0;
+}
+
 #wp-playground-toolbar > a {
-	text-transform: capitalize;
-	padding: 0 0.5rem;
+	color: #1a5687;
 }
 
 #wp-playground-main-area {

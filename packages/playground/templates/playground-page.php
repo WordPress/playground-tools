@@ -6,25 +6,25 @@ defined('ABSPATH') || exit;
 ?>
 <div id="wp-playground-wrapper">
     <div id="wp-playground-toolbar">
-        <span>
+        <p>
             <?php
             echo esc_attr(
                 sprintf(
                     // translators: %s: Site name.
                     __(
-                        'WordPress Playground preview for %s',
+                        'WordPress Playground preview of %s',
                         'playground'
                     ),
                     get_bloginfo('name')
                 )
             );
             ?>
-        </span>
-        <a href="<?php echo esc_url(admin_url()); ?>" id="goBack">
-            <?php esc_attr_e('Go Back', 'playground'); ?>
+        </p>
+        <a href="<?php echo esc_url(admin_url()); ?>" id="goBack" class="button">
+            <?php esc_attr_e('Back', 'playground'); ?>
         </a>
     </div>
     <div id="wp-playground-main-area">
-        <iframe credentialless id="wp-playground"></iframe>
+        <iframe credentialless id="wp-playground" title="<?php _e('WordPress Playground Sandbox', 'playground'); ?>"></iframe>
     </div>
 </div>
