@@ -38,6 +38,4 @@ etc.
 
 ## Screenshots and additional info
 
-<!--
-Have a screenshot to share? Other relevant thoughts... put them here
--->
+<!-- Have a screenshot to share? Other relevant thoughts... put them here -->
