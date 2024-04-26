@@ -3,11 +3,11 @@ Contributors: wordpressdotorg, dawidurbanski, zieladam
 Tags: code, interactive, playground, block
 Requires at least: 6.0
 Tested up to: 6.4
-Stable tag: 0.1.8
+Stable tag: 0.2.2
 Requires PHP: 7.0
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Early preview: Enables building WordPress plugins directly in the browser thanks to WordPress Playground (https://github.com/WordPress/wordpress-playground)
+This WordPress block embeds WordPress Playground in your posts and pages. You can also include an interactive code editor to demonstrate and teach your readers how WordPress plugins are built.
 
 == Description ==
 
