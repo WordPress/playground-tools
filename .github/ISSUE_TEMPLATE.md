@@ -36,6 +36,8 @@ etc.
 
 <!-- If so, please link or paste below -->
 
-## Any additional info?
+## Screenshots and additional info
 
-<!-- Is there anything else we should know? -->
+<!--
+Have a screenshot to share? Other relevant thoughts... put them here
+-->
