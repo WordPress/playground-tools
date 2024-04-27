@@ -11,18 +11,9 @@ assignees: ''
 Report issues with online Playground instances [here.](https://github.com/WordPress/wordpress-playground/issues)
 -->
 
-## How are you using the Playground?
+## Which Playground tool did you experience an issue with?
 
-<!-- 
-IE:
-wp-now
-VS Code Extension  
-Building from scratch (Nx)
-interactive code block
-WordPress Playground Block
-Sandboxed site
-etc.
--->
+<!--  IE: wp-now, VS Code Extension, Nx, interactive code block, Playground Block... -->
 
 ## Describe the bug you found
 
