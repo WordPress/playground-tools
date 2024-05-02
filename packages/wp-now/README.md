@@ -98,10 +98,8 @@ npx @wp-now/wp-now php my-file.php
 
 -   **plugin**, **theme**, or **wp-content**: Loads the project files into a virtual filesystem with WordPress and a SQLite-based database. Everything (including WordPress core files, the database, `wp-config.php`, etc.) is stored in the user's home directory and loaded into the virtual file system (VFS). `wp-now` uses the latest WordPress version unless you define the `--wp=<version>` argument.
 
-Here are the heuristics for each mode:
-    -   **plugin** mode: Presence of a PHP file with "Plugin Name:" in its contents.
-    -   **theme** mode: Presence of a `style.css` file with "Theme Name:" in its contents.
-    -   **wp-content** mode: Presence of `plugins` and `themes` subdirectories.
+Here are the heuristics for each mode: - **plugin** mode: Presence of a PHP file with "Plugin Name:" in its contents. - **theme** mode: Presence of a `style.css` file with "Theme Name:" in its contents. - **wp-content** mode: Presence of `plugins` and `themes` subdirectories.
+
 -   **wordpress**: Runs the directory as a WordPress installation when WordPress files are detected. If it exists, `wp-now` will use the `wp-config.php` file or create one with a SQLite database.
 -   **wordpress-develop**: Same as `wordpress` mode, except the `build` directory is the web root.
 -   **index**: When an `index.php` file is present, `wp-now` starts a PHP web server in the working directory and passes requests to the file.
@@ -118,7 +116,7 @@ npx @wp-now/wp-now --help
 npx @wp-now/wp-now start --help
 
 # or
-npx @wp-now/wp-now php --help 
+npx @wp-now/wp-now php --help
 ```
 
 `wp-now start` supports the following optional arguments:
@@ -147,20 +145,20 @@ Below is an example of a Blueprint that runs the latest versions of WordPress an
 
 ```json
 {
-    "$schema": "https://playground.wordpress.net/blueprint-schema.json",
-    "landingPage": "/wp-admin/post-new.php",
-    "preferredVersions": {
-        "php": "latest",
-        "wp": "latest"
-    },
-    "phpExtensionBundles": ["kitchen-sink"],
-    "steps": [
-        {
-            "step": "login",
-            "username": "admin",
-            "password": "password"
-        }
-    ]
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"landingPage": "/wp-admin/post-new.php",
+	"preferredVersions": {
+		"php": "latest",
+		"wp": "latest"
+	},
+	"phpExtensionBundles": ["kitchen-sink"],
+	"steps": [
+		{
+			"step": "login",
+			"username": "admin",
+			"password": "password"
+		}
+	]
 }
 ```
 
@@ -184,20 +182,21 @@ Note that the `method` is set to `define-before-run` to avoid modifying the shar
 
 ```json
 {
-  "steps": [
-    {
-      "step": "defineWpConfigConsts",
-      "consts": {
-        "WP_HOME": "http://myurl.wpnow:8881",
-        "WP_SITEURL": "http://myurl.wpnow:8881"
-      },
-      "method": "define-before-run"
-    }
-  ]
+	"steps": [
+		{
+			"step": "defineWpConfigConsts",
+			"consts": {
+				"WP_HOME": "http://myurl.wpnow:8881",
+				"WP_SITEURL": "http://myurl.wpnow:8881"
+			},
+			"method": "define-before-run"
+		}
+	]
 }
 ```
 
 You can use this instance with [`ngrok`](https://ngrok.com/docs):
+
 1. Run `ngrok http 8881`
 2. Copy the URL, and
 3. Replace `WP_HOME` and `WP_SITEURL` in the Blueprint file.
@@ -212,16 +211,16 @@ The Blueprint to listen on port `80` would look like this:
 
 ```json
 {
-  "steps": [
-    {
-      "step": "defineWpConfigConsts",
-      "consts": {
-        "WP_HOME": "http://myurl.wpnow",
-        "WP_SITEURL": "http://myurl.wpnow"
-      },
-      "method": "define-before-run"
-    }
-  ]
+	"steps": [
+		{
+			"step": "defineWpConfigConsts",
+			"consts": {
+				"WP_HOME": "http://myurl.wpnow",
+				"WP_SITEURL": "http://myurl.wpnow"
+			},
+			"method": "define-before-run"
+		}
+	]
 }
 ```
 
@@ -233,14 +232,14 @@ Here's the example Blueprint:
 
 ```json
 {
-  "steps": [
-    {
-      "step": "defineWpConfigConsts",
-      "consts": {
-        "WP_DEBUG": true
-      }
-    }
-  ]
+	"steps": [
+		{
+			"step": "defineWpConfigConsts",
+			"consts": {
+				"WP_DEBUG": true
+			}
+		}
+	]
 }
 ```
 
@@ -262,16 +261,16 @@ The `php-wasm` server runs under a VFS where the default `documentRoot` for `wp-
 
 ```json
 {
-  "steps": [
-    {
-      "step": "defineWpConfigConsts",
-      "consts": {
-        "WP_DEBUG": true,
-        "WP_DEBUG_LOG": "/var/www/html/wp-content/themes/atlas/example.log"
-      },
-      "method": "define-before-run"
-    }
-  ]
+	"steps": [
+		{
+			"step": "defineWpConfigConsts",
+			"consts": {
+				"WP_DEBUG": true,
+				"WP_DEBUG_LOG": "/var/www/html/wp-content/themes/atlas/example.log"
+			},
+			"method": "define-before-run"
+		}
+	]
 }
 ```
 
