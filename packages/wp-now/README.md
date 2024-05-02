@@ -65,8 +65,6 @@ You can also install `@wp-now/wp-now` globally to run it from any directory:
 npm install -g @wp-now/wp-now
 ```
 
-Lastly, you can install `wp-now` via `git clone`. See [Contributing](#contributing) for more details.
-
 Once installed, start a new server like so:
 
 ```bash
@@ -74,10 +72,13 @@ cd wordpress-plugin-or-theme
 wp-now start
 ```
 
+> [!IMPORTANT]  
+> Note the different syntax above. While the preceding `npx @wp-now/` isn't required after installing the package locally, `wp-now <command>` will produce an error without it.
+
 Use the `--php=<version>` and `--wp=<version>` arguments to switch to different versions on the fly:
 
 ```bash
-wp-now start --wp=5.9 --php=7.4
+npx @wp-now/wp-now start --wp=5.9 --php=7.4
 ```
 
 In supported modes, `wp-now` creates a persistent SQLite database and `wp-content` directory in `~/.wp-now`.
@@ -88,7 +89,7 @@ Use `wp-now php <file>` to execute a specific PHP file:
 
 ```bash
 cd wordpress-plugin-or-theme
-wp-now php my-file.php
+npx @wp-now/wp-now php my-file.php
 ```
 
 ### Automatic modes
@@ -111,13 +112,13 @@ Here are the heuristics for each mode:
 You can run `wp-now` with the `--help` flag to get an overview of all the available options.
 
 ```bash
-wp-now --help
+npx @wp-now/wp-now --help
 
 # or
-wp-now start --help
+npx @wp-now/wp-now start --help
 
 # or
-wp-now php --help 
+npx @wp-now/wp-now php --help 
 ```
 
 `wp-now start` supports the following optional arguments:
@@ -168,7 +169,7 @@ You can prototype and test your Blueprint in a [dedicated online editor](https:/
 To run it, create a file named `blueprint-example.json` and run the following command:
 
 ```bash
-wp-now start --blueprint=path/to/blueprint-example.json
+npx @wp-now/wp-now start --blueprint=path/to/blueprint-example.json
 ```
 
 ### Define custom URLs in a Blueprint
@@ -204,7 +205,7 @@ You can use this instance with [`ngrok`](https://ngrok.com/docs):
 You can also define a different port:
 
 ```bash
-wp-now start --blueprint=path/to/blueprint-example.json --port=80
+npx @wp-now/wp-now start --blueprint=path/to/blueprint-example.json --port=80
 ```
 
 The Blueprint to listen on port `80` would look like this:
