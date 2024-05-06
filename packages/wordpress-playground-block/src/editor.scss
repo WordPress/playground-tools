@@ -1,50 +1,57 @@
-.wp-block-wordpress-playground-playground {
-	position: relative;
+/**
+ * The .editor-styles-wrapper class is required here – we cannot assume
+ * the editor.scss file will only be loaded in the editor. Some environments
+ * load both the view styles and the editor styles.
+ */
+.editor-styles-wrapper {
+	.wp-block-wordpress-playground-playground {
+		position: relative;
 
-	&::after {
-		content: '';
-		position: absolute;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		z-index: 1000;
-	}
-
-	&.is-selected {
 		&::after {
-			content: none;
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			z-index: 1000;
+		}
+
+		&.is-selected {
+			&::after {
+				content: none;
+			}
 		}
 	}
-}
 
-.wordpress-playground-block-button {
-	display: inline-flex;
-	align-items: center;
-	appearance: none;
-	background-color: transparent;
-	border: 0;
-	cursor: pointer;
-	font-weight: bold;
-	font-size: 12px;
-}
-
-.file-actions {
-	display: flex;
-	align-items: center;
-
-	path {
-		fill: currentColor;
+	.wordpress-playground-block-button {
+		display: inline-flex;
+		align-items: center;
+		appearance: none;
+		background-color: transparent;
+		border: 0;
+		cursor: pointer;
+		font-weight: bold;
+		font-size: 12px;
 	}
-}
 
-.button-destructive {
-	color: red;
-	&:hover {
-		color: #ff4545;
+	.file-actions {
+		display: flex;
+		align-items: center;
+
+		path {
+			fill: currentColor;
+		}
 	}
-}
 
-.button-non-destructive {
-	color: #eee;
+	.button-destructive {
+		color: red;
+		&:hover {
+			color: #ff4545;
+		}
+	}
+
+	.button-non-destructive {
+		color: #eee;
+	}
 }
