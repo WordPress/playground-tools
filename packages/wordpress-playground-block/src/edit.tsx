@@ -18,7 +18,10 @@ import {
 import PlaygroundPreview from './components/playground-preview';
 import './editor.scss';
 
+window.playgroundEditorClients = {};
+
 export default function Edit({
+	clientId,
 	isSelected,
 	setAttributes,
 	attributes,
@@ -50,7 +53,8 @@ export default function Edit({
 			<PlaygroundPreview
 				showAddNewFile={codeEditorMultipleFiles}
 				showFileControls={isSelected}
-				onStateChange={({ files }) => {
+				onStateChange={({ files, client }) => {
+					window.playgroundEditorClients[clientId] = client;
 					setAttributes({
 						files,
 					});

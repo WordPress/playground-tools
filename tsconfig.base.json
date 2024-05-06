@@ -23,7 +23,7 @@
 				"packages/interactive-code-block/src/index.ts"
 			],
 			"@wp-playground/playground-block": [
-				"packages/wordpress-playground-block/src/index.ts"
+				"packages/wordpress-playground-block/src/index.tsx"
 			],
 			"@wp-playground/vscode-extension": [
 				"packages/vscode-extension/src/index.ts"

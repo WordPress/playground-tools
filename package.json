@@ -38,6 +38,8 @@
 		"@php-wasm/web": "0.6.13",
 		"@uiw/react-codemirror": "^4.21.20",
 		"@webcontainer/env": "1.1.1",
+		"@wordpress/editor": "13.34.0",
+		"@wordpress/plugins": "6.25.0",
 		"@wp-playground/blueprints": "0.6.13",
 		"classnames": "^2.3.2",
 		"comlink": "^4.4.1",

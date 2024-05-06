@@ -187,7 +187,6 @@ export default function PlaygroundPreview({
 			if (finalBlueprint) {
 				configuration['blueprint'] = finalBlueprint;
 			}
-			console.log('Initializing Playground');
 			const client = await startPlaygroundWeb(configuration);
 
 			await client.isReady();
@@ -222,6 +221,12 @@ export default function PlaygroundPreview({
 			} else if (!finalBlueprint) {
 				await client.goTo('/');
 			}
+
+			onStateChange?.({
+				client,
+				postId: currentPostId,
+				files,
+			});
 		}
 
 		initPlayground();
