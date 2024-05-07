@@ -1,0 +1,11 @@
+{
+    "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+    "login": true,
+    "steps": [
+        {
+            "step": "activatePlugin",
+            "pluginPath": "wordpress-playground-block/wordpress-playground-block.php",
+            "pluginName": "WordPress Playground Block"
+        }
+    ]
+}

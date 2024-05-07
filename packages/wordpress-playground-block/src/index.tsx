@@ -6,19 +6,16 @@ import {
 	useEffect,
 	useState,
 } from '@wordpress/element';
-import {
-	useSelect,
-	useDispatch,
-	subscribe,
-	registerStore,
-	register,
-	createReduxStore,
-} from '@wordpress/data';
+import { useSelect, register, useDispatch } from '@wordpress/data';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
+import { store as editorStore } from '@wordpress/editor';
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import { registerPlugin } from '@wordpress/plugins';
+import apiFetch from '@wordpress/api-fetch';
 
 import metadata from './block.json';
 import './style.scss';
+import { PlaygroundClientDetails, store } from './store';
 
 export type EditorFile = {
 	name: string;
@@ -39,6 +36,8 @@ export type Attributes = {
 	createNewPostContent: string;
 	redirectToPost: boolean;
 	redirectToPostType: string;
+	shapshotMediaId?: number;
+	shapshotMediaUrl?: string;
 	blueprint: string;
 	files?: EditorFile[];
 	constants: Record<string, boolean | string | number>;
@@ -83,56 +82,121 @@ registerBlockType<Attributes>(metadata.name, {
 	},
 });
 
-const PrePublishFileUpload = () => {
-	const [fileUploaded, setFileUploaded] = useState(false);
-	const { lockPostSaving, unlockPostSaving } = useDispatch('core/editor');
-	const isSavingPost = useSelect(
-		(select) => select('core/editor').isSavingPost(),
-		[]
-	);
-	console.log({ playgroundEditorClients: window.playgroundEditorClients });
+const playgroundClientLibrary = import('https://playground.wordpress.net/client/index.js');
+const PlaygroundPrePublish = () => {
+	const { clientsDetails, blockNames } = useSelect((select) => {
+		const clientsDetails = select(store).getClientsDetails();
+		const blocks = select(editorStore).getBlocksByClientId(
+			Object.keys(clientsDetails)
+		);
+		const blockNames: Record<string, string> = {};
+		for (const block of blocks) {
+			blockNames[block.clientId] =
+				block?.attributes?.metadata?.name || metadata.title;
+		}
 
-	const handleFileUpload = (event: any) => {
-		// Handle file upload logic here
-		const file = event.target.files[0];
-		// Perform file upload and set fileUploaded state accordingly
-		setFileUploaded(true);
+		return {
+			clientsDetails,
+			blockNames,
+		};
+	}, []);
+
+	const { setUploadStatus } = useDispatch(store);
+	const { updateBlockAttributes } = useDispatch(blockEditorStore);
+
+	// const [fileUploaded, setFileUploaded] = useState(false);
+	// const { lockPostSaving, unlockPostSaving } = useDispatch('core/editor');
+
+	const handleUpload = async () => {
+		await Promise.all(
+			Object.entries(clientsDetails).map(async ([clientId, details]) => {
+				if (!details.client) {
+					return;
+				}
+				return handleSingleUpload(clientId, details);
+			})
+		);
 	};
 
-	const handlePublish = () => {
-		if (!fileUploaded) {
-			lockPostSaving('pre_publish_file_upload');
-		} else {
-			unlockPostSaving('pre_publish_file_upload');
-		}
-	};
+	async function handleSingleUpload(blockId: string, { client }: PlaygroundClientDetails) {
+		await setUploadStatus(blockId, 'uploading');
+		const { zipWpContent } = await playgroundClientLibrary;
+		const bytes = await zipWpContent(client, {
+			selfContained: false,
+		});
+		const file = new File([bytes], 'wordpress-playground.zip');
 
-	const { isAutosavingPost } = useSelect(
-		(select) => ({
-			isAutosavingPost: select('core/editor').isAutosavingPost(),
-		}),
-		[]
-	);
+		const formData = new FormData();
+        formData.append('file', file);
+        formData.append('action', 'wp_handle_upload'); // This is optional depending on your implementation
 
-	// Dispatch file upload when an autosave happens
-	useEffect(() => {
-		if (isAutosavingPost) {
-			// Save Playground zip
+		try {
+			const response = await apiFetch({
+				path: '/wp/v2/media',
+				method: 'POST',
+				headers: {
+					'Content-Disposition': 'attachment; filename="' + file.name + '"'
+				},
+				body: formData,
+				parse: false,  // Important to prevent apiFetch from parsing FormData body
+			}) as any;
+			const json = await response.json();
+			await setUploadStatus(blockId, 'uploaded');
+			await updateBlockAttributes(blockId, {
+				shapshotMediaId: json.id,
+				shapshotMediaUrl: json.source_url,
+			});
+		} catch (error) {
+			await setUploadStatus(blockId, 'error');
+			console.error('Error creating media attachment:', error);
 		}
-	}, [isAutosavingPost]);
+	}
+
+	// const handleUpload = () => {
+	// 	if (!fileUploaded) {
+	// 		lockPostSaving('pre_publish_file_upload');
+	// 	} else {
+	// 		unlockPostSaving('pre_publish_file_upload');
+	// 	}
+	// };
+
+	// const { isAutosavingPost } = useSelect(
+	// 	(select) => ({
+	// 		isAutosavingPost: select('core/editor').isAutosavingPost(),
+	// 	}),
+	// 	[]
+	// );
+
+	// // Dispatch file upload when an autosave happens
+	// useEffect(() => {
+	// 	if (isAutosavingPost) {
+	// 		// Save Playground zip
+	// 	}
+	// }, [isAutosavingPost]);
 
 	return (
 		<PluginPrePublishPanel
-			title="File Upload"
+			title="Playgrounds to export"
 			initialOpen={true}
-			isEnabled={!isSavingPost}
+			isEnabled={true}
 		>
 			<PanelRow>
-				<input type="file" onChange={handleFileUpload} />
+				<p>
+					The following Playground blocks are ready to be exported as a ZIP:
+				</p>
 			</PanelRow>
+			{Object.entries(clientsDetails).map(
+				([clientId, { uploadStatus }], idx) => (
+					<PanelRow>
+						<div key={clientId}>
+							{idx + 1}. {blockNames[clientId]} - {uploadStatus}
+						</div>
+					</PanelRow>
+				)
+			)}
 			<PanelRow>
-				<Button isPrimary onClick={handlePublish}>
-					{fileUploaded ? 'Publish' : 'Upload File to Publish'}
+				<Button isPrimary onClick={handleUpload}>
+					Upload as ZIP
 				</Button>
 			</PanelRow>
 		</PluginPrePublishPanel>
@@ -142,48 +206,13 @@ const PrePublishFileUpload = () => {
 console.log({
 	registerPlugin,
 	PluginPrePublishPanel,
-	PrePublishFileUpload,
+	PrePublishFileUpload: PlaygroundPrePublish,
 	PanelRow,
 	Button,
 });
 
-registerPlugin('pre-publish-file-upload', {
-	render: PrePublishFileUpload,
-});
-
-const DEFAULT_STATE = { clients: [] };
-const actions = {
-	setClient(blockId, client) {
-		return {
-			type: 'SET_CLIENT',
-			blockId,
-			client,
-		};
-	},
-};
-const store = createReduxStore('my-shop', {
-	reducer(state = DEFAULT_STATE, action) {
-		switch (action.type) {
-			case 'SET_CLIENT':
-				return {
-					...state,
-					clients: {
-						...state.clients,
-						[action.blockId]: action.client,
-					},
-				};
-		}
-
-		return state;
-	},
-
-	actions,
-
-	selectors: {
-		getClients(state) {
-			return state.clients;
-		},
-	},
+registerPlugin('playground-pre-publish', {
+	render: PlaygroundPrePublish,
 });
 
 register(store);

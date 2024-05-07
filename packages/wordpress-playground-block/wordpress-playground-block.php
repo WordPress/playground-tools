@@ -19,3 +19,10 @@ function playground_demo_block_init() {
 	register_block_type( __DIR__ . '/build' );
 }
 add_action( 'init', 'playground_demo_block_init' );
+
+// Allow uploading Playground ZIP snapshots
+add_filter('upload_mimes', 'custom_upload_mimes');
+function custom_upload_mimes ( $existing_mimes=array() ) {
+    $existing_mimes['zip'] = 'application/zip';
+    return $existing_mimes;
+}

@@ -90,6 +90,7 @@ export default function PlaygroundPreview({
 	showFileControls = false,
 	codeEditorErrorLog = false,
 	requireLivePreviewActivation = true,
+	shapshotMediaUrl,
 	onStateChange,
 }: PlaygroundDemoProps) {
 	const {
@@ -142,7 +143,26 @@ export default function PlaygroundPreview({
 
 			let finalBlueprint: any = undefined;
 			try {
-				if (configurationSource === 'blueprint-json') {
+				if (shapshotMediaUrl) {
+					finalBlueprint = {
+						preferredVersions: {
+							wp: 'latest',
+							php: '7.4',
+						},
+						steps: [
+							{
+								step: 'importWordPressFiles',
+								wordPressFilesZip: {
+									"resource": "url",
+									"url": shapshotMediaUrl,
+								}
+							},
+							{
+								step: "login"
+							}
+						],
+					};
+				} else if (configurationSource === 'blueprint-json') {
 					if (blueprint) {
 						finalBlueprint = JSON.parse(blueprint);
 					}
