@@ -4,7 +4,7 @@
  * support Unicode characters.
  */
 
-const attributesToBase64 = [
+export const attributesToBase64 = [
 	'blueprint',
 	'blueprintUrl',
 	'codeEditorErrorLog',
@@ -35,6 +35,10 @@ export function base64EncodeBlockAttributes(
 			base64Props[key] = blockAttributes[key] as string;
 		}
 	}
+	// The "files" attribute is of type array
+	if ('files' in base64Props) {
+		base64Props['files'] = [base64Props['files']] as any;
+	}
 	return base64Props;
 }
 
@@ -46,18 +50,21 @@ export function base64DecodeBlockAttributes(
 	// let's never throw, bale out early if we can't decode,
 	// and always return a valid object.
 	for (const key in base64Attributes) {
+		let valueToDecode = base64Attributes[key];
+		// The "files" attribute is of type array
+		if (key === 'files') {
+			valueToDecode = valueToDecode[0];
+		}
 		if (
 			!attributesToBase64.includes(key) ||
-			!(typeof base64Attributes[key] === 'string')
+			!(typeof valueToDecode === 'string')
 		) {
 			attributes[key] = base64Attributes[key];
 			continue;
 		}
 		if (key in base64Attributes) {
 			try {
-				attributes[key] = JSON.parse(
-					base64ToString(base64Attributes[key])
-				);
+				attributes[key] = JSON.parse(base64ToString(valueToDecode));
 			} catch (error) {
 				// Ignore errors and keep the base64 encoded string.
 				attributes[key] = base64Attributes[key];

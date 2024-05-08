@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import type { Attributes } from './index';
 import type { BlockEditProps } from '@wordpress/blocks';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
-import { useRef } from '@wordpress/element';
+import { useState, useRef } from '@wordpress/element';
 import {
 	ToggleControl,
 	SelectControl,
@@ -19,6 +19,7 @@ import {
 import PlaygroundPreview from './components/playground-preview';
 import './editor.scss';
 import {
+	attributesToBase64,
 	base64DecodeBlockAttributes,
 	base64EncodeBlockAttributes,
 } from './base64';
@@ -34,22 +35,67 @@ function withBase64Attrs(Component: any) {
 		const ref = useRef<any>({
 			encodeTimeout: null,
 		});
-		// Decode the attributes only when needed for performance reasons.
-		const attributes = useMemo(
-			() => base64DecodeBlockAttributes(props.attributes),
-			[props.attributes]
-		);
+		// Store the base64 encoded attributes are stored in a local state in a
+		// decoded form to avoid encoding/decoding on each keystroke.
+		const [base64Attributes, setBase64Attributes] = useState<
+			Record<string, any>
+		>(() => {
+			const attrs: Record<string, any> = {};
+			for (const key in props.attributes) {
+				if (attributesToBase64.includes(key)) {
+					attrs[key] = props.attributes[key];
+				}
+			}
+			return base64DecodeBlockAttributes(attrs);
+		});
+		// Pass the non-base64 attributes to the component as they are on each
+		// render.
+		const nonBase64Attributes: Record<string, any> = {};
+		for (const key in props.attributes) {
+			if (!attributesToBase64.includes(key)) {
+				nonBase64Attributes[key] = props.attributes[key];
+			}
+		}
 
+		/**
+		 * Store the base64 encoded attributes in the local state instead of
+		 * calling setAttributes() on each change. Then, debounce the actual
+		 * setAttributes() call to prevent encoding/decoding/re-render on each
+		 * key stroke.
+		 * 
+		 * Other attributes are just passed to props.setAttributes().
+		 */
 		function setAttributes(attributes: any) {
-			// Set attributes as they are for performance reasons.
-			props.setAttributes(attributes);
+			const deltaBase64Attributes: Record<string, string> = {};
+			const deltaRest: Record<string, string> = {};
+			for (const key in attributes) {
+				if (attributesToBase64.includes(key)) {
+					deltaBase64Attributes[key] = attributes[key];
+				} else {
+					deltaRest[key] = attributes[key];
+				}
+			}
+			if (Object.keys(deltaRest).length > 0) {
+				props.setAttributes(deltaRest);
+			}
 
-			// Debounce the encoding in 500ms to prevent unnecessary re-renders.
+			const newBase64Attributes: Record<string, any> = {
+				...base64Attributes,
+				...deltaBase64Attributes,
+			};
+			if (Object.keys(deltaBase64Attributes).length > 0) {
+				setBase64Attributes(newBase64Attributes);
+			}
+
+			// Debounce the encoding in 500ms to prevent encoding/decoding/re-render on
+			// each key stroke.
 			if (ref.current.encodeTimeout) {
 				clearTimeout(ref.current.encodeTimeout);
 			}
 			ref.current.encodeTimeout = setTimeout(() => {
-				props.setAttributes(base64EncodeBlockAttributes(attributes));
+				props.setAttributes(
+					base64EncodeBlockAttributes(newBase64Attributes)
+				);
 				clearTimeout(ref.current.encodeTimeout);
 				ref.current.encodeTimeout = null;
 			}, 500);
@@ -59,7 +105,10 @@ function withBase64Attrs(Component: any) {
 			<Component
 				{...props}
 				setAttributes={setAttributes}
-				attributes={attributes}
+				attributes={{
+					...nonBase64Attributes,
+					...base64Attributes,
+				}}
 			/>
 		);
 	};
