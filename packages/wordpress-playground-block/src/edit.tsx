@@ -62,7 +62,7 @@ function withBase64Attrs(Component: any) {
 		 * calling setAttributes() on each change. Then, debounce the actual
 		 * setAttributes() call to prevent encoding/decoding/re-render on each
 		 * key stroke.
-		 * 
+		 *
 		 * Other attributes are just passed to props.setAttributes().
 		 */
 		function setAttributes(attributes: any) {

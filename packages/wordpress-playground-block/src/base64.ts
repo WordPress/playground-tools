@@ -42,13 +42,21 @@ export function base64EncodeBlockAttributes(
 	return base64Props;
 }
 
+/**
+ * Turns base64 encoded attributes back into their original form.
+ * It never throws, bales out early if we can't decode, and always
+ * returns a valid object. If any attribute cannot be decoded, it
+ * will be kept in its original form and presumed to have a non-base64
+ * value to keep the older version of the block working without
+ * migrating the attributes.
+ *
+ * @param base64Attributes
+ * @returns
+ */
 export function base64DecodeBlockAttributes(
 	base64Attributes: Record<string, any>
 ) {
 	const attributes: Record<string, any> = {};
-	// This is called in useMemo() on many re-renders,
-	// let's never throw, bale out early if we can't decode,
-	// and always return a valid object.
 	for (const key in base64Attributes) {
 		let valueToDecode = base64Attributes[key];
 		// The "files" attribute is of type array
