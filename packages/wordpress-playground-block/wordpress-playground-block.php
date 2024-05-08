@@ -15,7 +15,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-function playground_demo_block_init() {
-	register_block_type( __DIR__ . '/build' );
+function playground_demo_block_init()
+{
+	$style_css = 'build/style-index.css';
+	wp_register_style(
+		'playground-block-style',
+		plugins_url($style_css, __FILE__),
+		array(
+			'wp-components'
+		),
+		filemtime(plugin_dir_path(__FILE__) . $style_css),
+	);
+
+	register_block_type(
+		__DIR__ . '/build',
+		array(
+			'style' => 'playground-block-style',
+		)
+	);
 }
 add_action( 'init', 'playground_demo_block_init' );
