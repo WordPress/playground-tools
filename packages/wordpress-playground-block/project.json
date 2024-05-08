@@ -54,7 +54,7 @@
 			"executor": "nx:run-commands",
 			"options": {
 				"cwd": "dist/packages/wordpress-playground-block",
-				"commands": ["npx @wp-now/wp-now start"]
+				"commands": ["npx @wp-playground/cli@latest server --mount=./:/wordpress/wp-content/plugins/wordpress-playground-block --blueprint=../../../packages/wordpress-playground-block/dev-blueprint.json"],
 			}
 		},
 		"dev:cp-php": {

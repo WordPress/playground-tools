@@ -65,6 +65,12 @@
 		"landingPageUrl": {
 			"type": "string"
 		},
+		"shapshotMediaId": {
+			"type": "number"
+		},
+		"shapshotMediaUrl": {
+			"type": "string"
+		},
 		"createNewPost": {
 			"type": "boolean",
 			"default": false

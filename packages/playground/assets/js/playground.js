@@ -1,6 +1,8 @@
 (async () => {
 	const onError = (error) => {
-		alert(`Playground couldn’t start. Please check the browser console for more information. ${error}`);
+		alert(
+			`Playground couldn’t start. Please check the browser console for more information. ${error}`
+		);
 		const backButton = document.getElementById('goBack');
 		if (backButton) {
 			backButton.click();

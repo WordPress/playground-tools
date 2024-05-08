@@ -1,4 +1,3 @@
-import React from 'react';
 import type { Attributes } from './index';
 import type { BlockEditProps } from '@wordpress/blocks';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
@@ -17,8 +16,12 @@ import {
 } from '@wordpress/components';
 import PlaygroundPreview from './components/playground-preview';
 import './editor.scss';
+import { useEffect } from '@wordpress/element';
+import { useDispatch } from '@wordpress/data';
+import { store } from './store';
 
 export default function Edit({
+	clientId,
 	isSelected,
 	setAttributes,
 	attributes,
@@ -30,7 +33,7 @@ export default function Edit({
 		codeEditorMultipleFiles,
 		codeEditorMode,
 		logInUser,
-		landingPageUrl,
+		landingPageUrl, 
 		createNewPost,
 		createNewPostType,
 		createNewPostTitle,
@@ -45,12 +48,20 @@ export default function Edit({
 		requireLivePreviewActivation,
 	} = attributes;
 
+	const { setClient } = useDispatch(store);
+	useEffect(() => {
+		return () => {
+			setClient(clientId, undefined);
+		};
+	}, []);
+
 	return (
 		<div {...useBlockProps()}>
 			<PlaygroundPreview
 				showAddNewFile={codeEditorMultipleFiles}
 				showFileControls={isSelected}
-				onStateChange={({ files }) => {
+				onStateChange={({ files, client }) => {
+					setClient(clientId, client);
 					setAttributes({
 						files,
 					});
