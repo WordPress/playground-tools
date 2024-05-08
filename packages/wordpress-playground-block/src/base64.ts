@@ -27,13 +27,9 @@ export function base64EncodeBlockAttributes(
 			base64Props[key] = blockAttributes[key];
 			continue;
 		}
-		try {
-			base64Props[key] = stringToBase64(
-				JSON.stringify(blockAttributes[key])
-			);
-		} catch (error) {
-			base64Props[key] = blockAttributes[key] as string;
-		}
+		base64Props[key] = stringToBase64(
+			JSON.stringify(blockAttributes[key])
+		);
 	}
 	// The "files" attribute is of type array
 	if ('files' in base64Props) {
