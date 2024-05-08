@@ -87,7 +87,7 @@ function withBase64Attrs(Component: any) {
 				setBase64Attributes(newBase64Attributes);
 			}
 
-			// Debounce the encoding in 500ms to prevent encoding/decoding/re-render on
+			// Debounce the encoding to prevent encoding/decoding/re-render on
 			// each key stroke.
 			if (ref.current.encodeTimeout) {
 				clearTimeout(ref.current.encodeTimeout);
@@ -98,7 +98,7 @@ function withBase64Attrs(Component: any) {
 				);
 				clearTimeout(ref.current.encodeTimeout);
 				ref.current.encodeTimeout = null;
-			}, 500);
+			}, 100);
 		}
 
 		return (
