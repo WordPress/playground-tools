@@ -59,6 +59,23 @@ export default function Edit({
 			/>
 			<InspectorControls>
 				<Panel header="Settings">
+					<PanelBody title="General" initialOpen={true}>
+						<ToggleControl
+							label="Require live preview activation"
+							help={
+								requireLivePreviewActivation
+									? 'User must click to load the preview.'
+									: 'Preview begins loading immediately.'
+							}
+							checked={requireLivePreviewActivation}
+							onChange={() => {
+								setAttributes({
+									requireLivePreviewActivation:
+										!requireLivePreviewActivation,
+								});
+							}}
+						/>
+					</PanelBody>
 					<PanelBody title="Code editor" initialOpen={true}>
 						<ToggleControl
 							label="Code editor"
@@ -118,21 +135,6 @@ export default function Edit({
 										setAttributes({
 											codeEditorMultipleFiles:
 												!codeEditorMultipleFiles,
-										});
-									}}
-								/>
-								<ToggleControl
-									label="Require live preview activation"
-									help={
-										requireLivePreviewActivation
-											? 'User must click to load the preview.'
-											: 'Preview begins loading immediately.'
-									}
-									checked={requireLivePreviewActivation}
-									onChange={() => {
-										setAttributes({
-											requireLivePreviewActivation:
-												!requireLivePreviewActivation,
 										});
 									}}
 								/>
