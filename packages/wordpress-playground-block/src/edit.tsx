@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { Attributes } from './index';
 import type { BlockEditProps } from '@wordpress/blocks';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
+import { useRef } from '@wordpress/element';
 import {
 	ToggleControl,
 	SelectControl,
@@ -17,8 +18,54 @@ import {
 } from '@wordpress/components';
 import PlaygroundPreview from './components/playground-preview';
 import './editor.scss';
+import {
+	base64DecodeBlockAttributes,
+	base64EncodeBlockAttributes,
+} from './base64';
 
-export default function Edit({
+/**
+ * Some WordPress installations are overly eager with their HTML entity encoding
+ * and will save `<?php` as `&lt;php`. We cannot easily detect this to decode
+ * these HTML entities only when needed, so let's just store the attributes using
+ * base64 encoding to prevent WordPress from breaking them.
+ */
+function withBase64Attrs(Component: any) {
+	return (props: any) => {
+		const ref = useRef<any>({
+			encodeTimeout: null,
+		});
+		// Decode the attributes only when needed for performance reasons.
+		const attributes = useMemo(
+			() => base64DecodeBlockAttributes(props.attributes),
+			[props.attributes]
+		);
+
+		function setAttributes(attributes: any) {
+			// Set attributes as they are for performance reasons.
+			props.setAttributes(attributes);
+
+			// Debounce the encoding in 500ms to prevent unnecessary re-renders.
+			if (ref.current.encodeTimeout) {
+				clearTimeout(ref.current.encodeTimeout);
+			}
+			ref.current.encodeTimeout = setTimeout(() => {
+				props.setAttributes(base64EncodeBlockAttributes(attributes));
+				clearTimeout(ref.current.encodeTimeout);
+				ref.current.encodeTimeout = null;
+			}, 500);
+		}
+
+		return (
+			<Component
+				{...props}
+				setAttributes={setAttributes}
+				attributes={attributes}
+			/>
+		);
+	};
+}
+
+export default withBase64Attrs(function Edit({
 	isSelected,
 	setAttributes,
 	attributes,
@@ -431,4 +478,4 @@ export default function Edit({
 			</InspectorControls>
 		</div>
 	);
-}
+});
