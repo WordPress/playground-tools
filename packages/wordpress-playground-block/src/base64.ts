@@ -27,9 +27,7 @@ export function base64EncodeBlockAttributes(
 			base64Props[key] = blockAttributes[key];
 			continue;
 		}
-		base64Props[key] = stringToBase64(
-			JSON.stringify(blockAttributes[key])
-		);
+		base64Props[key] = stringToBase64(JSON.stringify(blockAttributes[key]));
 	}
 	// The "files" attribute is of type array
 	if ('files' in base64Props) {
@@ -71,6 +69,9 @@ export function base64DecodeBlockAttributes(
 				attributes[key] = JSON.parse(base64ToString(valueToDecode));
 			} catch (error) {
 				// Ignore errors and keep the base64 encoded string.
+				// Note this will also preserve any non-base64 encoded values.
+				// This is intentional as it seems to make more sense than
+				// throwing an error and breaking the block.
 				attributes[key] = base64Attributes[key];
 			}
 		}
