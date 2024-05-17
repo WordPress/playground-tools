@@ -140,7 +140,13 @@ describe('Test WordPress plugin updates', () => {
 	});
 
 	test('update plugin', async () => {
-		const { php, options: { projectPath } } = await copyWordPressAndStart( tmpExampleDirectory, 'wordpress-plugin-update');
+		const {
+			php,
+			options: { projectPath },
+		} = await copyWordPressAndStart(
+			tmpExampleDirectory,
+			'wordpress-plugin-update'
+		);
 
 		const akismetExistsBeforeUpdate = fs.existsSync(
 			path.join(projectPath, 'wp-content/plugins/akismet/akismet.php')
@@ -167,10 +173,6 @@ describe('Test WordPress plugin updates', () => {
 				$plugin_file_content = $wp_filesystem->get_contents($plugin_file_path);
 				$plugin_file_content = preg_replace('/Version: (d|.)+/', 'Version: 5.3.1', $plugin_file_content);
 				$wp_filesystem->put_contents($plugin_file_path, $plugin_file_content);
-
-				// print first 10 lines of plugin_file_content
-				echo "First 10 lines of plugin_file_content: \n";
-				echo implode("\n", array_slice(explode("\n", $plugin_file_content), 0, 10));
 
 				wp_update_plugins();
 
