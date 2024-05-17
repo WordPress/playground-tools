@@ -24,7 +24,7 @@ function playground_demo_block_init()
 		array(
 			'wp-components'
 		),
-		filemtime(plugin_dir_path(__FILE__) . $style_css),
+		filemtime(plugin_dir_path(__FILE__) . $style_css)
 	);
 
 	register_block_type(
