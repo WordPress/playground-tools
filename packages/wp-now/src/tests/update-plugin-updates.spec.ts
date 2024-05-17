@@ -35,6 +35,7 @@ describe('Test WordPress plugin updates', () => {
 	 * Download an initial copy of WordPress
 	 */
 	beforeAll(async () => {
+		fs.rmSync(getWpNowTmpPath(), { recursive: true, force: true });
 		await Promise.all([
 			downloadWithTimer('wordpress', downloadWordPress),
 			downloadWithTimer('sqlite', downloadSqliteIntegrationPlugin),
