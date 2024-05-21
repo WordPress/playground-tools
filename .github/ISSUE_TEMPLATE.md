@@ -1,6 +1,6 @@
 ---
-name: Playground Tools issues - wp-now, VS Code extension, utilities
-about: Did a tool not work the way you want it to? Let us know!
+name: Bug report
+about: Report a bug with Playground tools, e.g. wp-now, VS Code extension, Playground block, Playground plugin
 title: Report an issue with the Playground Tools
 labels: bug
 assignees: ''
