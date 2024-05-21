@@ -4,7 +4,6 @@ This repository contains the tools and applications built using [WordPress Playg
 
 -   [Playground plugin for WordPress to clone your site](./packages/playground/)
 -   [Playground Block for Gutenberg](./packages/wordpress-playground-block/)
--   [Interactive Code Block for Gutenberg](./packages/interactive-code-block/)
 -   [WordPress Playground for Visual Studio Code](./packages/vscode-extension/)
 -   [wp-now](./packages/wp-now/)
 
