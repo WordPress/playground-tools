@@ -112,6 +112,7 @@ wp-now php my-file.php
 -   `--wp=<version>`: the version of WordPress to use. This is optional and if not provided, it will use a default version. The default version is set to the [latest WordPress version](https://wordpress.org/download/releases/)(example usage: `--wp=5.8`)
 -   `--blueprint=<path>`: the path of a JSON file with the Blueprint steps (requires Node 20). This is optional, if provided will execute the defined Blueprints. See [Using Blueprints](#using-blueprints) for more details.
 -   `--reset`: create a fresh SQLite database and wp-content directory, for modes that support persistence.
+-   `--skip-browser`: skip opening the browser after starting the server.
 
 Of these, `wp-now php` currently supports the `--path=<path>` and `--php=<version>` arguments.
 
