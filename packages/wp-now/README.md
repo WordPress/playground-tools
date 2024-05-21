@@ -317,6 +317,11 @@ npm run build
 npx nx preview wp-now start
 ```
 
+> [!TIP]
+> Adding the `--path=/path/to/wordpress-plugin-or-theme` argument to the command above is a handy way to test `wp-now` in different modes:
+>
+> `npx nx preview wp-now start --path=/path/to/wordpress-plugin-or-theme`
+
 To run the unit tests, use the following command:
 
 ```bash
