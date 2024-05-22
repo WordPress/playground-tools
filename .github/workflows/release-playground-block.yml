@@ -36,8 +36,8 @@ jobs:
                   ALL_TAGS=$(ls svn-clone/tags)
                   LAST_TAG=$(echo "$ALL_TAGS" | sort -V | tail -n 1)
                   NEXT_TAG=$(echo "$LAST_TAG" | awk -F. '{printf "%s.%s.%s\n", $1, $2, $3+1}')
-                  echo "ALL_TAGS=$ALL_TAGS" >> $GITHUB_ENV
-                  echo "LAST_TAG=$LAST_TAG" >> $GITHUB_ENV
+                  echo "LAST_TAG=$LAST_TAG"
+                  echo "NEXT_TAG=$NEXT_TAG"
                   echo "NEXT_TAG=$NEXT_TAG" >> $GITHUB_ENV
             - name: Bump the version
               run: |
