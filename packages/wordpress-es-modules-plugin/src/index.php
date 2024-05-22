@@ -259,6 +259,7 @@ add_action('rest_api_init', function () {
     register_rest_route('wordpress-es-modules/v1', '/modules', [
         'methods' => 'POST',
         'callback' => 'wordpress_es_modules_rest_api_modules',
+        'permission_callback' => '__return_true'
     ]);
 });
 
@@ -270,7 +271,7 @@ function wordpress_es_modules_rest_api_modules()
     $json_string = file_get_contents('php://input');
     $modules = json_decode($json_string, true);
     foreach ($modules as $module_name => $module_source) {
-        $module_path = ABSPATH . 'wp-content/plugins/playground-esmodules/js/' . $module_name . '.js';
+        $module_path = __DIR__ . '/js/' . $module_name . '.js';
         // @TODO: Handle that in JavaScript as it will be much faster there
         //        ...or will it? I'm testing with the local OPFS sync mode which
         //        is kind of slow. Maybe in MEMFS this will be fast enough?
