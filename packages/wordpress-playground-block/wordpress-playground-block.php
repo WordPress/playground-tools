@@ -4,7 +4,7 @@
  * Description:       WordPress Playground as a Gutenberg block.
  * Requires at least: 6.1
  * Requires PHP:      7.0
- * Version:           0.2.4
+ * Version:           0.2.6
  * Author:            Dawid Urbański, Adam Zieliński
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -24,7 +24,7 @@ function playground_demo_block_init()
 		array(
 			'wp-components'
 		),
-		filemtime(plugin_dir_path(__FILE__) . $style_css),
+		filemtime(plugin_dir_path(__FILE__) . $style_css)
 	);
 
 	register_block_type(

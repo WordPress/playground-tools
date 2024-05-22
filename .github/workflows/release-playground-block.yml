@@ -1,0 +1,69 @@
+name: Release the Playground block
+on:
+    workflow_dispatch:
+
+jobs:
+    release:
+        if: >
+            github.ref == 'refs/heads/trunk' && (
+                github.actor == 'adamziel' ||
+                github.actor == 'dmsnell' ||
+                github.actor == 'bgrgicak' ||
+                github.actor == 'sejas' ||
+                github.actor == 'danielbachchuber'
+            )
+
+        # Specify runner + deployment step
+        runs-on: ubuntu-latest
+        environment: Playground Block
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  ref: ${{ github.event.pull_request.head.ref }}
+                  clean: true
+                  fetch-depth: 0
+                  persist-credentials: false
+            - name: Setup SSH Keys
+              uses: webfactory/ssh-agent@v0.5.3
+              with:
+                  ssh-private-key: ${{ secrets.GH_DEPLOY_KEY }}
+            - name: Clone the SVN repo
+              run: |
+                  mkdir -p svn-clone
+                  svn co http://plugins.svn.wordpress.org/interactive-code-block/ svn-clone
+            - name: Compute the next tag
+              run: |
+                  ALL_TAGS=$(ls svn-clone/tags)
+                  LAST_TAG=$(echo "$ALL_TAGS" | sort -V | tail -n 1)
+                  NEXT_TAG=$(echo "$LAST_TAG" | awk -F. '{printf "%s.%s.%s\n", $1, $2, $3+1}')
+                  echo "LAST_TAG=$LAST_TAG"
+                  echo "NEXT_TAG=$NEXT_TAG"
+                  echo "NEXT_TAG=$NEXT_TAG" >> $GITHUB_ENV
+            - name: Bump the version
+              run: |
+                  perl -i -pe 's/Version:(\s+)[0-9.]+/Version:${1}'$NEXT_TAG'/' packages/wordpress-playground-block/wordpress-playground-block.php
+                  perl -i -pe 's/Stable tag:(\s+)[0-9.]+/Stable tag:${1}'$NEXT_TAG'/' packages/wordpress-playground-block/README.plugindirectory.txt
+            - name: Install dependencies
+              run: |
+                  npm ci
+                  npm install -g nx
+            - name: Build the block and tag the release
+              run: |
+                  nx build wordpress-playground-block
+                  rm -rf svn-clone/trunk
+                  cp -r dist/packages/wordpress-playground-block svn-clone/trunk
+                  cp -r dist/packages/wordpress-playground-block svn-clone/tags/$NEXT_TAG
+            - name: Commit the release
+              env:
+                  SVN_USERNAME: ${{ secrets.PLAYGROUND_BLOCK_SVN_USERNAME }}
+                  SVN_PASSWORD: ${{ secrets.PLAYGROUND_BLOCK_SVN_PASSWORD }}
+              run: |
+                  cd svn-clone
+                  svn add trunk/* tags/$NEXT_TAG --force
+                  svn commit -m "Release "$NEXT_TAG --username $SVN_USERNAME --password $SVN_PASSWORD --non-interactive --trust-server-cert
+            - name: Commit the version bump
+              run: |
+                  git config --global user.name "deployment_bot"
+                  git config --global user.email "deployment_bot@users.noreply.github.com"
+                  git commit -a -m "Playground Block: Version bump "$NEXT_TAG --no-verify
+                  git push git@github.com:wordpress/playground-tools.git --follow-tags

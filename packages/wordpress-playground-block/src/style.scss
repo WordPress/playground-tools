@@ -178,20 +178,59 @@
 		width: $playground-height;
 		max-width: 100%;
 		border: 0;
+		position: relative;
+	}
+
+	@mixin playground-pane-overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+	}
+
+	.playground-container {
+		@include playground-pane;
 	}
 
 	.playground-iframe {
-		@include playground-pane;
+		width: 100%;
+		height: 100%;
 	}
 
 	.playground-activation-placeholder {
-		@include playground-pane;
+		@include playground-pane-overlay;
 		display: flex;
+		flex-direction: column;
 		background-color: #eee;
 	}
 
+	.playground-transpilation-failures {
+		@include playground-pane-overlay;
+
+		display: flex;
+		flex-direction: column;
+		padding: 20px;
+		background-color: rgba(39, 0, 0, 0.9) !important;
+		* {
+			color: white !important;
+		}
+		h3 {
+			font-size: 24px !important;
+		}
+		h1,h2,h3,h4,h5,h6,p {
+			margin-top: 10px !important;
+			margin-bottom: 10px !important;
+		}
+		p {
+			font-size: 15px !important;
+		}
+	}
+
 	.wordpress-playground-activate-button {
-		margin: auto;
+		// Use !important to defend against this button being
+		// incorrectly positioned due to opinionated theme styles.
+		margin: auto !important;
 		font-size: 20px;
 	}
 

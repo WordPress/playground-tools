@@ -1,0 +1,33 @@
+export const __unstableStripHTML = window.wp.dom.__unstableStripHTML;
+export const computeCaretRect = window.wp.dom.computeCaretRect;
+export const documentHasSelection = window.wp.dom.documentHasSelection;
+export const documentHasTextSelection = window.wp.dom.documentHasTextSelection;
+export const documentHasUncollapsedSelection =
+	window.wp.dom.documentHasUncollapsedSelection;
+export const focus = window.wp.dom.focus;
+export const getFilesFromDataTransfer = window.wp.dom.getFilesFromDataTransfer;
+export const getOffsetParent = window.wp.dom.getOffsetParent;
+export const getPhrasingContentSchema = window.wp.dom.getPhrasingContentSchema;
+export const getRectangleFromRange = window.wp.dom.getRectangleFromRange;
+export const getScrollContainer = window.wp.dom.getScrollContainer;
+export const insertAfter = window.wp.dom.insertAfter;
+export const isEmpty = window.wp.dom.isEmpty;
+export const isEntirelySelected = window.wp.dom.isEntirelySelected;
+export const isFormElement = window.wp.dom.isFormElement;
+export const isHorizontalEdge = window.wp.dom.isHorizontalEdge;
+export const isNumberInput = window.wp.dom.isNumberInput;
+export const isPhrasingContent = window.wp.dom.isPhrasingContent;
+export const isRTL = window.wp.dom.isRTL;
+export const isTextContent = window.wp.dom.isTextContent;
+export const isTextField = window.wp.dom.isTextField;
+export const isVerticalEdge = window.wp.dom.isVerticalEdge;
+export const placeCaretAtHorizontalEdge =
+	window.wp.dom.placeCaretAtHorizontalEdge;
+export const placeCaretAtVerticalEdge = window.wp.dom.placeCaretAtVerticalEdge;
+export const remove = window.wp.dom.remove;
+export const removeInvalidHTML = window.wp.dom.removeInvalidHTML;
+export const replace = window.wp.dom.replace;
+export const replaceTag = window.wp.dom.replaceTag;
+export const safeHTML = window.wp.dom.safeHTML;
+export const unwrap = window.wp.dom.unwrap;
+export const wrap = window.wp.dom.wrap;

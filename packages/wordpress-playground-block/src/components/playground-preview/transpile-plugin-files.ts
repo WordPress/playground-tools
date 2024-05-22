@@ -9,14 +9,22 @@ let esbuildInitialized: any = undefined;
 
 const pluginNameRegex = /^(?:[ \t]*<\?php)?[ \t/*#@]*Plugin Name:(.*)$/im;
 
+export interface TranspilationFailure {
+	file: EditorFile;
+	error: Error;
+}
+
 export const transpilePluginFiles = async (
 	files: EditorFile[]
-): Promise<EditorFile[]> => {
+): Promise<{
+	transpiledFiles: EditorFile[];
+	failures: TranspilationFailure[];
+}> => {
 	if (esbuild === undefined) {
 		esbuild = import('esbuild-wasm');
 		esbuildInitialized = (await esbuild)!.initialize({
 			worker: true,
-			wasmURL: 'https://unpkg.com/esbuild-wasm@0.21.3/esbuild.wasm',
+			wasmURL: new URL('./esbuild.wasm', (document as any).currentScript.src),
 		});
 	}
 
@@ -60,7 +68,7 @@ export const transpilePluginFiles = async (
 			];
 		}
 
-		// Don't transpile .js files
+		// Transpile .js files
 		if (file.name.endsWith('.js')) {
 			await esbuildInitialized;
 			try {
@@ -82,15 +90,33 @@ export const transpilePluginFiles = async (
 						contents: transpiled.code,
 					},
 				];
-			} catch {
-				// Default to an untranspiled file
-				return [file];
+			} catch (e) {
+				return [
+					{
+						file,
+						error: e,
+					} as TranspilationFailure,
+				];
 			}
 		}
+
 		return [file];
 	});
+
 	// Flatten the array
-	return (await Promise.all(transpiled)).flatMap((x) => x);
+	const results = (await Promise.all(transpiled)).flatMap((x) => x as any);
+
+	const transpiledFiles = results.filter(
+		(result: any): result is EditorFile => 'name' in result
+	);
+	const failures = results.filter(
+		(result): result is TranspilationFailure =>
+			(result as TranspilationFailure).error !== undefined
+	);
+	return {
+		transpiledFiles,
+		failures,
+	};
 };
 
 function preloadESMAndImportMapBlockJson(
