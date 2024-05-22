@@ -100,8 +100,15 @@
 			fill: currentColor;
 		}
 
+		.components-spinner {
+			margin-top: 0;
+		}
+
 		> .file-tab {
-			display: inline-block;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			
 			height: 35px;
 			padding: 5px 10px;
 			margin-right: 5px;

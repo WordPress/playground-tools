@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import type { Attributes } from '../../index';
 import ReactCodeMirror from '@uiw/react-codemirror';
 import { keymap, EditorView } from '@codemirror/view';
@@ -14,7 +14,7 @@ import {
 	// @ts-ignore
 } from 'https://playground.wordpress.net/client/index.js';
 import { useEffect, useRef, useState } from '@wordpress/element';
-import { Button } from '@wordpress/components';
+import { Button, Spinner } from '@wordpress/components';
 import {
 	Icon,
 	plus,
@@ -22,16 +22,18 @@ import {
 	cancelCircleFilled,
 	wordpress,
 	edit,
+	link,
 } from '@wordpress/icons';
-import { FileNameModal } from '../file-name-modal';
 import useEditorFiles, { isErrorLogFile } from './use-editor-files';
 import { LanguageSupport } from '@codemirror/language';
 import { writePluginFiles } from './write-plugin-files';
 import downloadZippedPlugin from './download-zipped-plugin';
 import classnames from 'classnames';
 import { transpilePluginFiles } from './transpile-plugin-files';
+import FileManagementModals, { FileManagerRef } from './file-management-modals';
 
 export type PlaygroundDemoProps = Attributes & {
+	inBlockEditor: boolean;
 	showAddNewFile: boolean;
 	showFileControls: boolean;
 	onStateChange?: (state: any) => void;
@@ -70,6 +72,7 @@ function getRefreshPath(lastPath: string) {
 }
 
 export default function PlaygroundPreview({
+	inBlockEditor,
 	blueprint,
 	blueprintUrl,
 	configurationSource,
@@ -96,6 +99,7 @@ export default function PlaygroundPreview({
 	const {
 		files,
 		addFile,
+		isLoading: isFilesLoading,
 		updateFile,
 		removeFile,
 		activeFile,
@@ -111,13 +115,12 @@ export default function PlaygroundPreview({
 
 	const iframeRef = useRef<HTMLIFrameElement>(null);
 	const playgroundClientRef = useRef<PlaygroundClient | null>(null);
+	const fileMgrRef = useRef<FileManagerRef>(null);
 
 	const [isLivePreviewActivated, setLivePreviewActivated] = useState(
 		!requireLivePreviewActivation
 	);
 	const [currentPostId, setCurrentPostId] = useState(0);
-	const [isNewFileModalOpen, setNewFileModalOpen] = useState(false);
-	const [isEditFileNameModalOpen, setEditFileNameModalOpen] = useState(false);
 
 	/**
 	 * Let the parent component know when the state changes.
@@ -310,30 +313,55 @@ export default function PlaygroundPreview({
 			<main className="demo-container">
 				{codeEditor && (
 					<div className={codeContainerClass}>
+						<FileManagementModals
+							ref={fileMgrRef}
+							updateFile={updateFile}
+							addFile={addFile}
+							setActiveFileIndex={setActiveFileIndex}
+							files={files}
+							activeFileIndex={activeFileIndex}
+						/>
 						<div className="file-tabs">
-							{files.map((file, index) => (
-								<Button
-									key={file.name}
-									variant="primary"
-									className={`file-tab ${
-										index === activeFileIndex &&
-										'file-tab-active'
-									}`}
-									onClick={() => {
-										setActiveFileIndex(index);
-									}}
-									onDoubleClick={() => {
-										setEditFileNameModalOpen(true);
-									}}
-								>
-									{file.name}
-								</Button>
-							))}
+							{isFilesLoading ? (
+								<div className="file-tab file-tab-loading">
+									<Spinner /> Loading files...
+								</div>
+							) : (
+								files.map((file, index) => (
+									<Button
+										key={file.name}
+										variant="primary"
+										className={`file-tab ${
+											index === activeFileIndex &&
+											'file-tab-active'
+										}`}
+										onClick={() => {
+											setActiveFileIndex(index);
+										}}
+										onDoubleClick={() => {
+											fileMgrRef.current?.setEditFileNameModalOpen(
+												true
+											);
+										}}
+									>
+										{inBlockEditor && file.remoteUrl ? (
+											<Icon icon={link} />
+										) : (
+											''
+										)}
+										{file.name}
+									</Button>
+								))
+							)}
 							{showAddNewFile && (
 								<Button
 									variant="secondary"
 									className="file-tab file-tab-extra"
-									onClick={() => setNewFileModalOpen(true)}
+									onClick={() =>
+										fileMgrRef.current?.setNewFileModalOpen(
+											true
+										)
+									}
 								>
 									<Icon icon={plus} />
 								</Button>
@@ -351,22 +379,6 @@ export default function PlaygroundPreview({
 							>
 								<Icon icon={download} />
 							</Button>
-							{isNewFileModalOpen && (
-								<FileNameModal
-									title="Create new file"
-									onRequestClose={() =>
-										setNewFileModalOpen(false)
-									}
-									onSave={(newFileName) => {
-										addFile({
-											name: newFileName,
-											contents: '',
-										});
-										setActiveFileIndex(files.length);
-										setNewFileModalOpen(false);
-									}}
-								/>
-							)}
 						</div>
 						<div className="code-editor-wrapper">
 							<ReactCodeMirror
@@ -394,7 +406,9 @@ export default function PlaygroundPreview({
 										<button
 											type="button"
 											onClick={() => {
-												setEditFileNameModalOpen(true);
+												fileMgrRef.current?.setEditFileNameModalOpen(
+													true
+												);
 											}}
 											className="wordpress-playground-block-button button-non-destructive"
 										>
@@ -419,24 +433,6 @@ export default function PlaygroundPreview({
 												Remove file
 											</button>
 										)}
-									{isEditFileNameModalOpen && (
-										<FileNameModal
-											title="Edit file name"
-											initialFilename={
-												files[activeFileIndex].name
-											}
-											onRequestClose={() =>
-												setEditFileNameModalOpen(false)
-											}
-											onSave={(fileName) => {
-												updateFile((file) => ({
-													...file,
-													name: fileName,
-												}));
-												setEditFileNameModalOpen(false);
-											}}
-										/>
-									)}
 								</div>
 							) : (
 								<div className="file-actions"></div>

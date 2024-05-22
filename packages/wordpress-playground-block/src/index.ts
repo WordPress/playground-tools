@@ -12,6 +12,7 @@ import './style.scss';
 export type EditorFile = {
 	name: string;
 	contents: string;
+	remoteUrl?: string;
 };
 
 export type Attributes = {

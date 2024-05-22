@@ -145,6 +145,7 @@ export default withBase64Attrs(function Edit({
 	return (
 		<div {...useBlockProps()}>
 			<PlaygroundPreview
+				inBlockEditor
 				showAddNewFile={codeEditorMultipleFiles}
 				showFileControls={isSelected}
 				onStateChange={({ files }) => {
