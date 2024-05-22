@@ -38,6 +38,43 @@ export default function useEditorFiles(
 		[files, setFiles]
 	);
 
+	async function fetchRemoteFile(file: EditorFile) {
+		try {
+			const response = await fetch(file.remoteUrl!);
+			const contents = await response.text();
+			updateFile(
+				(existingFile) => ({ ...existingFile, contents }),
+				files.indexOf(file)
+			);
+		} catch {
+			updateFile(
+				(existingFile) => ({
+					...existingFile,
+					contents: `Failed to fetch the remote file from ${file.remoteUrl}`,
+					name: existingFile.name + ' (Failed to fetch)',
+				}),
+				files.indexOf(file)
+			);
+		}
+	}
+
+	const [isLoading, setIsLoading] = useState(
+		files.filter((file) => file.remoteUrl).length > 0
+	);
+	// Fetch all the remote files when the block is loaded.
+	useEffect(() => {
+		async function fetchRemoteFiles() {
+			try {
+				await Promise.all(
+					files.filter((file) => file.remoteUrl).map(fetchRemoteFile)
+				);
+			} finally {
+				setIsLoading(false);
+			}
+		}
+		fetchRemoteFiles();
+	}, []);
+
 	// Prepend or remove the error log file depending on the `enabled` prop.
 	useEffect(() => {
 		async function doHandleErrorLog() {
@@ -88,6 +125,7 @@ export default function useEditorFiles(
 	return {
 		files,
 		addFile,
+		isLoading,
 		updateFile,
 		removeFile,
 		activeFile,
