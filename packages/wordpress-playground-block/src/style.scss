@@ -184,7 +184,9 @@
 	}
 
 	.wordpress-playground-activate-button {
-		margin: auto;
+		// Use !important to defend against this button being
+		// incorrectly positioned due to opinionated theme styles.
+		margin: auto !important;
 		font-size: 20px;
 	}
 
