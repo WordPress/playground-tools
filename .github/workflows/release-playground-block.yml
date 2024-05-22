@@ -43,14 +43,10 @@ jobs:
               run: |
                   perl -i -pe 's/Version:(\s+)[0-9.]+/Version:${1}'$NEXT_TAG'/' packages/wordpress-playground-block/wordpress-playground-block.php
                   perl -i -pe 's/Stable tag:(\s+)[0-9.]+/Stable tag:${1}'$NEXT_TAG'/' packages/wordpress-playground-block/README.plugindirectory.txt
-            - name: Commit the version bump
-              run: |
-                  git config --global user.name "deployment_bot"
-                  git config --global user.email "deployment_bot@users.noreply.github.com"
-                  git commit -a -m "Playground Block: Version bump "$NEXT_TAG --no-verify
-                  git push git@github.com:wordpress/playground-tools.git --follow-tags
             - name: Install dependencies
-              run: npm ci
+              run: |
+                  npm ci
+                  npm install -g nx
             - name: Build the block and tag the release
               run: |
                   nx build wordpress-playground-block
@@ -65,3 +61,9 @@ jobs:
                   cd svn-clone
                   svn add trunk tags/$NEXT_TAG
                   svn commit -m "Release "$NEXT_TAG --username $SVN_USERNAME --password $SVN_PASSWORD --non-interactive --trust-server-cert
+            - name: Commit the version bump
+              run: |
+                  git config --global user.name "deployment_bot"
+                  git config --global user.email "deployment_bot@users.noreply.github.com"
+                  git commit -a -m "Playground Block: Version bump "$NEXT_TAG --no-verify
+                  git push git@github.com:wordpress/playground-tools.git --follow-tags
