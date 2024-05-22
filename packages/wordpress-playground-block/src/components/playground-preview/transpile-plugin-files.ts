@@ -1,7 +1,13 @@
 import type { EditorFile } from '../../index';
+import {
+	phpVar,
+	// @ts-ignore
+} from 'https://playground.wordpress.net/client/index.js';
 
 let esbuild: Promise<typeof import('esbuild-wasm')> | undefined = undefined;
 let esbuildInitialized: any = undefined;
+
+const pluginNameRegex = /^(?:[ \t]*<\?php)?[ \t/*#@]*Plugin Name:(.*)$/im;
 
 export const transpilePluginFiles = async (
 	files: EditorFile[]
@@ -15,43 +21,129 @@ export const transpilePluginFiles = async (
 	}
 
 	const transpiled = files.map(async (file) => {
-		if (file.name === 'block.json') {
+		/**
+		 * block.json is often imported, let's emit an importable ES Module.
+		 * We can't just use this modern `import` syntax because it's not widely
+		 * supported yet:
+		 * ```js
+		 * import json from "block.json" with "json".
+		 * ```
+		 */
+		if (file.name.match(/(\/|^)block.json$/)) {
 			return [
+				file,
 				{
-					name: 'block.json.esmodule.js',
+					name: file.name + '.esmodule.js',
 					contents: `export default ${file.contents}`,
 				},
 			];
 		}
-		// Don't transpile .js files
-		if (!file.name.endsWith('.js')) {
-			return file;
-		}
-		await esbuildInitialized;
-		try {
-			const transpiled = await (
-				await esbuild!
-			).transform(file.contents, {
-				loader: 'jsx',
-				target: 'esnext',
-				jsxFactory: 'wp.element.createElement',
-				format: 'esm',
-			});
+
+		/**
+		 * If we're working on a WordPress block plugin, we need to preload
+		 * all the ES Modules to prevent a "block isn't registered" warning.
+		 * Furthermore, we need to remap the block.json file to JS so that
+		 * it can be imported as an ES Module.
+		 */
+		if (
+			file.name.endsWith('.php') &&
+			pluginNameRegex.test(file.contents.substring(0, 4096))
+		) {
 			return [
 				{
-					name: file.name + '.src',
-					contents: file.contents,
-				},
-				{
-					name: file.name,
-					contents: transpiled.code,
+					...file,
+					contents: preloadESMAndImportMapBlockJson(
+						file.contents,
+						files
+					),
 				},
 			];
-		} catch {
-			// Default to an untranspiled file
-			return [file];
 		}
+
+		// Don't transpile .js files
+		if (file.name.endsWith('.js')) {
+			await esbuildInitialized;
+			try {
+				const transpiled = await (
+					await esbuild!
+				).transform(file.contents, {
+					loader: 'jsx',
+					target: 'esnext',
+					jsxFactory: 'wp.element.createElement',
+					format: 'esm',
+				});
+				return [
+					{
+						name: file.name + '.src',
+						contents: file.contents,
+					},
+					{
+						name: file.name,
+						contents: transpiled.code,
+					},
+				];
+			} catch {
+				// Default to an untranspiled file
+				return [file];
+			}
+		}
+		return [file];
 	});
 	// Flatten the array
 	return (await Promise.all(transpiled)).flatMap((x) => x);
 };
+
+function preloadESMAndImportMapBlockJson(
+	phpContents: string,
+	files: EditorFile[]
+) {
+	const blockJsonPaths = files
+		.map((file) => file.name)
+		.filter((name) => name.match(/(\/|^)block.json$/));
+	const jsModulesRelativePaths = files
+		.map((file) => file.name)
+		.filter((name) => name.endsWith('.js'))
+		.concat(blockJsonPaths.map((name) => name + '.esmodule.js'));
+
+	phpContents = phpContents.trim();
+	if (!phpContents.endsWith('?>')) {
+		phpContents += '?>';
+	}
+
+	return `${phpContents}<?php
+	// Preload ES Modules using <link rel="modulepreload" href="" /> to prevent a
+	// "block isn't registered" warning in the editor. This ensures the registerBlockType()
+	// call is done before the block is rendered.
+	function playground_block_add_modulepreload_in_admin() {
+		$js_relative_paths = ${phpVar(jsModulesRelativePaths)};
+		foreach($js_relative_paths as $relative_path) {
+			$file = basename($relative_path);
+			$url = json_encode(plugins_url($relative_path, __FILE__));
+			$script = <<<SCRIPT
+			(function() {
+			  const link = document.createElement("link");
+			  link.rel = "modulepreload";
+			  link.href = $url;
+			  document.head.append(link);
+			})();
+SCRIPT;
+			wp_add_inline_script('wp-blocks', $script);
+		}
+	}
+	add_action('enqueue_block_editor_assets', 'playground_block_add_modulepreload_in_admin');
+	
+	// Remap ESM imports from block.json, that aren't widely supported,
+	// to imports from a JavaScript file, that are widely supported.
+	function playground_wp_esm_import_map($import_map) {
+		$block_json_paths = ${phpVar(blockJsonPaths)};
+		$block_json_mapping = array();
+		foreach($block_json_paths as $block_json_path) {
+			$block_json_path = plugins_url($block_json_path, __FILE__);
+			$block_js_path = plugins_url($block_json_path . '.esmodule.js', __FILE__);
+			$block_json_mapping[$block_json_path] = $block_js_path;
+		}
+		return array_merge($import_map, $block_json_mapping);
+	}
+	add_filter('wp_esm_import_map', 'playground_wp_esm_import_map');
+	`;
+}
