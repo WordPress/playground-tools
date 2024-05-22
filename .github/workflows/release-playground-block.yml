@@ -59,7 +59,7 @@ jobs:
                   SVN_PASSWORD: ${{ secrets.PLAYGROUND_BLOCK_SVN_PASSWORD }}
               run: |
                   cd svn-clone
-                  svn add trunk tags/$NEXT_TAG
+                  svn add trunk/* tags/$NEXT_TAG --force
                   svn commit -m "Release "$NEXT_TAG --username $SVN_USERNAME --password $SVN_PASSWORD --non-interactive --trust-server-cert
             - name: Commit the version bump
               run: |
