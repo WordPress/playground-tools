@@ -122,6 +122,7 @@ export default withBase64Attrs(function Edit({
 	const {
 		codeEditor,
 		codeEditorReadOnly,
+		codeEditorTranspileJsx,
 		codeEditorSideBySide,
 		codeEditorMultipleFiles,
 		codeEditorMode,
@@ -216,6 +217,21 @@ export default withBase64Attrs(function Edit({
 										setAttributes({
 											codeEditorReadOnly:
 												!codeEditorReadOnly,
+										});
+									}}
+								/>
+								<ToggleControl
+									label="Transpile JSX to JS"
+									help={
+										`Transpiles JSX syntax to JS using esbuild. Only the JSX tags are ` +
+										`transpiled. Imports and other advanced ESM syntax features are ` +
+										`preserved.`
+									}
+									checked={codeEditorTranspileJsx}
+									onChange={() => {
+										setAttributes({
+											codeEditorTranspileJsx:
+												!codeEditorTranspileJsx,
 										});
 									}}
 								/>
