@@ -7,3 +7,4 @@ __pycache__
 .local
 .vscode
 packages/playground/vendor
+packages/wordpress-es-modules-plugin

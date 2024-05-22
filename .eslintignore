@@ -2,6 +2,7 @@ node_modules
 packages/php-wasm/node/public
 packages/php-wasm/web/public
 packages/php-wasm/compile/build-assets
+packages/wordpress-es-modules-plugin
 __pycache__
 packages/php-wasm/node/src/test/__test*
 *.timestamp-1678999213403.mjs
