@@ -1,0 +1,47 @@
+name: Release the VS Code extension
+on:
+    workflow_dispatch:
+
+jobs:
+    release:
+        if: >
+            github.ref == 'refs/heads/trunk' && (
+                github.actor == 'adamziel' ||
+                github.actor == 'dmsnell' ||
+                github.actor == 'bgrgicak' ||
+                github.actor == 'sejas' ||
+                github.actor == 'danielbachchuber'
+            )
+
+        # Specify runner + deployment step
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  ref: ${{ github.event.pull_request.head.ref }}
+                  clean: true
+                  fetch-depth: 0
+                  persist-credentials: false
+            - name: Setup SSH Keys
+              uses: webfactory/ssh-agent@v0.5.3
+              with:
+                  ssh-private-key: ${{ secrets.GH_DEPLOY_KEY }}
+            - name: Install VSCE toolkit and NX
+              run: |
+                  npm install -g @vscode/vsce
+                  npm install -g nx
+            - name: Install dependencies
+              run: npm ci
+            - name: Bump version
+              run: |
+                  cd packages/vscode-extension
+                  git config --global user.name "deployment_bot"
+                  git config --global user.email "deployment_bot@users.noreply.github.com"
+                  npm version patch -m "VSCode Extension: Version %s"
+                  git commit -a -m "VSCode Extension: Version bump" --no-verify
+                  git push git@github.com:wordpress/playground-tools.git --follow-tags
+            - name: Publish to VS Code Marketplace
+              run: |
+                  nx build vscode-extension
+                  cd dist/packages/vscode-extension
+                  vsce publish -p ${{ secrets.VSCODE_PERSONAL_ACCESS_TOKEN }}

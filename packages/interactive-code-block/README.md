@@ -1,13 +1,8 @@
-=== Interactive Code Block ===
-Contributors: zieladam
-Tags: code, interactive, playground
-Requires at least: 6.0
-Tested up to: 6.2
-Stable tag: 0.1.2
-Requires PHP: 7.0
-License: GPLv2
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Early preview: Enables running PHP code directly in the browser thanks to WordPress Playground (https://github.com/WordPress/wordpress-playground)
+## Deprecated
+
+Use the [WordPress Playground Block](https://github.com/WordPress/playground-tools/tree/trunk/packages/wordpress-playground-block) instead. Interactive Code Block won't be further maintained as it turned out to be much more complex than anticipated.
+
+---
 
 Enables running PHP code directly in the browser thanks to [WordPress Playground](https://github.com/WordPress/wordpress-playground).
 

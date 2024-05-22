@@ -1,0 +1,125 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "wordpress-playground/playground",
+	"title": "WordPress Playground",
+	"category": "widgets",
+	"icon": "wordpress",
+	"description": "Display demo in WordPress Playground",
+	"keywords": [
+		"playground",
+		"wordpress",
+		"wordpress playground",
+		"play",
+		"code"
+	],
+	"attributes": {
+		"align": {
+			"type": "string",
+			"default": "wide"
+		},
+		"codeEditor": {
+			"type": "boolean",
+			"default": false
+		},
+		"codeEditorSideBySide": {
+			"type": "boolean",
+			"default": true
+		},
+		"codeEditorReadOnly": {
+			"type": "boolean",
+			"default": false
+		},
+		"codeEditorMultipleFiles": {
+			"type": "boolean",
+			"default": true
+		},
+		"codeEditorMode": {
+			"type": "string",
+			"default": "plugin"
+		},
+		"codeEditorErrorLog": {
+			"type": "boolean",
+			"default": false
+		},
+		"constants": {
+			"type": "object",
+			"default": {
+				"WP_DEBUG": true,
+				"WP_SCRIPT_DEBUG": true
+			}
+		},
+		"files": {
+			"type": "array",
+			"default": [
+				{
+					"name": "index.php",
+					"contents": "<?php\n/**\n * Plugin Name: My WordPress plugin\n */\n"
+				}
+			]
+		},
+		"logInUser": {
+			"type": "boolean",
+			"default": true
+		},
+		"landingPageUrl": {
+			"type": "string"
+		},
+		"createNewPost": {
+			"type": "boolean",
+			"default": false
+		},
+		"createNewPostType": {
+			"type": "string",
+			"default": "post"
+		},
+		"createNewPostTitle": {
+			"type": "string",
+			"default": "New Post"
+		},
+		"createNewPostContent": {
+			"type": "string"
+		},
+		"redirectToPost": {
+			"type": "boolean",
+			"default": false
+		},
+		"redirectToPostType": {
+			"type": "string",
+			"default": "front"
+		},
+		"configurationSource": {
+			"type": "string",
+			"default": "block-attributes"
+		},
+		"blueprintUrl": {
+			"type": "string"
+		},
+		"blueprint": {
+			"type": "string"
+		},
+		"requireLivePreviewActivation": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"supports": {
+		"html": false,
+		"align": ["full", "wide"],
+		"alignWide": true,
+		"__experimentalLayout": true,
+		"spacing": {
+			"margin": true,
+			"padding": true,
+			"__experimentalDefaultControls": {
+				"padding": true
+			}
+		}
+	},
+	"textdomain": "wordpress-playground-block",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": ["file:./style-index.css", "wp-components"],
+	"viewScript": ["file:./view.js", "react", "react-dom", "wp-components"],
+	"render": "file:./render.php"
+}

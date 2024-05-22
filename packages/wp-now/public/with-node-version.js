@@ -5,12 +5,8 @@ import fs from 'fs';
 
 // Set the minimum required/supported version of node here.
 
-// Check if `--blueprint=` is passed in proccess.argv
-const hasBlueprint = process.argv.some((arg) => arg.startsWith('--blueprint='));
-
 const minimum = {
-	// `--blueprint=` requires node v20
-	major: hasBlueprint ? 20 : 18,
+	major: 18,
 	minor: 0,
 	patch: 0,
 };
@@ -40,9 +36,8 @@ function meetsMinimumVersion(minimum, [major, minor, patch]) {
 }
 
 if (!meetsMinimumVersion(minimum, [major, minor, patch])) {
-	const extra = hasBlueprint ? ' when --blueprint=<file> is used' : '';
 	console.error(
-		`This script is requires node version v${minimum.major}.${minimum.minor}.${minimum.patch} or above${extra}; found ${process.version}`
+		`This script is requires node version v${minimum.major}.${minimum.minor}.${minimum.patch} or above; found ${process.version}`
 	);
 	process.exit(1);
 }

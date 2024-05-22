@@ -30,11 +30,7 @@ import {
 import { output } from './output';
 import getWpNowPath from './get-wp-now-path';
 import getWordpressVersionsPath from './get-wordpress-versions-path';
-import getSqlitePath from './get-sqlite-path';
-
-function seemsLikeAPHPFile(path) {
-	return path.endsWith('.php') || path.includes('.php/');
-}
+import getSqlitePath, { getSqliteDbCopyPath } from './get-sqlite-path';
 
 async function applyToInstances(phpInstances: NodePHP[], callback: Function) {
 	for (let i = 0; i < phpInstances.length; i++) {
@@ -50,19 +46,6 @@ export default async function startWPNow(
 		requestHandler: {
 			documentRoot,
 			absoluteUrl: options.absoluteUrl,
-			isStaticFilePath: (path) => {
-				try {
-					const fullPath = options.documentRoot + path;
-					return (
-						php.fileExists(fullPath) &&
-						!php.isDir(fullPath) &&
-						!seemsLikeAPHPFile(fullPath)
-					);
-				} catch (e) {
-					output?.error(e);
-					return false;
-				}
-			},
 		},
 	};
 
@@ -92,11 +75,14 @@ export default async function startWPNow(
 		});
 		return { php, phpInstances, options };
 	}
+	if (options.wordPressVersion === 'trunk') {
+		options.wordPressVersion = 'nightly';
+	}
 	output?.log(`wp: ${options.wordPressVersion}`);
 	await Promise.all([
 		downloadWordPress(options.wordPressVersion),
-		downloadSqliteIntegrationPlugin(),
 		downloadMuPlugins(),
+		downloadSqliteIntegrationPlugin(),
 	]);
 
 	if (options.reset) {
@@ -141,10 +127,16 @@ export default async function startWPNow(
 	}
 
 	await installationStep2(php);
-	await login(php, {
-		username: 'admin',
-		password: 'password',
-	});
+	try {
+		await login(php, {
+			username: 'admin',
+			password: 'password',
+		});
+	} catch (e) {
+		// It's okay if the user customized the username and password
+		// and the login fails now.
+		output?.error('Login failed');
+	}
 
 	if (
 		isFirstTimeProject &&
@@ -338,7 +330,7 @@ async function initWordPress(
 	}
 	await defineWpConfigConsts(php, {
 		consts: wpConfigConsts,
-		virtualize: true,
+		method: 'define-before-run',
 	});
 
 	return { initializeDefaultDatabase };
@@ -375,12 +367,16 @@ function mountMuPlugins(php: NodePHP, vfsDocumentRoot: string) {
 	);
 }
 
+function getSqlitePluginPath(vfsDocumentRoot: string) {
+	return `${vfsDocumentRoot}/wp-content/mu-plugins/${SQLITE_FILENAME}`;
+}
+
 function mountSqlitePlugin(php: NodePHP, vfsDocumentRoot: string) {
-	const sqlitePluginPath = `${vfsDocumentRoot}/wp-content/plugins/${SQLITE_FILENAME}`;
+	const sqlitePluginPath = getSqlitePluginPath(vfsDocumentRoot);
 	if (php.listFiles(sqlitePluginPath).length === 0) {
 		php.mount(getSqlitePath(), sqlitePluginPath);
 		php.mount(
-			path.join(getSqlitePath(), 'db.copy'),
+			getSqliteDbCopyPath(),
 			`${vfsDocumentRoot}/wp-content/db.php`
 		);
 	}
@@ -428,7 +424,7 @@ async function installationStep2(php: NodePHP) {
 	return php.request({
 		url: '/wp-admin/install.php?step=2',
 		method: 'POST',
-		formData: {
+		body: {
 			language: 'en',
 			prefix: 'wp_',
 			weblog_title: 'My WordPress Website',

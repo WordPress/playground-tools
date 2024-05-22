@@ -1,0 +1,51 @@
+name: Release wp-now
+
+on:
+    workflow_dispatch:
+
+jobs:
+    release:
+        # Only run this workflow from the trunk branch and when it's triggered by dmsnell OR adamziel
+        if: >
+            github.ref == 'refs/heads/trunk' && (
+                github.actor == 'adamziel' ||
+                github.actor == 'dmsnell' ||
+                github.actor == 'bgrgicak' ||
+                github.actor == 'sejas' ||
+                github.actor == 'danielbachchuber'
+            )
+
+        # Specify runner + deployment step
+        runs-on: ubuntu-latest
+        environment:
+            name: npm
+        env:
+            NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN }}
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  ref: ${{ github.event.pull_request.head.ref }}
+                  clean: true
+                  fetch-depth: 0
+                  persist-credentials: false
+            - name: Setup SSH Keys
+              uses: webfactory/ssh-agent@v0.5.3
+              with:
+                  ssh-private-key: ${{ secrets.GH_DEPLOY_KEY }}
+            - name: Config git user
+              run: |
+                  git config --global user.name "deployment_bot"
+                  git config --global user.email "deployment_bot@users.noreply.github.com"
+                  git remote set-url origin git@github.com:WordPress/playground-tools.git
+            - name: Authenticate with Registry
+              run: |
+                  echo "@wp-now:registry=https://registry.npmjs.org/" >> ~/.npmrc
+                  echo "registry=https://registry.npmjs.org/" >> ~/.npmrc
+                  echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+            - uses: ./.github/actions/prepare-playground
+            # Version bump, release, tag a new version on GitHub
+            - name: Release new version of NPM packages
+              shell: bash
+              run: |
+                  npm run build
+                  npm run release:wp-now

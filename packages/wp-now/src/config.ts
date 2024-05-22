@@ -12,6 +12,7 @@ import { portFinder } from './port-finder';
 import { isValidWordPressVersion } from './wp-playground-wordpress';
 import getWpNowPath from './get-wp-now-path';
 import { DEFAULT_PHP_VERSION, DEFAULT_WORDPRESS_VERSION } from './constants';
+import { isWebContainer, HostURL } from '@webcontainer/env';
 
 export interface CliOptions {
 	php?: string;
@@ -45,6 +46,7 @@ export interface WPNowOptions {
 	numberOfPhpInstances?: number;
 	blueprintObject?: Blueprint;
 	reset?: boolean;
+	landingPage?: string;
 }
 
 export const DEFAULT_OPTIONS: WPNowOptions = {
@@ -55,6 +57,7 @@ export const DEFAULT_OPTIONS: WPNowOptions = {
 	mode: WPNowMode.AUTO,
 	numberOfPhpInstances: 1,
 	reset: false,
+	landingPage: '',
 };
 
 export interface WPEnvOptions {
@@ -74,6 +77,9 @@ async function getAbsoluteURL() {
 	const port = await portFinder.getOpenPort();
 	if (isGitHubCodespace) {
 		return getCodeSpaceURL(port);
+	}
+	if (isWebContainer()) {
+		return HostURL.parse('http://localhost:' + port).toString();
 	}
 
 	if (absoluteUrlFromBlueprint) {
@@ -166,6 +172,10 @@ export default async function getWpNowConfig(
 		if (siteUrl) {
 			options.absoluteUrl = siteUrl;
 			absoluteUrlFromBlueprint = siteUrl;
+		}
+		if (blueprintObject.landingPage) {
+			options.landingPage =
+				(await getAbsoluteURL()) + blueprintObject.landingPage;
 		}
 	}
 	return options;

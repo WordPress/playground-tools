@@ -1,0 +1,72 @@
+.tools_page_playground #wpbody-content,
+.tools_page_playground #wpcontent {
+	padding-left: 0px !important;
+}
+
+.tools_page_playground #wpwrap,
+.tools_page_playground #wpbody,
+.tools_page_playground #wpbody-content {
+	padding-bottom: 0px;
+	height: 100%;
+}
+
+.tools_page_playground #wpwrap,
+.tools_page_playground #wpbody {
+	position: initial;
+}
+html.wp-toolbar {
+	padding: inherit;
+}
+
+#wp-playground-toolbar {
+	background-color: #fff7cc;
+	font-weight: 500;
+	padding: 0.3em 0.5em;
+	display: flex;
+	gap: 1rem;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+	position: relative;
+	z-index: 1999999;
+	animation: playground-fade-in 0.25s 0.65s
+		cubic-bezier(0.175, 0.885, 0.5, 1.85) 1 forwards;
+	transform: translateY(-100%);
+}
+
+#wp-playground-toolbar > p {
+	margin: 0;
+}
+
+#wp-playground-toolbar > a {
+	color: #1a5687;
+}
+
+#wp-playground-main-area {
+	position: relative;
+	display: flex;
+	flex: 1;
+}
+
+#wp-playground,
+#wp-playground-wrapper {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 999999;
+	background-color: #fff;
+	display: flex;
+	flex-direction: column;
+}
+
+@keyframes playground-fade-in {
+	from {
+		transform: translateY(-100%);
+	}
+
+	to {
+		transform: translateY(0);
+	}
+}

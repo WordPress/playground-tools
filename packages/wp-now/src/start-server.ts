@@ -4,35 +4,21 @@ import { HTTPMethod } from '@php-wasm/universal';
 import express from 'express';
 import compression from 'compression';
 import compressible from 'compressible';
-import fileUpload from 'express-fileupload';
 import { portFinder } from './port-finder';
 import { NodePHP } from '@php-wasm/node';
+import { isWebContainer } from '@webcontainer/env';
 import startWPNow from './wp-now';
 import { output } from './output';
 import { addTrailingSlash } from './add-trailing-slash';
 
-function requestBodyToMultipartFormData(json, boundary) {
-	let multipartData = '';
-	const eol = '\r\n';
-
-	for (const key in json) {
-		multipartData += `--${boundary}${eol}`;
-		multipartData += `Content-Disposition: form-data; name="${key}"${eol}${eol}`;
-		multipartData += `${json[key]}${eol}`;
-	}
-
-	multipartData += `--${boundary}--${eol}`;
-	return multipartData;
-}
-
-const requestBodyToString = async (req) =>
+const requestBodyToBytes = async (req): Promise<Uint8Array> =>
 	await new Promise((resolve) => {
-		let body = '';
+		const body = [];
 		req.on('data', (chunk) => {
-			body += chunk.toString(); // convert Buffer to string
+			body.push(chunk);
 		});
 		req.on('end', () => {
-			resolve(body);
+			resolve(Buffer.concat(body));
 		});
 	});
 
@@ -58,7 +44,6 @@ export async function startServer(
 		);
 	}
 	const app = express();
-	app.use(fileUpload());
 	app.use(compression({ filter: shouldCompress }));
 	app.use(addTrailingSlash('/wp-admin'));
 	const port = await portFinder.getOpenPort();
@@ -74,35 +59,24 @@ export async function startServer(
 				}
 			}
 
-			const body = requestHeaders['content-type']?.startsWith(
-				'multipart/form-data'
-			)
-				? requestBodyToMultipartFormData(
-						req.body,
-						requestHeaders['content-type'].split('; boundary=')[1]
-				  )
-				: await requestBodyToString(req);
-
 			const data = {
 				url: req.url,
 				headers: requestHeaders,
 				method: req.method as HTTPMethod,
-				files: Object.fromEntries(
-					Object.entries((req as any).files || {}).map<any>(
-						([key, file]: any) => [
-							key,
-							{
-								key,
-								name: file.name,
-								size: file.size,
-								type: file.mimetype,
-								arrayBuffer: () => file.data.buffer,
-							},
-						]
-					)
-				),
-				body: body as string,
+				body: await requestBodyToBytes(req),
 			};
+
+			if (isWebContainer()) {
+				// Unlike a typical Nginx or reverse proxy setup, WebContainers
+				// overwrite the Host header sent by the browser with a localhost
+				// URL. However, WordPress detects when the Host header is different
+				// from the stored site URL and redirects back to the site URL.
+				// For WordPress to work, we need to make sure the host and origin
+				// headers contain  the public-facing site URL.
+				data.headers['host'] = new URL(options.absoluteUrl).host;
+				data.headers['origin'] = options.absoluteUrl;
+			}
+
 			const resp = await php.request(data);
 			res.statusCode = resp.httpStatusCode;
 			Object.keys(resp.headers).forEach((key) => {
@@ -113,9 +87,9 @@ export async function startServer(
 			output?.trace(e);
 		}
 	});
-	const url = options.absoluteUrl;
+	const url = options.landingPage || options.absoluteUrl;
 	const server = app.listen(port, () => {
-		output?.log(`Server running at ${url}`);
+		output?.log(`Server running at ${options.absoluteUrl}`);
 	});
 
 	return {

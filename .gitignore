@@ -11,6 +11,8 @@ packages/php-wasm/node/src/test/__test*
 packages/docs/site/src/model.json
 .docusaurus
 dist.zip
+build
+svn-clone
 
 # dependencies
 node_modules
@@ -50,3 +52,6 @@ Thumbs.db
 
 # Playground artifacts
 php.js.bak
+
+# NX Cache
+.nx/cache
