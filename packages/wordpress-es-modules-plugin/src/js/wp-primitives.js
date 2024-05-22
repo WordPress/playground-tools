@@ -1,0 +1,14 @@
+export const BlockQuotation = window.wp.primitives.BlockQuotation;
+export const Circle = window.wp.primitives.Circle;
+export const Defs = window.wp.primitives.Defs;
+export const G = window.wp.primitives.G;
+export const HorizontalRule = window.wp.primitives.HorizontalRule;
+export const Line = window.wp.primitives.Line;
+export const LinearGradient = window.wp.primitives.LinearGradient;
+export const Path = window.wp.primitives.Path;
+export const Polygon = window.wp.primitives.Polygon;
+export const RadialGradient = window.wp.primitives.RadialGradient;
+export const Rect = window.wp.primitives.Rect;
+export const SVG = window.wp.primitives.SVG;
+export const Stop = window.wp.primitives.Stop;
+export const View = window.wp.primitives.View;
