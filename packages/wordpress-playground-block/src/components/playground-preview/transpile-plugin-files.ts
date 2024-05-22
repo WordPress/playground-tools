@@ -15,6 +15,14 @@ export const transpilePluginFiles = async (
 	}
 
 	const transpiled = files.map(async (file) => {
+		if (file.name === 'block.json') {
+			return [
+				{
+					name: 'block.json.esmodule.js',
+					contents: `export default ${file.contents}`,
+				},
+			];
+		}
 		// Don't transpile .js files
 		if (!file.name.endsWith('.js')) {
 			return file;
