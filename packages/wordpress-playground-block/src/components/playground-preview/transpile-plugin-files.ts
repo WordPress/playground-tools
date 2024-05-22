@@ -97,13 +97,13 @@ function preloadESMAndImportMapBlockJson(
 	phpContents: string,
 	files: EditorFile[]
 ) {
-	const blockJsonPaths = files
+	const jsonPaths = files
 		.map((file) => file.name)
-		.filter((name) => name.match(/(\/|^)block.json$/));
+		.filter((name) => name.endsWith('.json'));
 	const jsModulesRelativePaths = files
 		.map((file) => file.name)
 		.filter((name) => name.endsWith('.js'))
-		.concat(blockJsonPaths.map((name) => name + '.esmodule.js'));
+		.concat(jsonPaths.map((name) => name + '.esmodule.js'));
 
 	phpContents = phpContents.trim();
 	if (!phpContents.endsWith('?>')) {
@@ -135,14 +135,14 @@ SCRIPT;
 	// Remap ESM imports from block.json, that aren't widely supported,
 	// to imports from a JavaScript file, that are widely supported.
 	function playground_wp_esm_import_map($import_map) {
-		$block_json_paths = ${phpVar(blockJsonPaths)};
-		$block_json_mapping = array();
-		foreach($block_json_paths as $block_json_path) {
-			$block_json_path = plugins_url($block_json_path, __FILE__);
-			$block_js_path = plugins_url($block_json_path . '.esmodule.js', __FILE__);
-			$block_json_mapping[$block_json_path] = $block_js_path;
+		$json_paths = ${phpVar(jsonPaths)};
+		$json_mapping = array();
+		foreach($json_paths as $json_path) {
+			$json_path = plugins_url($json_path, __FILE__);
+			$js_path = plugins_url($json_path . '.esmodule.js', __FILE__);
+			$json_mapping[$json_path] = $js_path;
 		}
-		return array_merge($import_map, $block_json_mapping);
+		return array_merge($import_map, $json_mapping);
 	}
 	add_filter('wp_esm_import_map', 'playground_wp_esm_import_map');
 	`;
