@@ -29,7 +29,10 @@ import { LanguageSupport } from '@codemirror/language';
 import { writePluginFiles } from './write-plugin-files';
 import downloadZippedPlugin from './download-zipped-plugin';
 import classnames from 'classnames';
-import { transpilePluginFiles } from './transpile-plugin-files';
+import {
+	TranspilationFailure,
+	transpilePluginFiles,
+} from './transpile-plugin-files';
 
 export type PlaygroundDemoProps = Attributes & {
 	showAddNewFile: boolean;
@@ -253,16 +256,35 @@ export default function PlaygroundPreview({
 		return landingPageUrl;
 	}
 
+	const [transpilationFailures, setTranspilationFailures] = useState<
+		TranspilationFailure[]
+	>([]);
 	async function reinstallEditedPlugin() {
 		if (!playgroundClientRef.current || !codeEditor) {
 			return;
 		}
 
+		setTranspilationFailures([]);
+
 		const client = playgroundClientRef.current;
-		await writePluginFiles(
-			client,
-			codeEditorTranspileJsx ? await transpilePluginFiles(files) : files
-		);
+		let finalFiles = files;
+		if (codeEditorTranspileJsx) {
+			const { failures, transpiledFiles } = await transpilePluginFiles(
+				finalFiles
+			);
+			if (failures.length) {
+				for (const failure of failures) {
+					console.error(
+						`Failed to transpile ${failure.file.name}:`,
+						failure.error
+					);
+				}
+				setTranspilationFailures(failures);
+				return;
+			}
+			finalFiles = transpiledFiles;
+		}
+		await writePluginFiles(client, finalFiles);
 	}
 
 	const handleReRunCode = useCallback(() => {
@@ -460,26 +482,47 @@ export default function PlaygroundPreview({
 						</div>
 					</div>
 				)}
-				{!isLivePreviewActivated && (
-					<div className="playground-activation-placeholder">
-						<Button
-							className="wordpress-playground-activate-button"
-							variant="primary"
-							onClick={() => setLivePreviewActivated(true)}
-							aria-description={iframeCreationWarning}
-						>
-							Activate Live Preview
-						</Button>
-					</div>
-				)}
-				{isLivePreviewActivated && (
-					<iframe
-						aria-label="Live Preview in WordPress Playground"
-						key="playground-iframe"
-						ref={iframeRef}
-						className="playground-iframe"
-					></iframe>
-				)}
+				<div className="playground-container">
+					{!isLivePreviewActivated && (
+						<div className="playground-activation-placeholder">
+							<Button
+								className="wordpress-playground-activate-button"
+								variant="primary"
+								onClick={() => setLivePreviewActivated(true)}
+								aria-description={iframeCreationWarning}
+							>
+								Activate Live Preview
+							</Button>
+						</div>
+					)}
+					{transpilationFailures?.length > 0 && (
+						<div className="playground-transpilation-failures">
+							<h3>Transpilation Error</h3>
+							<p>
+								There were errors while transpiling the code.
+								Please fix the errors and try again.
+							</p>
+							<ul>
+								{transpilationFailures.map(
+									({ file, error }) => (
+										<li key={file.name}>
+											<b>{file.name}</b>
+											<p>{error.message}</p>
+										</li>
+									)
+								)}
+							</ul>
+						</div>
+					)}
+					{isLivePreviewActivated && (
+						<iframe
+							aria-label="Live Preview in WordPress Playground"
+							key="playground-iframe"
+							ref={iframeRef}
+							className="playground-iframe"
+						></iframe>
+					)}
+				</div>
 			</main>
 			<footer className="demo-footer">
 				<a
