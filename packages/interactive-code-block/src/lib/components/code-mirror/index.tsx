@@ -51,11 +51,6 @@ export type CodeMirrorRef = {
 	getContents: () => string;
 };
 
-function stopPropagation(event: React.KeyboardEvent) {
-	event.preventDefault();
-	event.stopPropagation();
-}
-
 const CodeMirror: MemoExoticComponent<
 	ForwardRefExoticComponent<CodeMirrorProps & RefAttributes<CodeMirrorRef>>
 > = memo(
@@ -63,7 +58,7 @@ const CodeMirror: MemoExoticComponent<
 		{ onChange, onSave, initialContents, fileType, className = '' },
 		ref
 	) {
-		const codeMirrorRef = useRef<HTMLDivElement>(null);
+		const codeMirrorRef = useRef(null);
 		const contentsRef = useRef(initialContents);
 		const onChangeRef = useRef(onChange);
 		const languagePlugin = useLanguagePlugin(fileType);
@@ -155,40 +150,13 @@ const CodeMirror: MemoExoticComponent<
 		}, [languagePlugin, dep, codeMirrorRef.current]);
 
 		useEffect(() => {
+			// return a function to be executed at component unmount
 			return () => {
 				view && view.destroy();
 			};
 		}, [view]);
 
-		useEffect(() => {
-			function keyListener(event: KeyboardEvent) {
-				console.log('key listener');
-				// if (isFocused) {
-				// 	event.preventDefault();
-				// 	event.stopImmediatePropagation();
-				// }
-			}
-			const doc = codeMirrorRef.current!.ownerDocument;
-			console.log({ doc });
-			doc.addEventListener('keydown', keyListener, true);
-			doc.addEventListener('keyup', keyListener, true);
-			doc.addEventListener('keypress', keyListener, true);
-
-			return () => {
-				doc.removeEventListener('keydown', keyListener, true);
-				doc.removeEventListener('keyup', keyListener, true);
-				doc.removeEventListener('keypress', keyListener, true);
-			};
-		}, []);
-
-		return (
-			<div
-				ref={codeMirrorRef}
-				className={className}
-				onKeyDown={stopPropagation}
-				onKeyUp={stopPropagation}
-			/>
-		);
+		return <div ref={codeMirrorRef} className={className} />;
 	})
 );
 
