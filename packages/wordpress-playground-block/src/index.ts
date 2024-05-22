@@ -18,6 +18,7 @@ export type Attributes = {
 	codeEditor: boolean;
 	codeEditorReadOnly: boolean;
 	codeEditorSideBySide: boolean;
+	codeEditorTranspileJsx: boolean;
 	codeEditorMultipleFiles: boolean;
 	codeEditorMode: string;
 	logInUser: boolean;

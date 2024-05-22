@@ -29,6 +29,7 @@ import { LanguageSupport } from '@codemirror/language';
 import { writePluginFiles } from './write-plugin-files';
 import downloadZippedPlugin from './download-zipped-plugin';
 import classnames from 'classnames';
+import { transpilePluginFiles } from './transpile-plugin-files';
 
 export type PlaygroundDemoProps = Attributes & {
 	showAddNewFile: boolean;
@@ -75,7 +76,7 @@ export default function PlaygroundPreview({
 	codeEditor,
 	codeEditorSideBySide,
 	codeEditorReadOnly,
-	codeEditorMode,
+	codeEditorTranspileJsx,
 	constants,
 	logInUser,
 	createNewPost,
@@ -253,22 +254,15 @@ export default function PlaygroundPreview({
 	}
 
 	async function reinstallEditedPlugin() {
-		if (!playgroundClientRef.current) {
+		if (!playgroundClientRef.current || !codeEditor) {
 			return;
 		}
 
 		const client = playgroundClientRef.current;
-		if (codeEditorMode === 'editor-script') {
-			const docroot = await client.documentRoot;
-			await client.writeFile(
-				docroot + '/wp-content/mu-plugins/example-code.php',
-				"<?php add_action('admin_init',function(){wp_add_inline_script('wp-blocks','" +
-					activeFile.contents +
-					"','after');});"
-			);
-		} else if (codeEditorMode === 'plugin' && codeEditor) {
-			await writePluginFiles(client, files);
-		}
+		await writePluginFiles(
+			client,
+			codeEditorTranspileJsx ? await transpilePluginFiles(files) : files
+		);
 	}
 
 	const handleReRunCode = useCallback(() => {
