@@ -20,7 +20,10 @@ module.exports = {
 		new CopyWebpackPlugin({
 			patterns: [
 				{ from: '*.php', to: '../' },
-				{ from: '../../node_modules/esbuild-wasm/esbuild.wasm', to: './' },
+				{
+					from: '../../node_modules/esbuild-wasm/esbuild.wasm',
+					to: './',
+				},
 			],
 		}),
 	],

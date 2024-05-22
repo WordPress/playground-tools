@@ -26,21 +26,30 @@ export default forwardRef(function FileManagementModals(
 	const [downloadingFile, setDownloadingFile] = useState(false);
 	const [downloadFileError, setDownloadFileError] = useState(false);
 	async function updateActiveFile(newFileName: string) {
-		const updates = await constructFileObject(newFileName);
-		updateFile((file) => ({
-			...file,
-			...updates,
-		}));
-		setEditFileNameModalOpen(false);
+		setDownloadFileError(false);
+		try {
+			const updates = await constructFileObject(newFileName);
+			updateFile((file) => ({
+				...file,
+				...updates,
+			}));
+			setEditFileNameModalOpen(false);
+		} catch (e) {
+			setDownloadFileError(true);
+		}
 	}
 	async function createNewFile(newFileName: string) {
 		setDownloadFileError(false);
-		const newFile = (await constructFileObject(newFileName, {
-			contents: '',
-		})) as any;
-		addFile(newFile);
-		setActiveFileIndex(files.length);
-		setNewFileModalOpen(false);
+		try {
+			const newFile = (await constructFileObject(newFileName, {
+				contents: '',
+			})) as any;
+			addFile(newFile);
+			setActiveFileIndex(files.length);
+			setNewFileModalOpen(false);
+		} catch (e) {
+			setDownloadFileError(true);
+		}
 	}
 	async function constructFileObject(filename: string, defaults = {}) {
 		const file: Partial<EditorFile> = {
@@ -53,11 +62,10 @@ export default forwardRef(function FileManagementModals(
 				new URL(filename).pathname.split('/').pop() || 'remote-file';
 			setDownloadingFile(true);
 			try {
-				const response = await fetch(file.remoteUrl);
+				const response = await fetch(file.remoteUrl, {
+					credentials: 'omit',
+				});
 				file.contents = await response.text();
-			} catch {
-				setDownloadFileError(true);
-				return;
 			} finally {
 				setDownloadingFile(false);
 			}
@@ -67,8 +75,14 @@ export default forwardRef(function FileManagementModals(
 
 	useImperativeHandle(ref, () => {
 		return {
-			setEditFileNameModalOpen,
-			setNewFileModalOpen,
+			setEditFileNameModalOpen: (open: boolean) => {
+				setDownloadFileError(false);
+				setEditFileNameModalOpen(open);
+			},
+			setNewFileModalOpen: (open: boolean) => {
+				setDownloadFileError(false);
+				setNewFileModalOpen(open);
+			},
 		};
 	});
 

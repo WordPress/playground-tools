@@ -1,3 +1,3 @@
 export function isURL(str: string) {
-    return /^(https?):\/\//.test(str);
+	return /^(https?):\/\//.test(str);
 }
