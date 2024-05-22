@@ -296,8 +296,9 @@ function render_import_map($tag, $handle, $src)
     $imports = [];
     foreach ($script_to_js_global as $script_name => $global_name) {
         $module_name = str_replace('wp-', '@wordpress/', $script_name);
-        $imports[$module_name] = plugins_url('playground-esmodules/js/' . $script_name . '.js');
+        $imports[$module_name] = plugins_url('js/' . $script_name . '.js', __FILE__);
     }
+    $imports = apply_filters('wp_esm_import_map', $imports);
     $encoded_import_map = json_encode($imports);
     return <<<SCRIPT
 <script type="importmap">
