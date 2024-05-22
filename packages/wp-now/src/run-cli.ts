@@ -76,6 +76,11 @@ export async function runCli() {
 						'Create a new project environment, destroying the old project environment.',
 					type: 'boolean',
 				});
+				yargs.option('skip-browser', {
+					describe: 'Do not launch the default browser',
+					type: 'boolean',
+					default: false,
+				});
 				yargs.option('inspect', {
 					describe: 'Use Node debugging client.',
 					type: 'number',
@@ -114,7 +119,9 @@ export async function runCli() {
 					});
 					portFinder.setPort(options.port as number);
 					const { url } = await startServer(options);
-					openInDefaultBrowser(url);
+					if (argv.skipBrowser !== true) {
+						openInDefaultBrowser(url);
+					}
 				} catch (error) {
 					output?.error(error);
 					spinner.fail(
