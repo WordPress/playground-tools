@@ -110,6 +110,29 @@ export default function PlaygroundPreview({
 
 	const iframeRef = useRef<HTMLIFrameElement>(null);
 	const playgroundClientRef = useRef<PlaygroundClient | null>(null);
+	const codeMirrorRef = useRef<any>(null);
+
+	/**
+	 * Prevent the CodeMirror keyboard shortcuts from leaking to the block editor.
+	 */
+	useEffect(() => {
+		if (!codeMirrorRef.current) return;
+
+		const view = codeMirrorRef.current.view;
+		if (!view) return;
+
+		function stopPropagation(event: KeyboardEvent) {
+			event.stopPropagation();
+		}
+		view.dom.addEventListener('keydown', stopPropagation);
+		view.dom.addEventListener('keypress', stopPropagation);
+		view.dom.addEventListener('keyup', stopPropagation);
+		return () => {
+			view.dom.removeEventListener('keydown', stopPropagation, true);
+			view.dom.removeEventListener('keyup', stopPropagation, true);
+			view.dom.removeEventListener('keypress', stopPropagation, true);
+		};
+	}, [codeMirrorRef.current]);
 
 	const [isLivePreviewActivated, setLivePreviewActivated] = useState(
 		!requireLivePreviewActivation
@@ -376,6 +399,7 @@ export default function PlaygroundPreview({
 						</div>
 						<div className="code-editor-wrapper">
 							<ReactCodeMirror
+								ref={codeMirrorRef}
 								value={activeFile.contents}
 								extensions={[
 									keymapExtension,
