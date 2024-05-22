@@ -18,7 +18,10 @@ module.exports = {
 	plugins: [
 		...defaultConfig.plugins,
 		new CopyWebpackPlugin({
-			patterns: [{ from: '*.php', to: '../' }],
+			patterns: [
+				{ from: '*.php', to: '../' },
+				{ from: '../../node_modules/esbuild-wasm/esbuild.wasm', to: './' },
+			],
 		}),
 	],
 };

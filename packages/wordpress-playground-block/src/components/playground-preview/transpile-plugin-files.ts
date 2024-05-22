@@ -24,7 +24,7 @@ export const transpilePluginFiles = async (
 		esbuild = import('esbuild-wasm');
 		esbuildInitialized = (await esbuild)!.initialize({
 			worker: true,
-			wasmURL: 'https://unpkg.com/esbuild-wasm@0.21.3/esbuild.wasm',
+			wasmURL: new URL('./esbuild.wasm', (document as any).currentScript.src),
 		});
 	}
 
