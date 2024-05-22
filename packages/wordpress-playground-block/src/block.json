@@ -2,7 +2,6 @@
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 2,
 	"name": "wordpress-playground/playground",
-	"version": "0.0.1",
 	"title": "WordPress Playground",
 	"category": "widgets",
 	"icon": "wordpress",

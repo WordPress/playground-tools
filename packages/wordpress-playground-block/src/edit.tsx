@@ -2,6 +2,7 @@ import React from 'react';
 import type { Attributes } from './index';
 import type { BlockEditProps } from '@wordpress/blocks';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
+import { useState, useRef } from '@wordpress/element';
 import {
 	ToggleControl,
 	SelectControl,
@@ -17,8 +18,103 @@ import {
 } from '@wordpress/components';
 import PlaygroundPreview from './components/playground-preview';
 import './editor.scss';
+import {
+	attributesToBase64,
+	base64DecodeBlockAttributes,
+	base64EncodeBlockAttributes,
+} from './base64';
 
-export default function Edit({
+/**
+ * Some WordPress installations are overly eager with their HTML entity encoding
+ * and will save `<?php` as `&lt;php`. We cannot easily detect this to decode
+ * these HTML entities only when needed, so let's just store the attributes using
+ * base64 encoding to prevent WordPress from breaking them.
+ */
+function withBase64Attrs(Component: any) {
+	return (props: any) => {
+		const ref = useRef<any>({
+			encodeTimeout: null,
+		});
+		// Store the base64 encoded attributes are stored in a local state in a
+		// decoded form to avoid encoding/decoding on each keystroke.
+		const [base64Attributes, setBase64Attributes] = useState<
+			Record<string, any>
+		>(() => {
+			const attrs: Record<string, any> = {};
+			for (const key in props.attributes) {
+				if (attributesToBase64.includes(key)) {
+					attrs[key] = props.attributes[key];
+				}
+			}
+			return base64DecodeBlockAttributes(attrs);
+		});
+		// Pass the non-base64 attributes to the component as they are on each
+		// render.
+		const nonBase64Attributes: Record<string, any> = {};
+		for (const key in props.attributes) {
+			if (!attributesToBase64.includes(key)) {
+				nonBase64Attributes[key] = props.attributes[key];
+			}
+		}
+
+		/**
+		 * Store the base64 encoded attributes in the local state instead of
+		 * calling setAttributes() on each change. Then, debounce the actual
+		 * setAttributes() call to prevent encoding/decoding/re-render on each
+		 * key stroke.
+		 *
+		 * Other attributes are just passed to props.setAttributes().
+		 */
+		function setAttributes(attributes: any) {
+			const deltaBase64Attributes: Record<string, string> = {};
+			const deltaRest: Record<string, string> = {};
+			for (const key in attributes) {
+				if (attributesToBase64.includes(key)) {
+					deltaBase64Attributes[key] = attributes[key];
+				} else {
+					deltaRest[key] = attributes[key];
+				}
+			}
+			if (Object.keys(deltaRest).length > 0) {
+				props.setAttributes(deltaRest);
+			}
+
+			const newBase64Attributes: Record<string, any> = {
+				...base64Attributes,
+				...deltaBase64Attributes,
+			};
+			if (Object.keys(deltaBase64Attributes).length > 0) {
+				setBase64Attributes(newBase64Attributes);
+			}
+
+			// Debounce the encoding to prevent encoding/decoding/re-render on
+			// each key stroke.
+			if (ref.current.encodeTimeout) {
+				clearTimeout(ref.current.encodeTimeout);
+			}
+			ref.current.encodeTimeout = setTimeout(() => {
+				props.setAttributes(
+					base64EncodeBlockAttributes(newBase64Attributes)
+				);
+				clearTimeout(ref.current.encodeTimeout);
+				ref.current.encodeTimeout = null;
+			}, 100);
+		}
+
+		return (
+			<Component
+				{...props}
+				setAttributes={setAttributes}
+				attributes={{
+					...nonBase64Attributes,
+					...base64Attributes,
+				}}
+			/>
+		);
+	};
+}
+
+export default withBase64Attrs(function Edit({
 	isSelected,
 	setAttributes,
 	attributes,
@@ -59,6 +155,23 @@ export default function Edit({
 			/>
 			<InspectorControls>
 				<Panel header="Settings">
+					<PanelBody title="General" initialOpen={true}>
+						<ToggleControl
+							label="Require live preview activation"
+							help={
+								requireLivePreviewActivation
+									? 'User must click to load the preview.'
+									: 'Preview begins loading immediately.'
+							}
+							checked={requireLivePreviewActivation}
+							onChange={() => {
+								setAttributes({
+									requireLivePreviewActivation:
+										!requireLivePreviewActivation,
+								});
+							}}
+						/>
+					</PanelBody>
 					<PanelBody title="Code editor" initialOpen={true}>
 						<ToggleControl
 							label="Code editor"
@@ -118,21 +231,6 @@ export default function Edit({
 										setAttributes({
 											codeEditorMultipleFiles:
 												!codeEditorMultipleFiles,
-										});
-									}}
-								/>
-								<ToggleControl
-									label="Require live preview activation"
-									help={
-										requireLivePreviewActivation
-											? 'User must click to load the preview.'
-											: 'Preview begins loading immediately.'
-									}
-									checked={requireLivePreviewActivation}
-									onChange={() => {
-										setAttributes({
-											requireLivePreviewActivation:
-												!requireLivePreviewActivation,
 										});
 									}}
 								/>
@@ -431,4 +529,4 @@ export default function Edit({
 			</InspectorControls>
 		</div>
 	);
-}
+});

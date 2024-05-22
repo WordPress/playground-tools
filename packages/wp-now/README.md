@@ -127,6 +127,7 @@ npx @wp-now/wp-now php --help
 -   `--wp=<version>`: The version of WordPress to use. The default is the [latest WordPress version](https://wordpress.org/download/releases/).
 -   `--blueprint=<path>`: The path to a JSON file with the Blueprint steps (requires Node 20). If provided, `wp-now` executes the steps. See [Using Blueprints](#using-blueprints) for more details.
 -   `--reset`: Creates a fresh SQLite database and `wp-content` directory for modes that support persistence.
+-   `--skip-browser`: skip opening the browser after starting the server.
 
 `wp-now php` supports the `--path=<path>` and `--php=<version>` arguments.
 
