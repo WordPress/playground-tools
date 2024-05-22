@@ -299,7 +299,8 @@ Here's what you need to know if you're migrating from `wp-env`:
 
 -   `wp-now` supports non-WordPress projects.
 -   `wp-now` does not require Docker.
--   `wp-now` does not include Jest for automatic browser testing.
+-   `wp-now` does not include [lifecycle scripts](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-env/#node-lifecycle-script).
+
 
 ## Contributing
 
