@@ -9,7 +9,7 @@ import { EditorFile } from '..';
 
 interface FileNameModalProps {
 	title: string;
-	onSave: (filename: string) => void;
+	onSave: (file: Partial<EditorFile>) => void;
 	onRequestClose: () => void;
 	file?: EditorFile;
 	isLoading?: boolean;
@@ -24,9 +24,8 @@ export function FileNameModal({
 	onRequestClose,
 	file,
 }: FileNameModalProps) {
-	const [editedFileName, setEditedFileName] = useState(
-		file?.remoteUrl || file?.name || ''
-	);
+	const [editedFileName, setEditedFileName] = useState(file?.name || '');
+	const [editedFileUrl, setEditedFileUrl] = useState(file?.remoteUrl || '');
 	return (
 		<Modal title={title} onRequestClose={onRequestClose}>
 			<form
@@ -36,18 +35,32 @@ export function FileNameModal({
 						return;
 					}
 					if (editedFileName) {
-						onSave(editedFileName);
+						onSave({
+							name: editedFileName,
+							remoteUrl: editedFileUrl,
+						});
 					}
 				}}
 			>
-				<InputControl
-					value={editedFileName}
-					placeholder="File name or URL"
-					autoFocus
-					onChange={(value: any) => {
-						setEditedFileName(value || '');
-					}}
-				/>
+				<div style={{ marginTop: '1em' }}>
+					<InputControl
+						value={editedFileName}
+						label="File name"
+						autoFocus
+						onChange={(value: any) => {
+							setEditedFileName(value || '');
+						}}
+					/>
+				</div>
+				<div style={{ marginTop: '1em' }}>
+					<InputControl
+						value={editedFileUrl}
+						label="Load content from remote URL (optional)"
+						onChange={(value: any) => {
+							setEditedFileUrl(value || '');
+						}}
+					/>
+				</div>
 				{isLoading && 'Fetching the remote file...'}
 				{error && (
 					<p style={{ color: 'red', marginTop: '1em' }}>

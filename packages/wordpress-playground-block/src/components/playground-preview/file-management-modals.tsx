@@ -2,7 +2,6 @@ import { useState, forwardRef, useImperativeHandle } from '@wordpress/element';
 
 import type { EditorFile } from '../../index';
 import { FileNameModal } from '../file-name-modal';
-import { isURL } from '../../util';
 
 export interface FileManagerRef {
 	setEditFileNameModalOpen: (open: boolean) => void;
@@ -25,10 +24,10 @@ export default forwardRef(function FileManagementModals(
 	const [isEditFileNameModalOpen, setEditFileNameModalOpen] = useState(false);
 	const [downloadingFile, setDownloadingFile] = useState(false);
 	const [downloadFileError, setDownloadFileError] = useState(false);
-	async function updateActiveFile(newFileName: string) {
+	async function updateActiveFile(file: Partial<EditorFile>) {
 		setDownloadFileError(false);
 		try {
-			const updates = await constructFileObject(newFileName);
+			const updates = await resolveFileObject(file);
 			updateFile((file) => ({
 				...file,
 				...updates,
@@ -38,11 +37,12 @@ export default forwardRef(function FileManagementModals(
 			setDownloadFileError(true);
 		}
 	}
-	async function createNewFile(newFileName: string) {
+	async function createNewFile(file: Partial<EditorFile>) {
 		setDownloadFileError(false);
 		try {
-			const newFile = (await constructFileObject(newFileName, {
+			const newFile = (await resolveFileObject({
 				contents: '',
+				...file,
 			})) as any;
 			addFile(newFile);
 			setActiveFileIndex(files.length);
@@ -51,15 +51,8 @@ export default forwardRef(function FileManagementModals(
 			setDownloadFileError(true);
 		}
 	}
-	async function constructFileObject(filename: string, defaults = {}) {
-		const file: Partial<EditorFile> = {
-			name: filename,
-			...defaults,
-		};
-		if (isURL(filename)) {
-			file.remoteUrl = filename;
-			file.name =
-				new URL(filename).pathname.split('/').pop() || 'remote-file';
+	async function resolveFileObject(file: Partial<EditorFile>) {
+		if (file.remoteUrl) {
 			setDownloadingFile(true);
 			try {
 				const response = await fetch(file.remoteUrl, {
