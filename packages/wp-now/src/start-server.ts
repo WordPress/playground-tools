@@ -43,7 +43,7 @@ export async function startServer(
 			`The given path "${options.projectPath}" does not exist.`
 		);
 	}
-	const app = express();
+	const app = options.app ? options.app : express();
 	app.use(compression({ filter: shouldCompress }));
 	app.use(addTrailingSlash('/wp-admin'));
 	const port = await portFinder.getOpenPort();
