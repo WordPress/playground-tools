@@ -5,6 +5,7 @@ This repository contains the tools and applications built using [WordPress Playg
 -   [Playground plugin for WordPress to clone your site](./packages/playground/)
 -   [Playground Block for Gutenberg](./packages/wordpress-playground-block/)
 -   [WordPress Playground for Visual Studio Code](./packages/vscode-extension/)
+-   ["Edit Visually" Browser extension powered by WordPress Playground](./packages/edit-visually-browser-extension/)
 -   [wp-now](./packages/wp-now/)
 
 If you were looking for the Playground itself, you can find it here: [WordPress Playground](https://developer.wordpress.org/playground/)
