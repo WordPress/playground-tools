@@ -1,6 +1,7 @@
 <?php
 // phpcs:ignoreFile WordPress.DB.DirectDatabaseQuery.DirectQuery
 namespace WordPress\Playground;
+use WordPress\Zip\ZipStreamWriter;
 
 defined('ABSPATH') || exit;
 
@@ -27,9 +28,9 @@ function escape_array($array)
 /**
  * Create a database dump and add it to a zip archive.
  *
- * @param ZipArchive $zip The zip archive to add the database dump to.
+ * @param ZipStreamWriter $zip The zip archive to add the database dump to.
  */
-function zip_database($zip)
+function zip_database(ZipStreamWriter $zip)
 {
 	global $wpdb;
 
@@ -70,7 +71,11 @@ function zip_database($zip)
 			);
 		}
 	}
-	$zip->addFile('wp-content/database/database.sql', implode("\n", $sql_dump));
+
+	$zip->writeFileFromString(
+		'wp-content/database/database.sql',
+		implode("\n", $sql_dump)
+	);
 }
 
 /**

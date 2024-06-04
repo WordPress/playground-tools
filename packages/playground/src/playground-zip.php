@@ -1,19 +1,20 @@
 <?php
 
 namespace WordPress\Playground;
+use WordPress\Zip\ZipStreamWriter;
 
 defined('ABSPATH') || exit;
 
 require __DIR__ . '/playground-db.php';
 
-use ZipStream\ZipStream;
+require_once __DIR__ . '/../vendor/WordPress/Zip/autoload.php';
 
 /**
  * Add the wp-content directory to a zip archive.
  *
- * @param ZipStream $zip The zip archive to add the wp-content directory to.
+ * @param ZipStreamWriter $zip The zip archive to add the wp-content directory to.
  */
-function zip_wp_content($zip)
+function zip_wp_content(ZipStreamWriter $writer)
 {
 	$root_dir = WP_CONTENT_DIR;
 	$directory = new \RecursiveDirectoryIterator($root_dir, \FilesystemIterator::FOLLOW_SYMLINKS);
@@ -35,9 +36,9 @@ function zip_wp_content($zip)
 		if (false === $file) {
 			continue;
 		}
-		$zip->addFileFromPath(
-			str_replace($root_dir, '/wp-content', $file),
-			$file
+		$writer->writeFileFromPath(
+			str_replace($root_dir, 'wp-content', $file),
+			$file,
 		);
 	}
 }
@@ -47,13 +48,20 @@ function zip_wp_content($zip)
  */
 function zip_collect()
 {
-	$zip = new ZipStream(
-		outputName: 'playground-package-' . gmdate('Y-m-d_H-i-s') . '.zip',
-		sendHttpHeaders: true
-	);
+	$filename = 'playground-package-' . gmdate('Y-m-d_H-i-s') . '.zip';
+	header('Content-Type: application/zip');
+	header('Content-Disposition: attachment; filename="' . $filename . '"');
+	header('Pragma: public');
+	header('Cache-Control: public, must-revalidate');
+	header('Content-Transfer-Encoding: binary');
 
-	zip_wp_content($zip);
-	zip_database($zip);
+	$fp = fopen('php://output', 'wb');
+	$writer = new \WordPress\Zip\ZipStreamWriter($fp);
 
-	$zip->finish();
+	zip_wp_content($writer);
+	zip_database($writer);
+
+	$writer->finish();
+	fclose($fp);
+	die();
 }
