@@ -111,7 +111,7 @@ class ZipStreamWriter {
 			8, // Compression method (8 = deflate)
 			filemtime($sourcePathOnDisk) >> 16, // File last modification time
 			filemtime($sourcePathOnDisk) & 0xFFFF, // File last modification date
-			$crc, // CRC-32
+			(int)$crc, // CRC-32
 			$compressedSize, // Compressed size
 			$uncompressedSize, // Uncompressed size
 			$targetPathInZip, // File name

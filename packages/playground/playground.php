@@ -130,14 +130,34 @@ function download_snapshot()
  */
 function plugin_menu()
 {
-	add_menu_page(
+	add_submenu_page(
+		'tools.php',
 		'WordPress Playground',
-		'Sandbox Site (experimental)',
+		'Sandbox Site',
 		ADMIN_PAGE_CAPABILITY,
 		PLAYGROUND_ADMIN_PAGE_SLUG,
 		__NAMESPACE__ . '\render_playground_page',
 		NULL
 	);
+
+	add_menu_page(
+		'WordPress Playground Redirect',
+		'Sandbox Site (experimental)',
+		ADMIN_PAGE_CAPABILITY,
+		PLAYGROUND_ADMIN_PAGE_SLUG . '_redirect',
+		__NAMESPACE__ . '\redirect_playground_page',
+		NULL
+	);
+}
+
+/**
+ * Redirect to the WordPress Playground page.
+ */
+function redirect_playground_page()
+{
+	$target = admin_url('tools.php?page=' . PLAYGROUND_ADMIN_PAGE_SLUG);
+	echo "<script>window.location = '$target';</script>";
+	exit;
 }
 
 /**
