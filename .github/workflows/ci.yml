@@ -21,6 +21,18 @@ jobs:
             - uses: ./.github/actions/prepare-playground
             - run: npx nx affected --target=lint
             - run: npx nx affected --target=typecheck
+
+            - name: Install PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '7.4'
+                  extensions: mbstring, zip, pdo_mysql
+
+            - name: Install Composer dependencies
+              run: composer install
+
+            - name: Run PHPCS
+              run: vendor/bin/phpcs
     test:
         runs-on: ubuntu-latest
         needs: [lint-and-typecheck]
