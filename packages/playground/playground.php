@@ -1,9 +1,8 @@
 <?php
-
 /**
- * Plugin Name: Playground
+ * Plugin Name: Sandbox powered by Playground 
  * Plugin URI: https://github.com/WordPress/playground-tools/tree/trunk/packages/playground
- * Description: Packages your WordPress install and sends it to Playground.
+ * Description: Clone your WordPress site in Playground. Preview plugins and safely experiment without affecting your live site.
  * Author: WordPress Contributors
  * Version: 0.1.1
  * Requires PHP: 8.0
@@ -131,10 +130,9 @@ function download_snapshot()
  */
 function plugin_menu()
 {
-	add_submenu_page(
-		'tools.php',
+	add_menu_page(
 		'WordPress Playground',
-		'Sandbox Site',
+		'Sandbox Site (experimental)',
 		ADMIN_PAGE_CAPABILITY,
 		PLAYGROUND_ADMIN_PAGE_SLUG,
 		__NAMESPACE__ . '\render_playground_page',
@@ -182,7 +180,7 @@ function plugin_install_action_links($action_links, $plugin)
 			)
 		),
 		esc_attr($plugin['name']),
-		__('Preview Now', 'playground')
+		__('Preview in Sandbox', 'playground')
 	);
 
 	array_unshift($action_links, $preview_button);
