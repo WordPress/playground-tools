@@ -344,20 +344,19 @@ export default function PlaygroundPreview({
 		[handleReRunCode]
 	);
 
-	const codeContainerClass = classnames('code-container', {
-		'is-full-width': !codeEditorSideBySide,
-		'is-half-width': codeEditorSideBySide,
+	const mainContainerClass = classnames('demo-container', {
+		'is-one-under-another': !codeEditorSideBySide,
+		'is-side-by-side': codeEditorSideBySide,
 	});
-
 	const iframeCreationWarning =
 		'This button creates an iframe containing a full WordPress website ' +
 		'which may be a challenge for screen readers.';
 
 	return (
 		<>
-			<main className="demo-container">
+			<main className={mainContainerClass}>
 				{codeEditor && (
-					<div className={codeContainerClass}>
+					<div className="code-container">
 						<FileManagementModals
 							ref={fileMgrRef}
 							updateFile={updateFile}
