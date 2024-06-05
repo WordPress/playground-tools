@@ -9,12 +9,19 @@
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       wordpress-playground-block
+ *
+ * @package WordPress/playground-block
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
+/**
+ * Enqueue block editor assets.
+ *
+ * @return void
+ */
 function playground_demo_block_init() {
 	$style_css = 'build/style-index.css';
 	wp_register_style(

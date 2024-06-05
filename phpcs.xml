@@ -2,14 +2,16 @@
 <ruleset name="PlaygroundTools">
     <description>PHPCS configuration for MyProject using WordPress Coding Standards</description>
     <rule ref="WordPress" />
+    <rule ref="WordPress-Core" />
 
     <!-- Paths to exclude from PHPCS analysis -->
     <exclude-pattern>*/vendor/*</exclude-pattern>
-    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>*/block.asset.php</exclude-pattern>
+    <exclude-pattern>*/example-plugin/*</exclude-pattern>
 
     <!-- File extensions to include in the analysis -->
     <arg name="extensions" value="php"/>
-    <file>packages/wordpress-playground-block/src</file>
+    <file>packages/wordpress-playground-block/</file>
 
     <!-- Additional rules or exclusions can be added here -->
 </ruleset>

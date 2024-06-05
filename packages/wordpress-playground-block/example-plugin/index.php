@@ -2,7 +2,6 @@
 /**
  * Plugin Name: My First Block
  */
-
 function register_my_first_block() {
 	register_block_type( __DIR__ );
 }
