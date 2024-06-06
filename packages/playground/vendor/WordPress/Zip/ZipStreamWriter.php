@@ -48,7 +48,7 @@ class ZipStreamWriter {
 				0, // Compression method (0 = none)
 				filemtime($sourcePathOnDisk) >> 16, // File last modification time
 				filemtime($sourcePathOnDisk) & 0xFFFF, // File last modification date
-				hexdec(hash_file('crc32b', $sourcePathOnDisk)), // CRC-32
+				(int)hexdec(hash_file('crc32b', $sourcePathOnDisk)), // CRC-32
 				$uncompressedSize, // Uncompressed size
 				$uncompressedSize, // Compressed size
 				$targetPathInZip, // File name
@@ -196,7 +196,7 @@ class ZipStreamWriter {
 			$should_deflate ? 8 : 0, // Compression method (8 = deflate, 0 = none)
 			time() >> 16, // File last modification time
 			time() & 0xFFFF, // File last modification date
-			hexdec(hash('crc32b', $data)), // CRC-32
+			(int)hexdec(hash('crc32b', $data)), // CRC-32
 			strlen($compressed_data), // Uncompressed size
 			strlen($data), // Uncompressed size
 			$targetPathInZip, // File name

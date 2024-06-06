@@ -86,11 +86,28 @@ function zip_database(ZipStreamWriter $zip)
 function get_db_tables()
 {
 	global $wpdb;
-	$tables = $wpdb->get_results('SHOW TABLES', ARRAY_N);
-	return apply_filters(
+	$prefix = $wpdb->prefix;
+	$tables = $wpdb->get_results("SHOW TABLES LIKE '{$prefix}%'", ARRAY_N);
+
+	$tables = array_column($tables, 0);
+	
+	// Workaround – On SQLite we have a list of objects, while on MySQL
+	// we're getting a list of strings. Let's normalize it here until
+	// a proper fix is shipped in the SQLite plugin.
+	// https://github.com/WordPress/sqlite-database-integration/pull/117
+	// https://github.com/WordPress/sqlite-database-integration/pull/118
+	foreach ( $tables as $k => $table ) {
+		if ( is_object( $table ) ) {
+			$tables[$k] = $table->Tables_in_db;
+		}
+	}
+
+	$tables = apply_filters(
 		'playground_db_tables',
-		array_column($tables, 0)
+		$tables
 	);
+
+	return $tables;
 }
 
 /**
