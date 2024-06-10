@@ -164,7 +164,7 @@ window.addEventListener('beforeunload', (event) => {
 	event.stopImmediatePropagation();
 	pushChangesAndCloseEditor();
 });
-window.addEventListener('message', (event) => {
+window.addEventListener('message', async (event) => {
 	if (typeof event.data !== 'object') {
 		return;
 	}
@@ -181,6 +181,25 @@ window.addEventListener('message', (event) => {
 			}),
 			'*'
 		);
+	} else if (command === 'addAndFocusOnEmptyParagraph') {
+		await wp.data.dispatch('core/block-editor').insertBlocks(
+			wp.blocks.createBlock(
+				'core/paragraph',
+				{
+					content: '',
+				},
+				[]
+			)
+		);
+		const lastBlock = wp.data
+			.select('core/block-editor')
+			.getBlocks()
+			.slice(-1)[0];
+		if (lastBlock) {
+			await wp.data
+				.dispatch('core/block-editor')
+				.selectBlock(lastBlock.clientId);
+		}
 	}
 });
 await import('../blocky-formats/src/blocky-formats.js');

@@ -17,6 +17,9 @@
 	"content_security_policy": {
 		"extension_pages": "script-src 'self' 'wasm-unsafe-eval'; default-src 'self' https://playground-editor-extension.pages.dev/;"
 	},
+	"action": {
+		"default_title": "Edit in Playground"
+	},
 	"content_scripts": [
 		{
 			"matches": [

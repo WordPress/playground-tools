@@ -111,17 +111,19 @@ var enableEditInPlaygroundButton = function () {
 				activeEditor?.editor.windowHandle?.close();
 				activeEditor = {
 					element: currentElement,
-					editor: await openPlaygroundEditorFor(currentElement),
+					editor: await openPlaygroundEditorForEditable(
+						currentElement
+					),
 				};
 			}
 		});
 		return button2;
 	}
 };
-async function openPlaygroundEditorFor(element) {
+async function openPlaygroundEditorForEditable(element) {
 	const localEditor = wrapLocalEditable(element);
 	const initialValue = localEditor.getValue();
-	const playgroundEditor = await openPlaygroundEditor({
+	playgroundEditor = await openPlaygroundEditor({
 		format: 'markdown',
 		initialValue,
 		onClose(lastValue) {
@@ -146,9 +148,6 @@ async function openPlaygroundEditorFor(element) {
 			const value = localEditor.getValue();
 			playgroundEditor.setValue(value);
 			lastRemoteValue = value;
-		}),
-		bindEventListener(window, 'beforeunload', () => {
-			playgroundEditor.windowHandle.close();
 		}),
 		() => {
 			pollInterval && clearInterval(pollInterval);
@@ -240,6 +239,9 @@ async function openPlaygroundEditor({ format, initialValue, onClose }) {
 		unbindCloseListener();
 		onClose && onClose(lastRemoteValue || initialValue);
 	});
+	bindEventListener(window, 'beforeunload', () => {
+		windowHandle.close();
+	});
 	return {
 		windowHandle,
 		async getValue() {
@@ -263,6 +265,15 @@ async function openPlaygroundEditor({ format, initialValue, onClose }) {
 				'*'
 			);
 		},
+		addAndFocusOnEmptyParagraph() {
+			windowHandle.postMessage(
+				{
+					command: 'addAndFocusOnEmptyParagraph',
+					type: 'relay',
+				},
+				'*'
+			);
+		},
 	};
 }
 var onWindowClosed = function (windowObject, callback) {
@@ -278,4 +289,32 @@ var onWindowClosed = function (windowObject, callback) {
 	}
 	return unbind;
 };
+async function appendToPlaygroundEditor(text) {
+	if (playgroundEditor && !playgroundEditor?.windowHandle?.closed) {
+		playgroundEditor.windowHandle.focus();
+		const value = await playgroundEditor.getValue();
+		await playgroundEditor.setValue(`${value}\n\n${text} `);
+	} else {
+		playgroundEditor = await openPlaygroundEditor({
+			format: 'markdown',
+			initialValue: text,
+			onClose(lastValue) {
+				navigator.clipboard.writeText(lastValue || '');
+			},
+		});
+	}
+	await playgroundEditor.addAndFocusOnEmptyParagraph();
+}
 enableEditInPlaygroundButton();
+var playgroundEditor = null;
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+	if (request?.command === 'actionClicked') {
+		const selectedText = window.getSelection()?.toString() || '';
+		const quotedSelectedText =
+			selectedText
+				.split('\n')
+				.map((line) => `> ${line}`)
+				.join('\n') + '\n> \n\n';
+		appendToPlaygroundEditor(quotedSelectedText);
+	}
+});

@@ -44,3 +44,18 @@ async function createOffscreenDocument(
 }
 
 setupOffscreenDocument(chrome.runtime.getURL('playground-loader.html'));
+
+chrome.action.onClicked.addListener((tab) => {
+	// Ensure the content script is injected and send the message
+	chrome.scripting.executeScript(
+		{
+			target: { tabId: tab.id },
+			files: ['content.js'],
+		},
+		() => {
+			chrome.tabs.sendMessage(tab.id, {
+				command: 'actionClicked',
+			});
+		}
+	);
+});

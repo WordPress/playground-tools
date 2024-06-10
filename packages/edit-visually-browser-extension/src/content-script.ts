@@ -72,7 +72,9 @@ function enableEditInPlaygroundButton() {
 				activeEditor?.editor.windowHandle?.close();
 				activeEditor = {
 					element: currentElement,
-					editor: await openPlaygroundEditorFor(currentElement),
+					editor: await openPlaygroundEditorForEditable(
+						currentElement
+					),
 				};
 			}
 		});
@@ -82,11 +84,12 @@ function enableEditInPlaygroundButton() {
 
 enableEditInPlaygroundButton();
 
+let playgroundEditor: any = null;
 // Function to wait until DOM is fully loaded
-async function openPlaygroundEditorFor(element: any) {
+async function openPlaygroundEditorForEditable(element: any) {
 	const localEditor = wrapLocalEditable(element);
 	const initialValue = localEditor.getValue();
-	const playgroundEditor = await openPlaygroundEditor({
+	playgroundEditor = await openPlaygroundEditor({
 		format: 'markdown',
 		initialValue,
 		onClose(lastValue: string | null) {
@@ -115,10 +118,6 @@ async function openPlaygroundEditorFor(element: any) {
 			const value = localEditor.getValue();
 			playgroundEditor.setValue(value);
 			lastRemoteValue = value;
-		}),
-		// Close the editor popup if the user navigates away
-		bindEventListener(window, 'beforeunload', () => {
-			playgroundEditor.windowHandle.close();
 		}),
 		() => {
 			pollInterval && clearInterval(pollInterval);
@@ -224,9 +223,15 @@ async function openPlaygroundEditor({
 			}
 		}
 	);
+
 	onWindowClosed(windowHandle, () => {
 		unbindCloseListener();
 		onClose && onClose(lastRemoteValue || initialValue);
+	});
+
+	// Close the editor popup if the user navigates away
+	bindEventListener(window, 'beforeunload', () => {
+		windowHandle.close();
 	});
 
 	return {
@@ -252,6 +257,15 @@ async function openPlaygroundEditor({
 				'*'
 			);
 		},
+		addAndFocusOnEmptyParagraph() {
+			windowHandle.postMessage(
+				{
+					command: 'addAndFocusOnEmptyParagraph',
+					type: 'relay',
+				},
+				'*'
+			);
+		},
 	};
 }
 
@@ -269,4 +283,33 @@ function onWindowClosed(windowObject: any, callback: any) {
 		}
 	}
 	return unbind;
+}
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+	if (request?.command === 'actionClicked') {
+		const selectedText = window.getSelection()?.toString() || '';
+		const quotedSelectedText =
+			selectedText
+				.split('\n')
+				.map((line) => `> ${line}`)
+				.join('\n') + '\n> \n\n';
+		appendToPlaygroundEditor(quotedSelectedText);
+	}
+});
+
+async function appendToPlaygroundEditor(text: string) {
+	if (playgroundEditor && !playgroundEditor?.windowHandle?.closed) {
+		playgroundEditor.windowHandle.focus();
+		const value = await playgroundEditor.getValue();
+		await playgroundEditor.setValue(`${value}\n\n${text} `);
+	} else {
+		playgroundEditor = await openPlaygroundEditor({
+			format: 'markdown',
+			initialValue: text,
+			onClose(lastValue: string | null) {
+				navigator.clipboard.writeText(lastValue || '');
+			},
+		});
+	}
+	await playgroundEditor.addAndFocusOnEmptyParagraph();
 }
