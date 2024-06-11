@@ -62,9 +62,17 @@ var enableEditInPlaygroundButton = function () {
 		hideButton(button);
 	});
 	function showButtonIfNeeded(element) {
-		if (element.tagName === 'TEXTAREA' || element.isContentEditable) {
-			showButton(element);
+		const domain = window.location.hostname;
+		if (
+			!domain.endsWith('github.com') &&
+			domain !== 'meta.trac.wordpress.org'
+		) {
+			return;
 		}
+		if (element.tagName !== 'TEXTAREA' && !element.isContentEditable) {
+			return;
+		}
+		showButton(element);
 	}
 	let buttonInterval;
 	function showButton(element) {
