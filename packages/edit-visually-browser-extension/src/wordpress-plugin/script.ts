@@ -162,7 +162,7 @@ function onDraftSave(callback: any) {
 	});
 }
 
-onDraftSave(pushChangesAndCloseEditor);
+// onDraftSave(pushChangesAndCloseEditor);
 
 function pushChangesAndCloseEditor() {
 	const blocks = wp.data.select('core/block-editor').getBlocks();

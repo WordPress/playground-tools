@@ -79,31 +79,6 @@ async function populateEditorWithFormattedText(text) {
 		.dispatch('core/block-editor')
 		.resetBlocks(createBlocks(rawBlocks));
 }
-var onDraftSave = function (callback) {
-	let wasSavingPost = false;
-	wp.data.subscribe(function () {
-		const postType = wp.data.select('core/editor').getCurrentPostType();
-		if (!postType) {
-			return;
-		}
-		const isSavingPost = wp.data.select('core/editor').isSavingPost();
-		const isAutosavingPost = wp.data
-			.select('core/editor')
-			.isAutosavingPost();
-		const currentPost = wp.data.select('core/editor').getCurrentPost();
-		const saveStatus = currentPost.status;
-		if (
-			wasSavingPost &&
-			!isSavingPost &&
-			!isAutosavingPost &&
-			saveStatus === 'draft' &&
-			currentPost.id !== 0
-		) {
-			callback();
-		}
-		wasSavingPost = isSavingPost;
-	});
-};
 var pushChangesAndCloseEditor = function () {
 	const blocks = wp.data.select('core/block-editor').getBlocks();
 	window.opener.postMessage(
@@ -222,5 +197,4 @@ var createBlocks = (blocks) =>
 			block.innerBlocks ? createBlocks(block.innerBlocks) : []
 		)
 	);
-onDraftSave(pushChangesAndCloseEditor);
 boot();
