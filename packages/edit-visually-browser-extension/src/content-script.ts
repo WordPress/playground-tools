@@ -32,9 +32,7 @@ function enableEditInPlaygroundButton() {
 		button.style.top = `${
 			window.scrollY + rect.bottom - button.offsetHeight
 		}px`;
-		button.style.left = `${
-			window.scrollX + rect.right - button.offsetWidth
-		}px`;
+		button.style.left = `${window.scrollX + rect.left}px`;
 	}
 
 	function hideButton(button: HTMLButtonElement) {
