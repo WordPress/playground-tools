@@ -195,6 +195,10 @@ async function boot() {
 	if (firstBlockClientId) {
 		wp.data.dispatch('core/block-editor').selectBlock(firstBlockClientId);
 	}
+	// Disable autosave. @TODO: Figure out how to make onDraftSave only react to
+	// explicit save requests and not to autosaves. Otherwise the editoe window is getting
+	// closed after 60 seconds.
+	wp.data.dispatch('core/editor').unscheduleAutosave();
 }
 
 boot();

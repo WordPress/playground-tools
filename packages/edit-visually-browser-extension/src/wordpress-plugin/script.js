@@ -133,6 +133,7 @@ async function boot() {
 	if (firstBlockClientId) {
 		wp.data.dispatch('core/block-editor').selectBlock(firstBlockClientId);
 	}
+	wp.data.dispatch('core/editor').unscheduleAutosave();
 }
 var wp = window.wp;
 var format = 'markdown';
