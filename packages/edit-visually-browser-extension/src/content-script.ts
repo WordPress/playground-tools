@@ -25,25 +25,31 @@ function enableEditInPlaygroundButton() {
 			showButton(element);
 		}
 	}
+
+	let buttonInterval: any;
 	function showButton(element: any) {
 		currentElement = element;
-		const rect = element.getBoundingClientRect();
-		button.style.display = 'block';
-		button.style.top = `${
-			window.scrollY + rect.bottom - button.offsetHeight
-		}px`;
-		button.style.left = `${window.scrollX + rect.left}px`;
+		buttonInterval = setInterval(() => {
+			const rect = element.getBoundingClientRect();
+			button.style.display = 'block';
+			button.style.top = `${
+				window.scrollY + rect.bottom - button.offsetHeight
+			}px`;
+			button.style.left = `${window.scrollX + rect.left}px`;
+		}, 100);
 	}
 
 	function hideButton(button: HTMLButtonElement) {
 		currentElement = undefined;
 		button.style.display = 'none';
+		clearInterval(buttonInterval);
 	}
 
 	function createEditButton() {
 		const button = document.createElement('button');
 		button.textContent = 'Edit in Playground';
 		button.className = 'edit-btn';
+		button.style.transition = 'top 0.15s ease-in, left 0.15s ease-in';
 		button.style.position = 'absolute';
 		button.style.display = 'none';
 		button.style.padding = '5px 10px';
