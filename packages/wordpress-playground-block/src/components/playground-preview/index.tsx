@@ -399,6 +399,7 @@ export default function PlaygroundPreview({
 							)}
 							{showAddNewFile && (
 								<Button
+									aria-label="Add File"
 									variant="secondary"
 									className="file-tab file-tab-extra"
 									onClick={() =>
@@ -411,6 +412,7 @@ export default function PlaygroundPreview({
 								</Button>
 							)}
 							<Button
+								aria-label="Download Code as a Zip file"
 								variant="secondary"
 								className="file-tab file-tab-extra"
 								onClick={() => {
