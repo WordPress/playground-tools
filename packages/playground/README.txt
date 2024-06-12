@@ -3,7 +3,7 @@ Contributors: wordpressdotorg, antoniosejas, berislavgrgicak, zieladam
 Tags: playground, staging, sandbox
 Requires at least: 6.0
 Tested up to: 6.6
-Stable tag: 0.1.7
+Stable tag: 0.1.8
 Requires PHP: 7.4
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
