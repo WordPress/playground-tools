@@ -354,7 +354,10 @@ export default function PlaygroundPreview({
 
 	return (
 		<>
-			<section aria-label="Playground" className={mainContainerClass}>
+			<section
+				aria-label="WordPress Playground"
+				className={mainContainerClass}
+			>
 				{codeEditor && (
 					<div className="code-container">
 						<FileManagementModals
