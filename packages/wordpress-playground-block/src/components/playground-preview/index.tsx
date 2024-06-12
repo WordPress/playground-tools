@@ -379,6 +379,16 @@ export default function PlaygroundPreview({
 											index === activeFileIndex &&
 											'file-tab-active'
 										}`}
+										aria-label={
+											isErrorLogFile(file)
+												? `Read-only file: ${file.name}`
+												: `File: ${file.name}`
+										}
+										aria-current={
+											index === activeFileIndex
+												? 'true'
+												: 'false'
+										}
 										onClick={() => {
 											setActiveFileIndex(index);
 										}}
