@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Sandbox powered by Playground 
+ * Plugin Name: Sandbox Site powered by Playground 
  * Plugin URI: https://github.com/WordPress/playground-tools/tree/trunk/packages/playground
  * Description: Clone your WordPress site in Playground. Preview plugins and safely experiment without affecting your live site.
  * Author: WordPress Contributors
