@@ -1,4 +1,4 @@
-=== Sandbox powered by Playground ===
+=== Sandbox Site powered by Playground ===
 Contributors: wordpressdotorg, antoniosejas, berislavgrgicak, zieladam
 Tags: playground, staging, sandbox
 Requires at least: 6.0
