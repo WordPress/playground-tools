@@ -354,7 +354,10 @@ export default function PlaygroundPreview({
 
 	return (
 		<>
-			<main className={mainContainerClass}>
+			<section
+				aria-label="WordPress Playground"
+				className={mainContainerClass}
+			>
 				{codeEditor && (
 					<div className="code-container">
 						<FileManagementModals
@@ -554,7 +557,7 @@ export default function PlaygroundPreview({
 						></iframe>
 					)}
 				</div>
-			</main>
+			</section>
 			<footer className="demo-footer">
 				<a
 					href="https://w.org/playground"
