@@ -117,6 +117,7 @@ export default function PlaygroundPreview({
 	});
 
 	const iframeRef = useRef<HTMLIFrameElement>(null);
+	const afterPreviewRef = useRef<HTMLSpanElement>(null);
 	const playgroundClientRef = useRef<PlaygroundClient | null>(null);
 	const fileMgrRef = useRef<FileManagerRef>(null);
 	const codeMirrorRef = useRef<any>(null);
@@ -517,6 +518,21 @@ export default function PlaygroundPreview({
 					</div>
 				)}
 				<div className="playground-container">
+					<span className="screen-reader-text">
+						Beginning of Playground Preview
+					</span>
+					<a
+						href="#"
+						className="screen-reader-text"
+						onClick={(event) => {
+							event.preventDefault();
+							if (afterPreviewRef.current) {
+								afterPreviewRef.current.focus();
+							}
+						}}
+					>
+						Skip Playground Preview Iframe
+					</a>
 					{!isLivePreviewActivated && (
 						<div className="playground-activation-placeholder">
 							<Button
@@ -556,6 +572,13 @@ export default function PlaygroundPreview({
 							className="playground-iframe"
 						></iframe>
 					)}
+					<span
+						className="screen-reader-text wordpress-playground-end-of-preview"
+						tabIndex={-1}
+						ref={afterPreviewRef}
+					>
+						End of Playground Preview
+					</span>
 				</div>
 			</section>
 			<footer className="demo-footer">
