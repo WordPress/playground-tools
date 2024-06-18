@@ -531,7 +531,7 @@ export default function PlaygroundPreview({
 							}
 						}}
 					>
-						Skip Playground Preview Iframe
+						Skip Playground Preview
 					</a>
 					{!isLivePreviewActivated && (
 						<div className="playground-activation-placeholder">
