@@ -349,9 +349,14 @@ export default function PlaygroundPreview({
 		'is-one-under-another': !codeEditorSideBySide,
 		'is-side-by-side': codeEditorSideBySide,
 	});
-	const iframeCreationWarning =
-		'This button creates an iframe containing a full WordPress website ' +
-		'which may be a challenge for screen readers.';
+	const iframeCreationWarningForRunningCode =
+		'This button runs the code in the Preview iframe. ' +
+		'If the Preview iframe has not yet been activated, this ' +
+		'button creates the Preview iframe which contains a full ' +
+		'WordPress website and may be a challenge for screen readers.';
+	const iframeCreationWarningForActivation =
+		'This button creates the Preview iframe containing a full ' +
+		'WordPress website which may be a challenge for screen readers.';
 
 	return (
 		<>
@@ -508,7 +513,7 @@ export default function PlaygroundPreview({
 								className="wordpress-playground-run-button"
 								aria-description={
 									requireLivePreviewActivation
-										? iframeCreationWarning
+										? iframeCreationWarningForRunningCode
 										: undefined
 								}
 							>
@@ -539,7 +544,9 @@ export default function PlaygroundPreview({
 								className="wordpress-playground-activate-button"
 								variant="primary"
 								onClick={() => setLivePreviewActivated(true)}
-								aria-description={iframeCreationWarning}
+								aria-description={
+									iframeCreationWarningForActivation
+								}
 							>
 								Activate Live Preview
 							</Button>
