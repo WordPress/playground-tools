@@ -27,6 +27,12 @@
 		cursor: pointer;
 	}
 
+	.screen-reader-text.wordpress-playground-end-of-preview,
+	.screen-reader-text.wordpress-playground-end-of-preview:focus {
+		top: initial;
+		bottom: 5px;
+	}
+
 	.demo-container {
 		display: flex;
 		box-shadow: #03254b47 0px 12px 50px 0px;
