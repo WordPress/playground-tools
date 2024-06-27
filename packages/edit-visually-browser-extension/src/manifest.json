@@ -1,0 +1,34 @@
+{
+	"manifest_version": 3,
+	"name": "Edit Visually powered by WordPress Playground – EARLY ACCESS",
+	"version": "0.1",
+	"description": "Edit GitHub and WordPress Trac comments using the block editor instead of plain textarea.",
+	"permissions": ["tabs", "activeTab", "scripting", "offscreen"],
+	"background": {
+		"service_worker": "sw.js"
+	},
+	"host_permissions": [
+		"https://playground-editor-extension.pages.dev/",
+		"https://playground.wordpress.net/",
+		"https://github.com/",
+		"https://meta.trac.wordpress.org/",
+		"<all_urls>"
+	],
+	"content_security_policy": {
+		"extension_pages": "script-src 'self' 'wasm-unsafe-eval'; default-src 'self' https://playground-editor-extension.pages.dev/;"
+	},
+	"action": {
+		"default_title": "Edit in Playground"
+	},
+	"content_scripts": [
+		{
+			"matches": [
+				"https://github.com/*",
+				"https://*/*",
+				"https://meta.trac.wordpress.org/*"
+			],
+			"js": ["content-script.js"],
+			"run_at": "document_idle"
+		}
+	]
+}
