@@ -106,6 +106,7 @@ export default function PlaygroundPreview({
 	showFileControls = false,
 	codeEditorErrorLog = false,
 	requireLivePreviewActivation = true,
+	inFullPageView,
 	onStateChange,
 }: PlaygroundDemoProps) {
 	const {
@@ -281,6 +282,78 @@ export default function PlaygroundPreview({
 		redirectToPostType,
 	]);
 
+	function getFullPageUrl(): string {
+		// TODO: Base this on site-url
+		// TODO: Move this to helper function
+		const fullPageUrl = new URL(location.href);
+
+		const params = fullPageUrl.searchParams;
+		params.append('playground-full-page', '');
+		params.append('code-editor', codeEditor ? '1' : '0');
+		params.append('error-log-included', codeEditorErrorLog ? '1' : '0');
+		params.append('read-only', codeEditorReadOnly ? '1' : '0');
+		params.append('side-by-side', codeEditorSideBySide ? '1' : '0');
+		params.append('transpile-jsx', codeEditorTranspileJsx ? '1' : '0');
+		params.append(
+			'require-preview-activation',
+			requireLivePreviewActivation ? '1' : '0'
+		);
+
+		if (configurationSource === 'blueprint-url') {
+			params.append('blueprint-url', blueprintUrl);
+		} else if (configurationSource === 'blueprint-json') {
+			params.append('blueprint-json', blueprint);
+		} else {
+			// NOTE: Using hard-coded list of constants instead of JSON to lower the risk of consuming
+			// free-form JSON when the block attributes are derived from the query string and used
+			// to render the block on the server side.
+			if (constants['WP_DEBUG'] !== undefined) {
+				params.append(
+					'blueprint-constant-WP_SCRIPT_DEBUG',
+					`${constants['WP_SCRIPT_DEBUG']}`
+				);
+			}
+			if (constants['WP_SCRIPT_DEBUG'] !== undefined) {
+				params.append(
+					'blueprint-constant-WP_SCRIPT_DEBUG',
+					`${constants['WP_SCRIPT_DEBUG']}`
+				);
+			}
+
+			if (landingPageUrl) {
+				params.append('blueprint-landing-page', landingPageUrl);
+			}
+			params.append('blueprint-auto-login', logInUser ? '1' : '0');
+			if (createNewPost) {
+				params.append(
+					'blueprint-create-post',
+					createNewPost ? '1' : '0'
+				);
+				params.append('blueprint-create-post-type', createNewPostType);
+				if (createNewPostContent) {
+					params.append(
+						'blueprint-create-post-content',
+						createNewPostContent
+					);
+				}
+				if (redirectToPost) {
+					params.append('blueprint-create-post-redirect', '1');
+					params.append(
+						'blueprint-create-post-redirect-target',
+						redirectToPostType
+					);
+				}
+			}
+		}
+
+		const filesForFullPage = files.filter((f) => !isErrorLogFile(f));
+		// Encode using Base64 to avoid PHP escaping or otherwise modifying
+		// input containing PHP source code
+		params.append('files', btoa(JSON.stringify(filesForFullPage)));
+
+		return fullPageUrl.toString();
+	}
+
 	function getLandingPageUrl(postId: number = currentPostId) {
 		if (createNewPost && redirectToPost) {
 			if (redirectToPostType === 'front') {
@@ -358,6 +431,7 @@ export default function PlaygroundPreview({
 		'is-one-under-another': !codeEditorSideBySide,
 		'is-side-by-side': codeEditorSideBySide,
 	});
+	const maybeFullPageClass = inFullPageView ? 'is-full-page-view' : undefined;
 	const iframeCreationWarningForRunningCode = __(
 		'This button runs the code in the Preview iframe. ' +
 			'If the Preview iframe has not yet been activated, this ' +
@@ -373,8 +447,16 @@ export default function PlaygroundPreview({
 		<>
 			<section
 				aria-label={__('WordPress Playground')}
-				className={mainContainerClass}
+				className={maybeFullPageClass}
 			>
+				<header>
+					{!inBlockEditor && !inFullPageView && (
+						<a href={getFullPageUrl()} target="_blank">
+							Open in new Window
+						</a>
+					)}
+				</header>
+				<div className={mainContainerClass}>
 				{codeEditor && (
 					<div className="code-container">
 						<FileManagementModals
@@ -518,11 +600,15 @@ export default function PlaygroundPreview({
 												className="wordpress-playground-block-button button-destructive"
 												onClick={() => {
 													setActiveFileIndex(0);
-													removeFile(activeFileIndex);
+														removeFile(
+															activeFileIndex
+														);
 												}}
 											>
 												<Icon
-													icon={cancelCircleFilled}
+														icon={
+															cancelCircleFilled
+														}
 												/>{' '}
 												{
 													// translators: remove file from code editor
@@ -583,7 +669,9 @@ export default function PlaygroundPreview({
 							<Button
 								className="wordpress-playground-activate-button"
 								variant="primary"
-								onClick={() => setLivePreviewActivated(true)}
+									onClick={() =>
+										setLivePreviewActivated(true)
+									}
 								aria-description={
 									iframeCreationWarningForActivation
 								}
@@ -634,7 +722,7 @@ export default function PlaygroundPreview({
 						}
 					</span>
 				</div>
-			</section>
+				</div>
 			<footer className="demo-footer">
 				<a
 					href="https://w.org/playground"
@@ -659,6 +747,7 @@ export default function PlaygroundPreview({
 					)}
 				</a>
 			</footer>
+			</section>
 		</>
 	);
 }

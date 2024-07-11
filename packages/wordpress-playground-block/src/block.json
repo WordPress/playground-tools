@@ -105,6 +105,10 @@
 		"requireLivePreviewActivation": {
 			"type": "boolean",
 			"default": true
+		},
+		"inFullPageView": {
+			"type": "boolean",
+			"default": false
 		}
 	},
 	"supports": {
