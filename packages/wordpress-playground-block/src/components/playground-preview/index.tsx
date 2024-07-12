@@ -40,11 +40,14 @@ import {
 	transpilePluginFiles,
 } from './transpile-plugin-files';
 import { __, _x, sprintf } from '../../i18n';
+import { base64EncodeBlockAttributes } from '../../base64';
 
 export type PlaygroundDemoProps = Attributes & {
 	inBlockEditor: boolean;
 	showAddNewFile: boolean;
 	showFileControls: boolean;
+	inFullPageView?: boolean;
+	baseAttributesForFullPageView?: object;
 	onStateChange?: (state: any) => void;
 };
 
@@ -106,7 +109,8 @@ export default function PlaygroundPreview({
 	showFileControls = false,
 	codeEditorErrorLog = false,
 	requireLivePreviewActivation = true,
-	inFullPageView,
+	inFullPageView = false,
+	baseAttributesForFullPageView = {},
 	onStateChange,
 }: PlaygroundDemoProps) {
 	const {
@@ -286,72 +290,23 @@ export default function PlaygroundPreview({
 	function getFullPageUrl(): string {
 		// Use current URL as an easy to reach base URL
 		const fullPageUrl = new URL(location.href);
-		// But remove query params so they cannot interfere
-		fullPageUrl.search = '';
+		// But replace original query params so they cannot interfere
+		fullPageUrl.search = '?playground-full-page';
 
-		const params = fullPageUrl.searchParams;
-		params.append('playground-full-page', '');
-		params.append('code-editor', codeEditor ? '1' : '0');
-		params.append('error-log-included', codeEditorErrorLog ? '1' : '0');
-		params.append('read-only', codeEditorReadOnly ? '1' : '0');
-		params.append('side-by-side', codeEditorSideBySide ? '1' : '0');
-		params.append('transpile-jsx', codeEditorTranspileJsx ? '1' : '0');
-		params.append(
-			'require-preview-activation',
-			requireLivePreviewActivation && !isLivePreviewActivated ? '1' : '0'
-		);
+		const fullPageAttributes = {
+			...baseAttributesForFullPageView,
+			requireLivePreviewActivation:
+				requireLivePreviewActivation && !isLivePreviewActivated,
+			files: files.filter((f) => !isErrorLogFile(f)),
+		};
 
-		if (configurationSource === 'blueprint-url') {
-			params.append('blueprint-url', blueprintUrl);
-		} else if (configurationSource === 'blueprint-json') {
-			params.append('blueprint-json', blueprint);
-		} else {
-			// NOTE: Using hard-coded list of constants instead of JSON to lower the risk of consuming
-			// free-form JSON when the block attributes are derived from the query string and used
-			// to render the block on the server side.
-			if (constants['WP_DEBUG'] !== undefined) {
-				params.append(
-					'blueprint-constant-WP_SCRIPT_DEBUG',
-					`${constants['WP_SCRIPT_DEBUG']}`
+		const encodedFullPageAttributes = btoa(
+			JSON.stringify(base64EncodeBlockAttributes(fullPageAttributes))
 				);
-			}
-			if (constants['WP_SCRIPT_DEBUG'] !== undefined) {
-				params.append(
-					'blueprint-constant-WP_SCRIPT_DEBUG',
-					`${constants['WP_SCRIPT_DEBUG']}`
+		fullPageUrl.searchParams.append(
+			'playground-attributes',
+			encodedFullPageAttributes
 				);
-			}
-
-			if (landingPageUrl) {
-				params.append('blueprint-landing-page', landingPageUrl);
-			}
-			params.append('blueprint-auto-login', logInUser ? '1' : '0');
-			if (createNewPost) {
-				params.append(
-					'blueprint-create-post',
-					createNewPost ? '1' : '0'
-				);
-				params.append('blueprint-create-post-type', createNewPostType);
-				if (createNewPostContent) {
-					params.append(
-						'blueprint-create-post-content',
-						createNewPostContent
-					);
-				}
-				if (redirectToPost) {
-					params.append('blueprint-create-post-redirect', '1');
-					params.append(
-						'blueprint-create-post-redirect-target',
-						redirectToPostType
-					);
-				}
-			}
-		}
-
-		const filesForFullPage = files.filter((f) => !isErrorLogFile(f));
-		// Encode using Base64 to avoid PHP escaping or otherwise modifying
-		// input containing PHP source code
-		params.append('files', btoa(JSON.stringify(filesForFullPage)));
 
 		return fullPageUrl.toString();
 	}

@@ -41,7 +41,6 @@ export type Attributes = {
 		| 'blueprint-url'
 		| 'blueprint-json';
 	requireLivePreviewActivation: boolean;
-	inFullPageView: boolean;
 };
 
 // Load the edit component asynchronously. This may take a while,

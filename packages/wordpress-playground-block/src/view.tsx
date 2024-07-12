@@ -7,15 +7,40 @@ function renderPlaygroundPreview() {
 	const playgroundDemo = Array.from(
 		document.getElementsByClassName('wordpress-playground-block')
 	);
-
-	for (const element of playgroundDemo) {
-		const rootElement = element as HTMLDivElement;
+	const urlParams = new URLSearchParams(location.search);
+	if (
+		urlParams.has('playground-full-page') &&
+		urlParams.has('playground-attributes') &&
+		playgroundDemo.length === 1
+	) {
+		const rootElement = playgroundDemo[0] as HTMLDivElement;
 		const root = createRoot(rootElement);
+		const encodedAttributes = urlParams.get(
+			'playground-attributes'
+		) as string;
+		const attributeJson = atob(encodedAttributes);
 		const attributes = base64DecodeBlockAttributes(
-			JSON.parse(atob(rootElement.dataset['attributes'] || ''))
+			JSON.parse(attributeJson)
 		) as any;
 
-		root.render(<PlaygroundPreview {...attributes} />);
+		root.render(
+			<PlaygroundPreview {...attributes} inFullPageView={true} />
+		);
+	} else {
+		for (const element of playgroundDemo) {
+			const rootElement = element as HTMLDivElement;
+			const root = createRoot(rootElement);
+			const attributes = base64DecodeBlockAttributes(
+				JSON.parse(atob(rootElement.dataset['attributes'] || ''))
+			) as any;
+
+			root.render(
+				<PlaygroundPreview
+					{...attributes}
+					baseAttributesForFullPageView={attributes}
+				/>
+			);
+		}
 	}
 }
 

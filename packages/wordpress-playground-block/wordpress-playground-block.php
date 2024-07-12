@@ -43,13 +43,22 @@ function playground_demo_block_init() {
 add_action( 'init', 'playground_demo_block_init' );
 
 /**
- * Render the Playground block as a full, dedicated page
+ * Conditionally render the Playground block as a full, dedicated page.
  */
-function playground_demo_render_full_page_block() {
+function playground_demo_maybe_render_full_page_block() {
+	if (
+		// Skip nonce verification because full-page Playground block
+		// rendering does not require reading or writing server-side state.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		! isset( $_GET['playground-full-page'], $_GET['playground-attributes'] )
+	) {
+		return;
+	}
+
 	wp_head();
 	$block = array(
 		'blockName' => 'wordpress-playground/playground',
-		'attrs' => playground_demo_parse_full_page_block_attrs( $_GET ),
+		'attrs'        => array(),
 		'innerBlocks' => array(),
 		'innerHTML' => '',
 		'innerContent' => array(),
@@ -59,161 +68,4 @@ function playground_demo_render_full_page_block() {
 	wp_footer();
 	die();
 }
-
-if ( isset( $_GET['playground-full-page'] ) ) {
-	add_action( 'init', 'playground_demo_render_full_page_block', 9999 );
-}
-
-/**
- * Convert the query params to block attributes.
- *
- * @param array $query An associative array of query params.
- *
- * @return array An associative array of block attributes.
- */
-function playground_demo_parse_full_page_block_attrs( $query ) {
-	$attrs = array(
-		'align' => 'wide',
-		'inFullPageView' => true,
-		'codeEditor' => isset( $query['code-editor'] ) && '1' === $query['code-editor'],
-		'codeEditorErrorLog' =>
-			isset( $query['error-log-included'] ) && '1' === $query['error-log-included'],
-		'codeEditorReadOnly' => isset( $query['read-only'] ) && '1' === $query['read-only'],
-		'codeEditorSideBySide' => isset( $query['side-by-side'] ) && '0' !== $query['side-by-side'],
-		'codeEditorTranspileJsx' =>
-			isset( $query['transpile-jsx'] ) && '1' === $query['transpile-jsx'],
-		'requireLivePreviewActivation' =>
-			isset( $query['require-preview-activation'] ) &&
-			'0' !== $query['require-preview-activation'],
-	);
-
-	if ( isset( $query['blueprint-url'] ) ) {
-		$attrs['blueprintUrl'] = $query['blueprint-url'];
-	} elseif ( isset( $query['blueprint-json'] ) ) {
-		$attrs['blueprint'] = $query['blueprint-json'];
-	} else {
-		$constants = (object) array(
-			'WP_DEBUG' => true,
-			'WP_SCRIPT_DEBUG' => true,
-		);
-
-		if (
-			isset( $query['blueprint-constant-WP_DEBUG'] ) &&
-			'0' === $query['blueprint-constant-WP_DEBUG']
-		) {
-			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			$constants->WP_DEBUG = false;
-		}
-
-		if (
-			isset( $query['blueprint-constant-WP_SCRIPT_DEBUG'] ) &&
-			'0' === $query['blueprint-constant-WP_SCRIPT_DEBUG']
-		) {
-			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			$constants->WP_SCRIPT_DEBUG = false;
-		}
-
-		$attrs = array_merge(
-			$attrs,
-			array(
-				'constants' => $constants,
-				'logInUser' =>
-					isset( $query['blueprint-auto-login'] ) &&
-					'0' !== $query['blueprint-auto-login'],
-			)
-		);
-
-		if ( isset( $query['blueprint-landing-page'] ) ) {
-			$attrs['landingPageUrl'] = $query['blueprint-landing-page'];
-		}
-
-		if (
-			isset(
-				$query['blueprint-create-post'],
-				$query['blueprint-create-post-type'],
-			) &&
-			'1' === $query['blueprint-create-post'] &&
-			in_array(
-				$query['blueprint-create-post-type'],
-				array( 'post', 'page' ),
-				true,
-			)
-		) {
-			$attrs['createNewPost'] = true;
-			$attrs['createNewPostType'] = $query['blueprint-create-post-type'];
-
-			if ( isset( $query['blueprint-create-post-title'] ) ) {
-				$attrs['createNewPostTitle'] = $query['blueprint-create-post-title'];
-			}
-			if ( isset( $query['blueprint-create-post-content'] ) ) {
-				$attrs['createNewPostContent'] = $query['blueprint-create-post-content'];
-			}
-			if ( isset( $query['blueprint-create-post-redirect'] ) ) {
-				$attrs['redirectToPost'] = true;
-				if (
-					isset( $query['blueprint-create-post-redirect-target'] ) &&
-					in_array(
-						$query['blueprint-create-post-redirect-target'],
-						array( 'front', 'editor' ),
-						true
-					)
-				) {
-					$attrs['redirectToPostType'] = $query['blueprint-create-post-redirect-target'];
-				}
-			}
-		}
-	}
-
-	if ( isset( $query['files'] ) ) {
-		// Disable base64 code obfuscation warning.
-		// We are intentionally obfuscating to relay code to the front end.
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
-		$files = json_decode( base64_decode( $query['files'] ) );
-		if ( playground_demo_files_structure_is_valid( $files ) ) {
-			$attrs['files'] = $files;
-		}
-	}
-
-	$attrs['files'] = $files;
-
-	return $attrs;
-}
-
-/**
- * Check if a given files structure is valid.
- *
- * @param mixed $files The files structure to examine.
- *
- * @return boolean Whether or not the files structure appears to be valid.
- */
-function playground_demo_files_structure_is_valid( $files ) {
-	if ( ! is_array( $files ) ) {
-		return false;
-	}
-
-	foreach ( $files as $file ) {
-		if ( ! is_object( $file ) ) {
-			return false;
-		}
-
-		if ( ! isset( $file->name, $file->contents ) ) {
-			return false;
-		}
-
-		if (
-			gettype( $file->name ) !== 'string' ||
-			gettype( $file->contents ) !== 'string'
-		) {
-			return false;
-		}
-
-		if (
-			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			isset( $file->remoteUrl ) && gettype( $file->remoteUrl ) !== 'string'
-		) {
-			return false;
-		}
-	}
-
-	return true;
-}
+add_action( 'init', 'playground_demo_maybe_render_full_page_block', 9999 );
