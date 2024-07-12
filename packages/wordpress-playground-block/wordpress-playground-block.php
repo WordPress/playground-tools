@@ -154,7 +154,8 @@ function playground_demo_parse_full_page_block_attrs( $query ) {
 					isset( $query['blueprint-create-post-redirect-target'] ) &&
 					in_array(
 						$query['blueprint-create-post-redirect-target'],
-						array( 'front', 'editor' )
+						array( 'front', 'editor' ),
+						true
 					)
 				) {
 					$attrs['redirectToPostType'] = $query['blueprint-create-post-redirect-target'];
@@ -164,6 +165,9 @@ function playground_demo_parse_full_page_block_attrs( $query ) {
 	}
 
 	if ( isset( $query['files'] ) ) {
+		// Disable base64 code obfuscation warning.
+		// We are intentionally obfuscating to relay code to the front end.
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 		$files = json_decode( base64_decode( $query['files'] ) );
 		if ( playground_demo_files_structure_is_valid( $files ) ) {
 			$attrs['files'] = $files;
