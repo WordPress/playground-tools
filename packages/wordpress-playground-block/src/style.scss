@@ -137,10 +137,6 @@
 	$link-color-hover: var(--wp--preset--color--vivid-cyan-blue);
 
 	.demo-header {
-		// TODO: Share these between header and footer
-		$color: var(--wp--preset--color--contrast);
-		$hover-color: var(--wp--preset--color--vivid-cyan-blue);
-
 		display: flex;
 		justify-content: end;
 
@@ -151,11 +147,19 @@
 			display: inline-block;
 			vertical-align: middle;
 			opacity: 0.7;
-			margin: 0 3px 3px 0;
+			margin: 0 5px 3px 0;
 
 			&:hover {
 				color: $link-color-hover;
 				opacity: 1;
+			}
+
+			.dashicons {
+				margin-inline-start: 3px;
+				margin-top: -3px;
+				// Disable default transition so hover color changes don't
+				// lag behind the rest of the link text.
+				transition: none;
 			}
 		}
 	}

@@ -135,7 +135,6 @@ export default function PlaygroundPreview({
 	const playgroundClientRef = useRef<PlaygroundClient | null>(null);
 	const fileMgrRef = useRef<FileManagerRef>(null);
 	const codeMirrorRef = useRef<any>(null);
-	const newWindowLinkRef = useRef<HTMLAnchorElement>(null);
 
 	/**
 	 * Prevent the CodeMirror keyboard shortcuts from leaking to the block editor.
@@ -311,12 +310,6 @@ export default function PlaygroundPreview({
 		return fullPageUrl.toString();
 	}
 
-	function freshenFullPageUrlOnClick() {
-		if (newWindowLinkRef.current) {
-			newWindowLinkRef.current.href = getFullPageUrl();
-		}
-	}
-
 	function getLandingPageUrl(postId: number = currentPostId) {
 		if (createNewPost && redirectToPost) {
 			if (redirectToPostType === 'front') {
@@ -414,16 +407,16 @@ export default function PlaygroundPreview({
 			>
 				<header className="demo-header">
 					{!inBlockEditor && !inFullPageView && (
-						<a
+						<Button
+							variant="link"
 							className="demo-header__full-page-link"
-							target="_blank"
-							ref={newWindowLinkRef}
-							href={getFullPageUrl()}
-							onClick={freshenFullPageUrlOnClick}
+							onClick={() => {
+								window.open(getFullPageUrl(), '_blank');
+							}}
 						>
 							Open in New Window
 							<span className="dashicons dashicons-external"></span>
-						</a>
+						</Button>
 					)}
 				</header>
 				<div className={mainContainerClass}>
