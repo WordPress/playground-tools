@@ -42,15 +42,19 @@ function playground_demo_block_init() {
 }
 add_action( 'init', 'playground_demo_block_init' );
 
+/**
+ * Render the Playground block as a full, dedicated page
+ */
 function playground_demo_render_full_page_block() {
 	wp_head();
 	$block = array(
 		'blockName' => 'wordpress-playground/playground',
-		'attrs' => playground_demo_parse_full_page_block_attrs(),
-		'innerBlocks' => array (),
+		'attrs' => playground_demo_parse_full_page_block_attrs( $_GET ),
+		'innerBlocks' => array(),
 		'innerHTML' => '',
-		'innerContent' => array (),
+		'innerContent' => array(),
 	);
+	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	echo render_block( $block );
 	wp_footer();
 	die();
@@ -60,30 +64,33 @@ if ( isset( $_GET['playground-full-page'] ) ) {
 	add_action( 'init', 'playground_demo_render_full_page_block', 9999 );
 }
 
-function playground_demo_parse_full_page_block_attrs( $config = false ) {
-	if ( false === $config ) {
-		$config = $_GET;
-	}
-
+/**
+ * Convert the query params to block attributes.
+ *
+ * @param array $query An associative array of query params.
+ *
+ * @return array An associative array of block attributes.
+ */
+function playground_demo_parse_full_page_block_attrs( $query ) {
 	$attrs = array(
 		'align' => 'wide',
 		'inFullPageView' => true,
-		'codeEditor' => isset( $config['code-editor'] ) && $config['code-editor'] === '1',
+		'codeEditor' => isset( $query['code-editor'] ) && '1' === $query['code-editor'],
 		'codeEditorErrorLog' =>
-			isset( $config['error-log-included'] ) && $config['error-log-included'] === '1',
-		'codeEditorReadOnly' => isset( $config['read-only'] ) && $config['read-only'] === '1',
-		'codeEditorSideBySide' => isset( $config['side-by-side'] ) && $config['side-by-side'] !== '0',
+			isset( $query['error-log-included'] ) && '1' === $query['error-log-included'],
+		'codeEditorReadOnly' => isset( $query['read-only'] ) && '1' === $query['read-only'],
+		'codeEditorSideBySide' => isset( $query['side-by-side'] ) && '0' !== $query['side-by-side'],
 		'codeEditorTranspileJsx' =>
-			isset( $config['transpile-jsx'] ) && $config['transpile-jsx'] === '1',
+			isset( $query['transpile-jsx'] ) && '1' === $query['transpile-jsx'],
 		'requireLivePreviewActivation' =>
-			isset( $config['require-preview-activation'] ) &&
-			$config['require-preview-activation'] !== '0',
+			isset( $query['require-preview-activation'] ) &&
+			'0' !== $query['require-preview-activation'],
 	);
 
-	if ( isset( $config['blueprint-url'] ) ) {
-		$attrs['blueprintUrl'] = $config['blueprint-url'];
-	} elseif ( isset( $config['blueprint-json'] ) ) {
-		$attrs['blueprint'] = $config['blueprint-json'];
+	if ( isset( $query['blueprint-url'] ) ) {
+		$attrs['blueprintUrl'] = $query['blueprint-url'];
+	} elseif ( isset( $query['blueprint-json'] ) ) {
+		$attrs['blueprint'] = $query['blueprint-json'];
 	} else {
 		$constants = (object) array(
 			'WP_DEBUG' => true,
@@ -91,16 +98,18 @@ function playground_demo_parse_full_page_block_attrs( $config = false ) {
 		);
 
 		if (
-			isset( $config['blueprint-constant-WP_DEBUG'] ) &&
-			$config['blueprint-constant-WP_DEBUG'] === '0'
+			isset( $query['blueprint-constant-WP_DEBUG'] ) &&
+			'0' === $query['blueprint-constant-WP_DEBUG']
 		) {
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			$constants->WP_DEBUG = false;
 		}
 
 		if (
-			isset( $config['blueprint-constant-WP_SCRIPT_DEBUG'] ) &&
-			$config['blueprint-constant-WP_SCRIPT_DEBUG'] === '0'
+			isset( $query['blueprint-constant-WP_SCRIPT_DEBUG'] ) &&
+			'0' === $query['blueprint-constant-WP_SCRIPT_DEBUG']
 		) {
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			$constants->WP_SCRIPT_DEBUG = false;
 		}
 
@@ -109,53 +118,53 @@ function playground_demo_parse_full_page_block_attrs( $config = false ) {
 			array(
 				'constants' => $constants,
 				'logInUser' =>
-					isset( $config['blueprint-auto-login' ] ) &&
-					$config['blueprint-auto-login'] !== '0',
+					isset( $query['blueprint-auto-login'] ) &&
+					'0' !== $query['blueprint-auto-login'],
 			)
 		);
 
-		if ( isset( $config['blueprint-landing-page'] ) ) {
-			$attrs['landingPageUrl'] = $config['blueprint-landing-page'];
+		if ( isset( $query['blueprint-landing-page'] ) ) {
+			$attrs['landingPageUrl'] = $query['blueprint-landing-page'];
 		}
 
 		if (
 			isset(
-				$config['blueprint-create-post'],
-				$config['blueprint-create-post-type'],
+				$query['blueprint-create-post'],
+				$query['blueprint-create-post-type'],
 			) &&
-			$config['blueprint-create-post'] === '1' &&
+			'1' === $query['blueprint-create-post'] &&
 			in_array(
-				$config['blueprint-create-post-type'],
+				$query['blueprint-create-post-type'],
 				array( 'post', 'page' ),
 				true,
 			)
 		) {
 			$attrs['createNewPost'] = true;
-			$attrs['createNewPostType'] = $config['blueprint-create-post-type'];
+			$attrs['createNewPostType'] = $query['blueprint-create-post-type'];
 
-			if ( isset( $config['blueprint-create-post-title' ] ) ) {
-				$attrs['createNewPostTitle'] = $config['blueprint-create-post-title'];
+			if ( isset( $query['blueprint-create-post-title'] ) ) {
+				$attrs['createNewPostTitle'] = $query['blueprint-create-post-title'];
 			}
-			if ( isset( $config['blueprint-create-post-content'] ) ) {
-				$attrs['createNewPostContent'] = $config['blueprint-create-post-content'];
+			if ( isset( $query['blueprint-create-post-content'] ) ) {
+				$attrs['createNewPostContent'] = $query['blueprint-create-post-content'];
 			}
-			if ( isset( $config['blueprint-create-post-redirect'] ) ) {
+			if ( isset( $query['blueprint-create-post-redirect'] ) ) {
 				$attrs['redirectToPost'] = true;
 				if (
-					isset( $config['blueprint-create-post-redirect-target'] ) &&
+					isset( $query['blueprint-create-post-redirect-target'] ) &&
 					in_array(
-						$config['blueprint-create-post-redirect-target'],
+						$query['blueprint-create-post-redirect-target'],
 						array( 'front', 'editor' )
 					)
 				) {
-					$attrs['redirectToPostType'] = $config['blueprint-create-post-redirect-target'];
+					$attrs['redirectToPostType'] = $query['blueprint-create-post-redirect-target'];
 				}
 			}
 		}
 	}
 
-	if ( isset( $config['files'] ) ) {
-		$files = json_decode( base64_decode( $config['files'] ) );
+	if ( isset( $query['files'] ) ) {
+		$files = json_decode( base64_decode( $query['files'] ) );
 		if ( playground_demo_files_structure_is_valid( $files ) ) {
 			$attrs['files'] = $files;
 		}
@@ -166,6 +175,13 @@ function playground_demo_parse_full_page_block_attrs( $config = false ) {
 	return $attrs;
 }
 
+/**
+ * Check if a given files structure is valid.
+ *
+ * @param mixed $files The files structure to examine.
+ *
+ * @return boolean Whether or not the files structure appears to be valid.
+ */
 function playground_demo_files_structure_is_valid( $files ) {
 	if ( ! is_array( $files ) ) {
 		return false;
@@ -188,8 +204,8 @@ function playground_demo_files_structure_is_valid( $files ) {
 		}
 
 		if (
-			isset( $file->remoteUrl ) &&
-			gettype( $file->remoteUrl ) !== 'string'
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			isset( $file->remoteUrl ) && gettype( $file->remoteUrl ) !== 'string'
 		) {
 			return false;
 		}
