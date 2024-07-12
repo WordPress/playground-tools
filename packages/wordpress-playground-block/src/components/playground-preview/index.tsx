@@ -283,9 +283,10 @@ export default function PlaygroundPreview({
 	]);
 
 	function getFullPageUrl(): string {
-		// TODO: Base this on site-url
-		// TODO: Move this to helper function
+		// Use current URL as an easy to reach base URL
 		const fullPageUrl = new URL(location.href);
+		// But remove query params so they cannot interfere
+		fullPageUrl.search = '';
 
 		const params = fullPageUrl.searchParams;
 		params.append('playground-full-page', '');
@@ -449,10 +450,15 @@ export default function PlaygroundPreview({
 				aria-label={__('WordPress Playground')}
 				className={maybeFullPageClass}
 			>
-				<header>
+				<header className="demo-header">
 					{!inBlockEditor && !inFullPageView && (
-						<a href={getFullPageUrl()} target="_blank">
-							Open in new Window
+						<a
+							href={getFullPageUrl()}
+							target="_blank"
+							className="demo-header__full-page-link"
+						>
+							Open in New Window
+							<span className="dashicons dashicons-external"></span>
 						</a>
 					)}
 				</header>

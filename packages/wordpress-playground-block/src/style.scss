@@ -133,17 +133,42 @@
 		}
 	}
 
-	.demo-footer {
-		$spacing: 4px;
+	$link-color: var(--wp--preset--color--contrast);
+	$link-color-hover: var(--wp--preset--color--vivid-cyan-blue);
+
+	.demo-header {
+		// TODO: Share these between header and footer
 		$color: var(--wp--preset--color--contrast);
 		$hover-color: var(--wp--preset--color--vivid-cyan-blue);
+
+		display: flex;
+		justify-content: end;
+
+		.demo-header__full-page-link {
+			color: $link-color;
+			text-decoration: none;
+			font-size: 13px;
+			display: inline-block;
+			vertical-align: middle;
+			opacity: 0.7;
+			margin: 0 3px 3px 0;
+
+			&:hover {
+				color: $link-color-hover;
+				opacity: 1;
+			}
+		}
+	}
+
+	.demo-footer {
+		$spacing: 4px;
 
 		padding: $spacing 2 * $spacing;
 		text-align: center;
 		.demo-footer__link,
 		.demo-footer__powered,
 		.demo-footer__link-text {
-			color: $color;
+			color: $link-color;
 			text-decoration: none;
 			font-size: 13px;
 			line-height: 1;
@@ -156,17 +181,17 @@
 		.demo-footer__link {
 			.demo-footer__icon {
 				margin: 0 $spacing/2;
-				fill: $color;
+				fill: $link-color;
 				vertical-align: middle;
 			}
 			&:hover {
 				.demo-footer__link-text,
 				.demo-footer__powered {
-					color: $hover-color;
+					color: $link-color-hover;
 					opacity: 1;
 				}
 				.demo-footer__icon {
-					fill: $hover-color;
+					fill: $link-color-hover;
 				}
 			}
 		}
