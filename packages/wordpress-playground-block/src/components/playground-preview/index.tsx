@@ -287,7 +287,7 @@ export default function PlaygroundPreview({
 	]);
 
 	function getFullPageUrl(): string {
-		// Use current URL as an easy to reach base URL
+		// Use current URL as an easy-to-reach base URL
 		const fullPageUrl = new URL(location.href);
 		// But replace original query params so they cannot interfere
 		fullPageUrl.search = '?playground-full-page';
