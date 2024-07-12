@@ -131,6 +131,7 @@ export default function PlaygroundPreview({
 	const playgroundClientRef = useRef<PlaygroundClient | null>(null);
 	const fileMgrRef = useRef<FileManagerRef>(null);
 	const codeMirrorRef = useRef<any>(null);
+	const newWindowLinkRef = useRef<HTMLAnchorElement>(null);
 
 	/**
 	 * Prevent the CodeMirror keyboard shortcuts from leaking to the block editor.
@@ -297,7 +298,7 @@ export default function PlaygroundPreview({
 		params.append('transpile-jsx', codeEditorTranspileJsx ? '1' : '0');
 		params.append(
 			'require-preview-activation',
-			requireLivePreviewActivation ? '1' : '0'
+			requireLivePreviewActivation && !isLivePreviewActivated ? '1' : '0'
 		);
 
 		if (configurationSource === 'blueprint-url') {
@@ -353,6 +354,12 @@ export default function PlaygroundPreview({
 		params.append('files', btoa(JSON.stringify(filesForFullPage)));
 
 		return fullPageUrl.toString();
+	}
+
+	function freshenFullPageUrlOnClick() {
+		if (newWindowLinkRef.current) {
+			newWindowLinkRef.current.href = getFullPageUrl();
+		}
 	}
 
 	function getLandingPageUrl(postId: number = currentPostId) {
@@ -453,9 +460,11 @@ export default function PlaygroundPreview({
 				<header className="demo-header">
 					{!inBlockEditor && !inFullPageView && (
 						<a
-							href={getFullPageUrl()}
-							target="_blank"
 							className="demo-header__full-page-link"
+							target="_blank"
+							ref={newWindowLinkRef}
+							href={getFullPageUrl()}
+							onClick={freshenFullPageUrlOnClick}
 						>
 							Open in New Window
 							<span className="dashicons dashicons-external"></span>
