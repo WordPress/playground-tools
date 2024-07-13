@@ -1,4 +1,5 @@
 import { useState, forwardRef, useImperativeHandle } from '@wordpress/element';
+import { __ } from '../../i18n';
 
 import type { EditorFile } from '../../index';
 import { FileNameModal } from '../file-name-modal';
@@ -83,7 +84,7 @@ export default forwardRef(function FileManagementModals(
 		<>
 			{isEditFileNameModalOpen && (
 				<FileNameModal
-					title="Edit file name or URL"
+					title={__('Edit file name or URL')}
 					file={files[activeFileIndex]}
 					onRequestClose={() => setEditFileNameModalOpen(false)}
 					onSave={updateActiveFile}
@@ -94,7 +95,7 @@ export default forwardRef(function FileManagementModals(
 
 			{isNewFileModalOpen && (
 				<FileNameModal
-					title="Create new file"
+					title={__('Create new file')}
 					onRequestClose={() => setNewFileModalOpen(false)}
 					onSave={createNewFile}
 					isLoading={downloadingFile}

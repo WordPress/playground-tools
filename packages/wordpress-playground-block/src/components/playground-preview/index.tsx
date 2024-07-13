@@ -13,7 +13,12 @@ import {
 	phpVar,
 	// @ts-ignore
 } from 'https://playground.wordpress.net/client/index.js';
-import { useEffect, useRef, useState } from '@wordpress/element';
+import {
+	useEffect,
+	useRef,
+	useState,
+	createInterpolateElement,
+} from '@wordpress/element';
 import { Button, Spinner } from '@wordpress/components';
 import {
 	Icon,
@@ -34,6 +39,7 @@ import {
 	TranspilationFailure,
 	transpilePluginFiles,
 } from './transpile-plugin-files';
+import { __, _x, sprintf } from '../../i18n';
 
 export type PlaygroundDemoProps = Attributes & {
 	inBlockEditor: boolean;
@@ -87,7 +93,10 @@ export default function PlaygroundPreview({
 	logInUser,
 	createNewPost,
 	createNewPostType = 'post',
-	createNewPostTitle = 'New post',
+	createNewPostTitle = _x(
+		'New post',
+		'default title of new post created by blueprint'
+	),
 	createNewPostContent = '',
 	redirectToPost,
 	redirectToPostType = 'front',
@@ -349,19 +358,21 @@ export default function PlaygroundPreview({
 		'is-one-under-another': !codeEditorSideBySide,
 		'is-side-by-side': codeEditorSideBySide,
 	});
-	const iframeCreationWarningForRunningCode =
+	const iframeCreationWarningForRunningCode = __(
 		'This button runs the code in the Preview iframe. ' +
-		'If the Preview iframe has not yet been activated, this ' +
-		'button creates the Preview iframe which contains a full ' +
-		'WordPress website and may be a challenge for screen readers.';
-	const iframeCreationWarningForActivation =
+			'If the Preview iframe has not yet been activated, this ' +
+			'button creates the Preview iframe which contains a full ' +
+			'WordPress website and may be a challenge for screen readers.'
+	);
+	const iframeCreationWarningForActivation = __(
 		'This button creates the Preview iframe containing a full ' +
-		'WordPress website which may be a challenge for screen readers.';
+			'WordPress website which may be a challenge for screen readers.'
+	);
 
 	return (
 		<>
 			<section
-				aria-label="WordPress Playground"
+				aria-label={__('WordPress Playground')}
 				className={mainContainerClass}
 			>
 				{codeEditor && (
@@ -377,7 +388,7 @@ export default function PlaygroundPreview({
 						<div className="file-tabs">
 							{isFilesLoading ? (
 								<div className="file-tab file-tab-loading">
-									<Spinner /> Loading files...
+									<Spinner /> {__('Loading files...')}
 								</div>
 							) : (
 								files.map((file, index) => (
@@ -390,8 +401,18 @@ export default function PlaygroundPreview({
 										}`}
 										aria-label={
 											isErrorLogFile(file)
-												? `Read-only file: ${file.name}`
-												: `File: ${file.name}`
+												? // translators: %s is a file name
+												  sprintf(
+														__(
+															'Read-only file: %s'
+														),
+														file.name
+												  )
+												: // translators: %s is a file name
+												  sprintf(
+														__('File: %s'),
+														file.name
+												  )
 										}
 										aria-current={
 											index === activeFileIndex
@@ -418,7 +439,10 @@ export default function PlaygroundPreview({
 							)}
 							{showAddNewFile && (
 								<Button
-									aria-label="Add File"
+									aria-label={
+										// translators: add source code file to code editor
+										__('Add File')
+									}
 									variant="secondary"
 									className="file-tab file-tab-extra"
 									onClick={() =>
@@ -431,7 +455,7 @@ export default function PlaygroundPreview({
 								</Button>
 							)}
 							<Button
-								aria-label="Download Code as a Zip file"
+								aria-label={__('Download Code as a Zip file')}
 								variant="secondary"
 								className="file-tab file-tab-extra"
 								onClick={() => {
@@ -478,7 +502,11 @@ export default function PlaygroundPreview({
 											}}
 											className="wordpress-playground-block-button button-non-destructive"
 										>
-											<Icon icon={edit} /> Edit file name
+											<Icon icon={edit} />{' '}
+											{
+												// translators: edit source code file name
+												__('Edit file name')
+											}
 										</button>
 									)}
 									{!isErrorLogFile(activeFile) &&
@@ -496,7 +524,10 @@ export default function PlaygroundPreview({
 												<Icon
 													icon={cancelCircleFilled}
 												/>{' '}
-												Remove file
+												{
+													// translators: remove file from code editor
+													__('Remove file')
+												}
 											</button>
 										)}
 								</div>
@@ -517,14 +548,20 @@ export default function PlaygroundPreview({
 										: undefined
 								}
 							>
-								Run
+								{
+									// translators: verb: run code in Playground
+									__('Run')
+								}
 							</Button>
 						</div>
 					</div>
 				)}
 				<div className="playground-container">
 					<span className="screen-reader-text">
-						Beginning of Playground Preview
+						{
+							// translators: screen reader text noting beginning of the playground iframe
+							__('Beginning of Playground Preview')
+						}
 					</span>
 					<a
 						href="#"
@@ -536,7 +573,10 @@ export default function PlaygroundPreview({
 							}
 						}}
 					>
-						Skip Playground Preview
+						{
+							// translators: verb: skip over the playground iframe
+							__('Skip Playground Preview')
+						}
 					</a>
 					{!isLivePreviewActivated && (
 						<div className="playground-activation-placeholder">
@@ -548,16 +588,18 @@ export default function PlaygroundPreview({
 									iframeCreationWarningForActivation
 								}
 							>
-								Activate Live Preview
+								{__('Activate Live Preview')}
 							</Button>
 						</div>
 					)}
 					{transpilationFailures?.length > 0 && (
 						<div className="playground-transpilation-failures">
-							<h3>Transpilation Error</h3>
+							<h3>{__('Transpilation Error')}</h3>
 							<p>
-								There were errors while transpiling the code.
-								Please fix the errors and try again.
+								{__(
+									'There were errors while transpiling the code. ' +
+										'Please fix the errors and try again.'
+								)}
 							</p>
 							<ul>
 								{transpilationFailures.map(
@@ -573,7 +615,9 @@ export default function PlaygroundPreview({
 					)}
 					{isLivePreviewActivated && (
 						<iframe
-							aria-label="Live Preview in WordPress Playground"
+							aria-label={__(
+								'Live Preview in WordPress Playground'
+							)}
 							key="playground-iframe"
 							ref={iframeRef}
 							className="playground-iframe"
@@ -584,7 +628,10 @@ export default function PlaygroundPreview({
 						tabIndex={-1}
 						ref={afterPreviewRef}
 					>
-						End of Playground Preview
+						{
+							// translators: screen reader text noting end of Playground preview
+							__('End of Playground Preview')
+						}
 					</span>
 				</div>
 			</section>
@@ -594,11 +641,22 @@ export default function PlaygroundPreview({
 					className="demo-footer__link"
 					target="_blank"
 				>
-					<span className="demo-footer__powered">Powered by</span>
-					<Icon className="demo-footer__icon" icon={wordpress} />
-					<span className="demo-footer__link-text">
-						WordPress Playground
-					</span>
+					{createInterpolateElement(
+						// translators: powered-by label with embedded icon. please leave markup tags intact, including numbering.
+						__(
+							'<span1>Powered by</span1> <Icon /> <span2>WordPress Playground</span2>'
+						),
+						{
+							span1: <span className="demo-footer__powered" />,
+							Icon: (
+								<Icon
+									className="demo-footer__icon"
+									icon={wordpress}
+								/>
+							),
+							span2: <span className="demo-footer__link-text" />,
+						}
+					)}
 				</a>
 			</footer>
 		</>

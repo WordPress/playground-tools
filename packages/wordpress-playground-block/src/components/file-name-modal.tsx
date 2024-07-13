@@ -4,6 +4,7 @@ import {
 	// @ts-ignore
 	__experimentalInputControl as InputControl,
 } from '@wordpress/components';
+import { __ } from '../i18n';
 import { useState } from '@wordpress/element';
 import { EditorFile } from '..';
 
@@ -45,7 +46,7 @@ export function FileNameModal({
 				<div style={{ marginTop: '1em' }}>
 					<InputControl
 						value={editedFileName}
-						label="File name"
+						label={__('File name')}
 						autoFocus
 						onChange={(value: any) => {
 							setEditedFileName(value || '');
@@ -55,22 +56,24 @@ export function FileNameModal({
 				<div style={{ marginTop: '1em' }}>
 					<InputControl
 						value={editedFileUrl}
-						label="Load content from remote URL (optional)"
+						label={__('Load content from remote URL (optional)')}
 						onChange={(value: any) => {
 							setEditedFileUrl(value || '');
 						}}
 					/>
 				</div>
-				{isLoading && 'Fetching the remote file...'}
+				{isLoading && __('Fetching the remote file...')}
 				{error && (
 					<p style={{ color: 'red', marginTop: '1em' }}>
-						The file could not be fetched. Check the browser dev
-						tools for more information.
+						{__(
+							'The file could not be fetched. ' +
+								'Check the browser dev tools for more information.'
+						)}
 					</p>
 				)}
 				<br />
 				<Button variant="primary" type="submit">
-					Done
+					{__('Done')}
 				</Button>
 			</form>
 		</Modal>
