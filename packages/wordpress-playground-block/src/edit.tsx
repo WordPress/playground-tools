@@ -497,10 +497,12 @@ export default withBase64Attrs(function Edit({
 										/>
 										{redirectToPost && (
 											<ToggleGroupControl
-												label={_x(
+												label={
 													// translators: how to redirect to post created by blueprint
-													'Create new redirect: redirect to'
-												)}
+													__(
+														'Create new redirect: redirect to'
+													)
+												}
 												value={redirectToPostType}
 												onChange={(value: any) => {
 													setAttributes({
@@ -512,19 +514,23 @@ export default withBase64Attrs(function Edit({
 											>
 												<ToggleGroupControlOption
 													value="front"
-													label={_x(
+													label={
 														// translators: place to view the post created by blueprint
-														'Front page',
-														'post created by blueprint'
-													)}
+														_x(
+															'Front page',
+															'post created by blueprint'
+														)
+													}
 												/>
 												<ToggleGroupControlOption
 													value="admin"
-													label={_x(
+													label={
 														// translators: place to edit the post created by blueprint
-														'Edit screen',
-														'post created by blueprint'
-													)}
+														_x(
+															'Edit screen',
+															'post created by blueprint'
+														)
+													}
 												/>
 											</ToggleGroupControl>
 										)}

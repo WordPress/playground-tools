@@ -401,15 +401,15 @@ export default function PlaygroundPreview({
 										}`}
 										aria-label={
 											isErrorLogFile(file)
-												? // translators: %s is a file name
-												  sprintf(
+												? sprintf(
+														// translators: %s is a file name
 														__(
 															'Read-only file: %s'
 														),
 														file.name
 												  )
-												: // translators: %s is a file name
-												  sprintf(
+												: sprintf(
+														// translators: %s is a file name
 														__('File: %s'),
 														file.name
 												  )
