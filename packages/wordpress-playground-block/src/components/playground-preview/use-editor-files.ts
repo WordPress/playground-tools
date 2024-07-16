@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from '@wordpress/element';
+import { __, sprintf } from '../../i18n';
 import type { EditorFile } from '../../index';
 
 export type UseEditorFilesOptions = {
@@ -50,8 +51,16 @@ export default function useEditorFiles(
 			updateFile(
 				(existingFile) => ({
 					...existingFile,
-					contents: `Failed to fetch the remote file from ${file.remoteUrl}`,
-					name: existingFile.name + ' (Failed to fetch)',
+					contents: sprintf(
+						/* translators: %s: A URL for a remote file. */
+						__('Failed to fetch the remote file from %s'),
+						file.remoteUrl
+					),
+					name: sprintf(
+						/* translators: %s: A file name. */
+						__('%s (Failed to fetch)'),
+						existingFile.name
+					),
 				}),
 				files.indexOf(file)
 			);

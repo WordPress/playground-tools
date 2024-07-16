@@ -23,6 +23,7 @@ import {
 	base64DecodeBlockAttributes,
 	base64EncodeBlockAttributes,
 } from './base64';
+import { __, _x } from './i18n';
 
 /**
  * Some WordPress installations are overly eager with their HTML entity encoding
@@ -156,14 +157,14 @@ export default withBase64Attrs(function Edit({
 				{...attributes}
 			/>
 			<InspectorControls>
-				<Panel header="Settings">
-					<PanelBody title="General" initialOpen={true}>
+				<Panel header={__('Settings')}>
+					<PanelBody title={__('General')} initialOpen={true}>
 						<ToggleControl
-							label="Require live preview activation"
+							label={__('Require live preview activation')}
 							help={
 								requireLivePreviewActivation
-									? 'User must click to load the preview.'
-									: 'Preview begins loading immediately.'
+									? __('User must click to load the preview.')
+									: __('Preview begins loading immediately.')
 							}
 							checked={requireLivePreviewActivation}
 							onChange={() => {
@@ -174,13 +175,13 @@ export default withBase64Attrs(function Edit({
 							}}
 						/>
 					</PanelBody>
-					<PanelBody title="Code editor" initialOpen={true}>
+					<PanelBody title={__('Code editor')} initialOpen={true}>
 						<ToggleControl
-							label="Code editor"
+							label={__('Code editor')}
 							help={
 								codeEditor
-									? 'Code editor enabled.'
-									: 'Code editor disabled.'
+									? __('Code editor enabled.')
+									: __('Code editor disabled.')
 							}
 							checked={codeEditor}
 							onChange={() => {
@@ -192,11 +193,11 @@ export default withBase64Attrs(function Edit({
 						{codeEditor && (
 							<>
 								<ToggleControl
-									label="Side by side"
+									label={__('Side by side')}
 									help={
 										codeEditorSideBySide
-											? 'Code editor is to the left.'
-											: 'Code editor is at the top.'
+											? __('Code editor is to the left.')
+											: __('Code editor is at the top.')
 									}
 									checked={codeEditorSideBySide}
 									onChange={() => {
@@ -207,11 +208,11 @@ export default withBase64Attrs(function Edit({
 									}}
 								/>
 								<ToggleControl
-									label="Read only"
+									label={__('Read only')}
 									help={
 										codeEditorReadOnly
-											? 'Code editor is read only.'
-											: 'Code editor is editable.'
+											? __('Code editor is read only.')
+											: __('Code editor is editable.')
 									}
 									checked={codeEditorReadOnly}
 									onChange={() => {
@@ -222,12 +223,12 @@ export default withBase64Attrs(function Edit({
 									}}
 								/>
 								<ToggleControl
-									label="Transpile JSX to JS"
-									help={
+									label={__('Transpile JSX to JS')}
+									help={__(
 										`Transpiles JSX syntax to JS using esbuild. Only the JSX tags are ` +
-										`transpiled. Imports and other advanced ESM syntax features are ` +
-										`preserved.`
-									}
+											`transpiled. Imports and other advanced ES module syntax features are ` +
+											`preserved.`
+									)}
 									checked={codeEditorTranspileJsx}
 									onChange={() => {
 										setAttributes({
@@ -237,11 +238,11 @@ export default withBase64Attrs(function Edit({
 									}}
 								/>
 								<ToggleControl
-									label="Multiple files"
+									label={__('Multiple files')}
 									help={
 										codeEditorMultipleFiles
-											? 'Multiple files allowed.'
-											: 'Single file allowed.'
+											? __('Multiple files allowed.')
+											: __('Single file allowed.')
 									}
 									checked={codeEditorMultipleFiles}
 									onChange={() => {
@@ -252,7 +253,7 @@ export default withBase64Attrs(function Edit({
 									}}
 								/>
 								<ToggleControl
-									label='Include "error_log" file'
+									label={__('Include "error_log" file')}
 									checked={codeEditorErrorLog}
 									onChange={() => {
 										setAttributes({
@@ -269,6 +270,7 @@ export default withBase64Attrs(function Edit({
 								to prevent the user from selecting the Editor script mode.
 
 								@see https://github.com/WordPress/playground-tools/issues/196
+								@todo Before re-enabling, add i18n support.
 								*/}
 								<div style={{ display: 'none' }}>
 									<SelectControl
@@ -337,21 +339,30 @@ export default withBase64Attrs(function Edit({
 							</>
 						)}
 					</PanelBody>
-					<PanelBody title="Blueprint" initialOpen={false}>
+					<PanelBody title={__('Blueprint')} initialOpen={false}>
 						<SelectControl
-							label="Blueprint source"
+							label={__('Blueprint source')}
 							value={configurationSource}
 							options={[
 								{
-									label: 'Generate from block attributes',
+									label: __(
+										'Generate from block attributes',
+										'source of Blueprint content'
+									),
 									value: 'block-attributes',
 								},
 								{
-									label: 'URL',
+									label: _x(
+										'URL',
+										'source of Blueprint content'
+									),
 									value: 'blueprint-url',
 								},
 								{
-									label: 'JSON (paste it below)',
+									label: _x(
+										'JSON (paste it below)',
+										'source of Blueprint content'
+									),
 									value: 'blueprint-json',
 								},
 							]}
@@ -360,19 +371,19 @@ export default withBase64Attrs(function Edit({
 									configurationSource: newConfigurationSource,
 								});
 							}}
-							help={
+							help={__(
 								'Playground is configured using Blueprints. Select the source ' +
-								"of the Blueprint you'd like to use for this Playground instance."
-							}
+									"of the Blueprint you'd like to use for this Playground instance."
+							)}
 						/>
 						{configurationSource === 'block-attributes' && (
 							<>
 								<ToggleControl
-									label="Log in automatically"
+									label={__('Log in automatically')}
 									help={
 										logInUser
-											? 'User will be logged in.'
-											: "User won't be logged in."
+											? __('User will be logged in.')
+											: __("User won't be logged in.")
 									}
 									checked={logInUser}
 									onChange={() => {
@@ -382,11 +393,15 @@ export default withBase64Attrs(function Edit({
 									}}
 								/>
 								<ToggleControl
-									label="Create new post or page"
+									label={__('Create new post or page')}
 									help={
 										createNewPost
-											? 'New post or page will be created.'
-											: 'No new posts or pages will be created.'
+											? __(
+													'New post or page will be created.'
+											  )
+											: __(
+													'No new posts or pages will be created.'
+											  )
 									}
 									checked={createNewPost}
 									onChange={() => {
@@ -398,7 +413,10 @@ export default withBase64Attrs(function Edit({
 								{createNewPost && (
 									<>
 										<ToggleGroupControl
-											label="Create new: post type"
+											label={_x(
+												'Create new: post type',
+												'optional blueprint step'
+											)}
 											value={createNewPostType}
 											onChange={(value: any) => {
 												setAttributes({
@@ -410,11 +428,17 @@ export default withBase64Attrs(function Edit({
 										>
 											<ToggleGroupControlOption
 												value="post"
-												label="Post"
+												label={_x(
+													'Post',
+													'noun: WordPress post type'
+												)}
 											/>
 											<ToggleGroupControlOption
 												value="page"
-												label="Page"
+												label={_x(
+													'Page',
+													'noun: WordPress post type'
+												)}
 											/>
 										</ToggleGroupControl>
 										<InputControl
@@ -424,8 +448,15 @@ export default withBase64Attrs(function Edit({
 													createNewPostTitle: value,
 												});
 											}}
-											label="Create new: title"
-											placeholder="Hello World!"
+											label={_x(
+												'Create new: title',
+												'title for new post or page created by blueprint'
+											)}
+											placeholder={_x(
+												'Hello World!',
+												'placeholder text: ' +
+													'title for new post or page created by blueprint'
+											)}
 										/>
 										<TextareaControl
 											value={createNewPostContent}
@@ -434,15 +465,27 @@ export default withBase64Attrs(function Edit({
 													createNewPostContent: value,
 												});
 											}}
-											label="Create new: content"
-											help="Gutenberg editor content of the post"
+											label={_x(
+												'Create new: content',
+												'content for new post or page created by blueprint'
+											)}
+											help={__(
+												'Gutenberg editor content of the post'
+											)}
 										/>
 										<ToggleControl
-											label="Create new: redirect to post"
+											label={_x(
+												'Create new: redirect to post',
+												'optional blueprint step'
+											)}
 											help={
 												redirectToPost
-													? 'User will be redirected.'
-													: "User won't be redirected."
+													? __(
+															'User will be redirected.'
+													  )
+													: __(
+															"User won't be redirected."
+													  )
 											}
 											checked={redirectToPost}
 											onChange={() => {
@@ -454,7 +497,12 @@ export default withBase64Attrs(function Edit({
 										/>
 										{redirectToPost && (
 											<ToggleGroupControl
-												label="Create new redirect: redirect to"
+												label={
+													// translators: how to redirect to post created by blueprint
+													__(
+														'Create new redirect: redirect to'
+													)
+												}
 												value={redirectToPostType}
 												onChange={(value: any) => {
 													setAttributes({
@@ -466,11 +514,23 @@ export default withBase64Attrs(function Edit({
 											>
 												<ToggleGroupControlOption
 													value="front"
-													label="Front page"
+													label={
+														// translators: place to view the post created by blueprint
+														_x(
+															'Front page',
+															'post created by blueprint'
+														)
+													}
 												/>
 												<ToggleGroupControlOption
 													value="admin"
-													label="Edit screen"
+													label={
+														// translators: place to edit the post created by blueprint
+														_x(
+															'Edit screen',
+															'post created by blueprint'
+														)
+													}
 												/>
 											</ToggleGroupControl>
 										)}
@@ -484,9 +544,16 @@ export default withBase64Attrs(function Edit({
 												landingPageUrl: value,
 											});
 										}}
-										label="Landing page"
-										help="Define where to redirect after Playground is loaded."
-										placeholder="URL to redirect to after load (eg. /wp-admin/)"
+										label={_x(
+											'Landing page',
+											'where to redirect after Playground is loaded'
+										)}
+										help={__(
+											'Define where to redirect after Playground is loaded.'
+										)}
+										placeholder={__(
+											'URL to redirect to after load (eg. /wp-admin/)'
+										)}
 									/>
 								)}
 								{['WP_DEBUG', 'WP_SCRIPT_DEBUG'].map(
@@ -524,9 +591,11 @@ export default withBase64Attrs(function Edit({
 										blueprintUrl: value,
 									});
 								}}
-								label="Blueprint URL"
-								help="Load Blueprint from this URL."
-								placeholder="URL to load the Blueprint from"
+								label={__('Blueprint URL')}
+								help={__('Load Blueprint from this URL.')}
+								placeholder={__(
+									'URL to load the Blueprint from'
+								)}
 							/>
 						)}
 						{configurationSource === 'blueprint-json' && (
@@ -537,8 +606,8 @@ export default withBase64Attrs(function Edit({
 										blueprint: value,
 									});
 								}}
-								label="Blueprint"
-								help="JSON file with playground blueprint"
+								label={_x('Blueprint', 'raw Blueprint JSON')}
+								help={__('JSON file with playground blueprint')}
 							/>
 						)}
 					</PanelBody>
