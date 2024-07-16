@@ -294,8 +294,8 @@ export default function PlaygroundPreview({
 
 		const fullPageAttributes = {
 			...baseAttributesForFullPageView,
-			requireLivePreviewActivation:
-				requireLivePreviewActivation && !isLivePreviewActivated,
+			// The action to open as full page can be considered activation.
+			requireLivePreviewActivation: false,
 			files: files.filter((f) => !isErrorLogFile(f)),
 		};
 
