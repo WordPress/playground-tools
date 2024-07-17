@@ -49,6 +49,10 @@
 			order: 1;
 		}
 		.wordpress-playground-header {
+			// For accessibility purposes, we want the header to contain
+			// the open-in-new-tab button, but for layout, we want the
+			// button to appear next to the powered-by footer. So we use
+			// flexbox item ordering to achieve this.
 			order: 2;
 		}
 
