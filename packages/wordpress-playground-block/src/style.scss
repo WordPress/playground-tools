@@ -33,7 +33,42 @@
 		bottom: 5px;
 	}
 
-	.demo-container {
+	.wordpress-playground-main-container {
+		width: 100%;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: center;
+		align-items: center;
+
+		// Let's be explicit about flex item order
+		.wordpress-playground-content-container {
+			order: 0;
+		}
+		.wordpress-playground-footer {
+			order: 1;
+		}
+		.wordpress-playground-header {
+			// For accessibility purposes, we want the header to contain
+			// the open-in-new-tab button, but for layout, we want the
+			// button to appear next to the powered-by footer. So we use
+			// flexbox item ordering to achieve this.
+			order: 2;
+		}
+
+		.wordpress-playground-content-container {
+			width: 100%;
+		}
+		.wordpress-playground-header {
+			text-align: start;
+			margin-inline-start: 11px;
+		}
+		.wordpress-playground-footer {
+			text-align: end;
+		}
+	}
+
+	.wordpress-playground-content-container {
 		display: flex;
 		box-shadow: #03254b47 0px 12px 50px 0px;
 		overflow: hidden;
@@ -65,7 +100,6 @@
 			.playground-container {
 				flex: 1;
 				flex-basis: 50%;
-				// Set width to height so the iframe is square
 				height: $playground-height;
 				max-height: 100%;
 			}
@@ -103,39 +137,89 @@
 		}
 	}
 
-	.demo-footer {
-		$spacing: 4px;
+	.is-full-page-view {
+		height: 100vh;
+		display: flex;
+		flex-direction: column;
+		flex-wrap: nowrap;
+
+		.wordpress-playground-header {
+			display: none;
+		}
+
+		.wordpress-playground-content-container {
+			flex-grow: 1;
+
+			&.is-side-by-side {
+				.code-container,
+				.playground-container {
+					min-height: auto;
+					height: auto;
+				}
+			}
+
+			&.is-one-under-another {
+				overflow: auto;
+
+				.playground-container {
+					flex-basis: 300px;
+					flex-grow: 1;
+				}
+			}
+		}
+	}
+
+	$header-footer-spacing: 4px;
+
+	.wordpress-playground-header,
+	.wordpress-playground-footer {
+		padding: $header-footer-spacing 2 * $header-footer-spacing;
+	}
+
+	.wordpress-playground-header__full-page-link {
+		text-decoration: none;
+		font-size: 13px;
+
+		$northeast-arrow: '\002197';
+		$northwest-arrow: '\002196';
+
+		&:after {
+			margin-inline-start: 3px;
+			content: $northeast-arrow;
+		}
+
+		&:dir(rtl):after {
+			content: $northwest-arrow;
+		}
+	}
+
+	.wordpress-playground-footer {
 		$color: var(--wp--preset--color--contrast);
 		$hover-color: var(--wp--preset--color--vivid-cyan-blue);
-
-		padding: $spacing 2 * $spacing;
-		text-align: center;
-		.demo-footer__link,
-		.demo-footer__powered,
-		.demo-footer__link-text {
+		.wordpress-playground-footer__link,
+		.wordpress-playground-footer__powered,
+		.wordpress-playground-footer__link-text {
 			color: $color;
 			text-decoration: none;
 			font-size: 13px;
-			line-height: 1;
 			display: inline-block;
-			vertical-align: middle;
 		}
-		.demo-footer__powered {
+		.wordpress-playground-footer__powered {
 			opacity: 0.7;
 		}
-		.demo-footer__link {
-			.demo-footer__icon {
-				margin: 0 $spacing/2;
+		.wordpress-playground-footer__link {
+			.wordpress-playground-footer__icon {
+				margin-top: -4px;
 				fill: $color;
 				vertical-align: middle;
 			}
 			&:hover {
-				.demo-footer__link-text,
-				.demo-footer__powered {
+				.wordpress-playground-footer__link-text,
+				.wordpress-playground-footer__powered {
 					color: $hover-color;
 					opacity: 1;
 				}
-				.demo-footer__icon {
+				.wordpress-playground-footer__icon {
 					fill: $hover-color;
 				}
 			}

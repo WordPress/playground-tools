@@ -40,11 +40,14 @@ import {
 	transpilePluginFiles,
 } from './transpile-plugin-files';
 import { __, _x, sprintf } from '../../i18n';
+import { base64EncodeBlockAttributes, stringToBase64 } from '../../base64';
 
 export type PlaygroundDemoProps = Attributes & {
 	inBlockEditor: boolean;
 	showAddNewFile: boolean;
 	showFileControls: boolean;
+	inFullPageView?: boolean;
+	baseAttributesForFullPageView?: object;
 	onStateChange?: (state: any) => void;
 };
 
@@ -106,6 +109,8 @@ export default function PlaygroundPreview({
 	showFileControls = false,
 	codeEditorErrorLog = false,
 	requireLivePreviewActivation = true,
+	inFullPageView = false,
+	baseAttributesForFullPageView = {},
 	onStateChange,
 }: PlaygroundDemoProps) {
 	const {
@@ -281,6 +286,30 @@ export default function PlaygroundPreview({
 		redirectToPostType,
 	]);
 
+	function getFullPageUrl(): string {
+		// Use current URL as an easy-to-reach base URL
+		const fullPageUrl = new URL(location.href);
+		// But replace original query params so they cannot interfere
+		fullPageUrl.search = '?playground-full-page';
+
+		const fullPageAttributes = {
+			...baseAttributesForFullPageView,
+			// The action to open as full page can be considered activation.
+			requireLivePreviewActivation: false,
+			files: files.filter((f) => !isErrorLogFile(f)),
+		};
+
+		const encodedFullPageAttributes = stringToBase64(
+			JSON.stringify(base64EncodeBlockAttributes(fullPageAttributes))
+		);
+		fullPageUrl.searchParams.append(
+			'playground-attributes',
+			encodedFullPageAttributes
+		);
+
+		return fullPageUrl.toString();
+	}
+
 	function getLandingPageUrl(postId: number = currentPostId) {
 		if (createNewPost && redirectToPost) {
 			if (redirectToPostType === 'front') {
@@ -354,10 +383,19 @@ export default function PlaygroundPreview({
 		[handleReRunCode]
 	);
 
-	const mainContainerClass = classnames('demo-container', {
-		'is-one-under-another': !codeEditorSideBySide,
-		'is-side-by-side': codeEditorSideBySide,
-	});
+	const mainContainerClass = classnames(
+		'wordpress-playground-main-container',
+		{
+			'is-full-page-view': inFullPageView,
+		}
+	);
+	const contentContainerClass = classnames(
+		'wordpress-playground-content-container',
+		{
+			'is-one-under-another': !codeEditorSideBySide,
+			'is-side-by-side': codeEditorSideBySide,
+		}
+	);
 	const iframeCreationWarningForRunningCode = __(
 		'This button runs the code in the Preview iframe. ' +
 			'If the Preview iframe has not yet been activated, this ' +
@@ -370,11 +408,24 @@ export default function PlaygroundPreview({
 	);
 
 	return (
-		<>
-			<section
-				aria-label={__('WordPress Playground')}
-				className={mainContainerClass}
-			>
+		<section
+			aria-label={__('WordPress Playground')}
+			className={mainContainerClass}
+		>
+			<header className="wordpress-playground-header">
+				{!inBlockEditor && !inFullPageView && (
+					<Button
+						variant="link"
+						className="wordpress-playground-header__full-page-link"
+						onClick={() => {
+							window.open(getFullPageUrl(), '_blank');
+						}}
+					>
+						{__('Open in New Tab')}
+					</Button>
+				)}
+			</header>
+			<div className={contentContainerClass}>
 				{codeEditor && (
 					<div className="code-container">
 						<FileManagementModals
@@ -634,11 +685,11 @@ export default function PlaygroundPreview({
 						}
 					</span>
 				</div>
-			</section>
-			<footer className="demo-footer">
+			</div>
+			<footer className="wordpress-playground-footer">
 				<a
 					href="https://w.org/playground"
-					className="demo-footer__link"
+					className="wordpress-playground-footer__link"
 					target="_blank"
 				>
 					{createInterpolateElement(
@@ -647,18 +698,22 @@ export default function PlaygroundPreview({
 							'<span1>Powered by</span1> <Icon /> <span2>WordPress Playground</span2>'
 						),
 						{
-							span1: <span className="demo-footer__powered" />,
+							span1: (
+								<span className="wordpress-playground-footer__powered" />
+							),
 							Icon: (
 								<Icon
-									className="demo-footer__icon"
+									className="wordpress-playground-footer__icon"
 									icon={wordpress}
 								/>
 							),
-							span2: <span className="demo-footer__link-text" />,
+							span2: (
+								<span className="wordpress-playground-footer__link-text" />
+							),
 						}
 					)}
 				</a>
 			</footer>
-		</>
+		</section>
 	);
 }
