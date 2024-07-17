@@ -177,6 +177,18 @@
 	.wordpress-playground-header__full-page-link {
 		text-decoration: none;
 		font-size: 13px;
+
+		$northeast-arrow: '\002197';
+		$northwest-arrow: '\002196';
+
+		&:after {
+			margin-inline-start: 3px;
+			content: $northeast-arrow;
+		}
+
+		&:dir(rtl):after {
+			content: $northwest-arrow;
+		}
 	}
 
 	.wordpress-playground-footer {
