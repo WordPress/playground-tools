@@ -301,11 +301,11 @@ export default function PlaygroundPreview({
 
 		const encodedFullPageAttributes = btoa(
 			JSON.stringify(base64EncodeBlockAttributes(fullPageAttributes))
-				);
+		);
 		fullPageUrl.searchParams.append(
 			'playground-attributes',
 			encodedFullPageAttributes
-				);
+		);
 
 		return fullPageUrl.toString();
 	}
@@ -392,8 +392,8 @@ export default function PlaygroundPreview({
 	const contentContainerClass = classnames(
 		'wordpress-playground-content-container',
 		{
-		'is-one-under-another': !codeEditorSideBySide,
-		'is-side-by-side': codeEditorSideBySide,
+			'is-one-under-another': !codeEditorSideBySide,
+			'is-side-by-side': codeEditorSideBySide,
 		}
 	);
 	const iframeCreationWarningForRunningCode = __(
@@ -427,296 +427,302 @@ export default function PlaygroundPreview({
 					)}
 				</header>
 				<div className={contentContainerClass}>
-				{codeEditor && (
-					<div className="code-container">
-						<FileManagementModals
-							ref={fileMgrRef}
-							updateFile={updateFile}
-							addFile={addFile}
-							setActiveFileIndex={setActiveFileIndex}
-							files={files}
-							activeFileIndex={activeFileIndex}
-						/>
-						<div className="file-tabs">
-							{isFilesLoading ? (
-								<div className="file-tab file-tab-loading">
-									<Spinner /> {__('Loading files...')}
-								</div>
-							) : (
-								files.map((file, index) => (
-									<Button
-										key={file.name}
-										variant="primary"
-										className={`file-tab ${
-											index === activeFileIndex &&
-											'file-tab-active'
-										}`}
-										aria-label={
-											isErrorLogFile(file)
-												? sprintf(
-														// translators: %s is a file name
-														__(
-															'Read-only file: %s'
-														),
-														file.name
-												  )
-												: sprintf(
-														// translators: %s is a file name
-														__('File: %s'),
-														file.name
-												  )
-										}
-										aria-current={
-											index === activeFileIndex
-												? 'true'
-												: 'false'
-										}
-										onClick={() => {
-											setActiveFileIndex(index);
-										}}
-										onDoubleClick={() => {
-											fileMgrRef.current?.setEditFileNameModalOpen(
-												true
-											);
-										}}
-									>
-										{inBlockEditor && file.remoteUrl ? (
-											<Icon icon={link} />
-										) : (
-											''
-										)}
-										{file.name}
-									</Button>
-								))
-							)}
-							{showAddNewFile && (
-								<Button
-									aria-label={
-										// translators: add source code file to code editor
-										__('Add File')
-									}
-									variant="secondary"
-									className="file-tab file-tab-extra"
-									onClick={() =>
-										fileMgrRef.current?.setNewFileModalOpen(
-											true
-										)
-									}
-								>
-									<Icon icon={plus} />
-								</Button>
-							)}
-							<Button
-								aria-label={__('Download Code as a Zip file')}
-								variant="secondary"
-								className="file-tab file-tab-extra"
-								onClick={() => {
-									if (playgroundClientRef.current) {
-										downloadZippedPlugin(
-											playgroundClientRef.current
-										);
-									}
-								}}
-							>
-								<Icon icon={download} />
-							</Button>
-						</div>
-						<div className="code-editor-wrapper">
-							<ReactCodeMirror
-								ref={codeMirrorRef}
-								value={activeFile.contents}
-								extensions={[
-									keymapExtension,
-									EditorView.lineWrapping,
-									...getLanguageExtensions(
-										currentFileExtension || 'js'
-									),
-								]}
-								readOnly={codeEditorReadOnly}
-								onChange={(value) =>
-									updateFile((file) => ({
-										...file,
-										contents: value,
-									}))
-								}
+					{codeEditor && (
+						<div className="code-container">
+							<FileManagementModals
+								ref={fileMgrRef}
+								updateFile={updateFile}
+								addFile={addFile}
+								setActiveFileIndex={setActiveFileIndex}
+								files={files}
+								activeFileIndex={activeFileIndex}
 							/>
-						</div>
-						<div className="actions-bar">
-							{showFileControls ? (
-								<div className="file-actions">
-									{!activeFile && (
-										<button
-											type="button"
+							<div className="file-tabs">
+								{isFilesLoading ? (
+									<div className="file-tab file-tab-loading">
+										<Spinner /> {__('Loading files...')}
+									</div>
+								) : (
+									files.map((file, index) => (
+										<Button
+											key={file.name}
+											variant="primary"
+											className={`file-tab ${
+												index === activeFileIndex &&
+												'file-tab-active'
+											}`}
+											aria-label={
+												isErrorLogFile(file)
+													? sprintf(
+															// translators: %s is a file name
+															__(
+																'Read-only file: %s'
+															),
+															file.name
+													  )
+													: sprintf(
+															// translators: %s is a file name
+															__('File: %s'),
+															file.name
+													  )
+											}
+											aria-current={
+												index === activeFileIndex
+													? 'true'
+													: 'false'
+											}
 											onClick={() => {
+												setActiveFileIndex(index);
+											}}
+											onDoubleClick={() => {
 												fileMgrRef.current?.setEditFileNameModalOpen(
 													true
 												);
 											}}
-											className="wordpress-playground-block-button button-non-destructive"
 										>
-											<Icon icon={edit} />{' '}
-											{
-												// translators: edit source code file name
-												__('Edit file name')
-											}
-										</button>
+											{inBlockEditor && file.remoteUrl ? (
+												<Icon icon={link} />
+											) : (
+												''
+											)}
+											{file.name}
+										</Button>
+									))
+								)}
+								{showAddNewFile && (
+									<Button
+										aria-label={
+											// translators: add source code file to code editor
+											__('Add File')
+										}
+										variant="secondary"
+										className="file-tab file-tab-extra"
+										onClick={() =>
+											fileMgrRef.current?.setNewFileModalOpen(
+												true
+											)
+										}
+									>
+										<Icon icon={plus} />
+									</Button>
+								)}
+								<Button
+									aria-label={__(
+										'Download Code as a Zip file'
 									)}
-									{!isErrorLogFile(activeFile) &&
-										files.filter(
-											(file) => !isErrorLogFile(file)
-										).length > 1 && (
+									variant="secondary"
+									className="file-tab file-tab-extra"
+									onClick={() => {
+										if (playgroundClientRef.current) {
+											downloadZippedPlugin(
+												playgroundClientRef.current
+											);
+										}
+									}}
+								>
+									<Icon icon={download} />
+								</Button>
+							</div>
+							<div className="code-editor-wrapper">
+								<ReactCodeMirror
+									ref={codeMirrorRef}
+									value={activeFile.contents}
+									extensions={[
+										keymapExtension,
+										EditorView.lineWrapping,
+										...getLanguageExtensions(
+											currentFileExtension || 'js'
+										),
+									]}
+									readOnly={codeEditorReadOnly}
+									onChange={(value) =>
+										updateFile((file) => ({
+											...file,
+											contents: value,
+										}))
+									}
+								/>
+							</div>
+							<div className="actions-bar">
+								{showFileControls ? (
+									<div className="file-actions">
+										{!activeFile && (
 											<button
 												type="button"
-												className="wordpress-playground-block-button button-destructive"
 												onClick={() => {
-													setActiveFileIndex(0);
-														removeFile(
-															activeFileIndex
-														);
+													fileMgrRef.current?.setEditFileNameModalOpen(
+														true
+													);
 												}}
+												className="wordpress-playground-block-button button-non-destructive"
 											>
-												<Icon
-														icon={
-															cancelCircleFilled
-														}
-												/>{' '}
+												<Icon icon={edit} />{' '}
 												{
-													// translators: remove file from code editor
-													__('Remove file')
+													// translators: edit source code file name
+													__('Edit file name')
 												}
 											</button>
 										)}
-								</div>
-							) : (
-								<div className="file-actions"></div>
-							)}
-							<Button
-								variant="primary"
-								icon="controls-play"
-								iconPosition="right"
-								onClick={() => {
-									handleReRunCode();
-								}}
-								className="wordpress-playground-run-button"
-								aria-description={
-									requireLivePreviewActivation
-										? iframeCreationWarningForRunningCode
-										: undefined
-								}
-							>
-								{
-									// translators: verb: run code in Playground
-									__('Run')
-								}
-							</Button>
+										{!isErrorLogFile(activeFile) &&
+											files.filter(
+												(file) => !isErrorLogFile(file)
+											).length > 1 && (
+												<button
+													type="button"
+													className="wordpress-playground-block-button button-destructive"
+													onClick={() => {
+														setActiveFileIndex(0);
+														removeFile(
+															activeFileIndex
+														);
+													}}
+												>
+													<Icon
+														icon={
+															cancelCircleFilled
+														}
+													/>{' '}
+													{
+														// translators: remove file from code editor
+														__('Remove file')
+													}
+												</button>
+											)}
+									</div>
+								) : (
+									<div className="file-actions"></div>
+								)}
+								<Button
+									variant="primary"
+									icon="controls-play"
+									iconPosition="right"
+									onClick={() => {
+										handleReRunCode();
+									}}
+									className="wordpress-playground-run-button"
+									aria-description={
+										requireLivePreviewActivation
+											? iframeCreationWarningForRunningCode
+											: undefined
+									}
+								>
+									{
+										// translators: verb: run code in Playground
+										__('Run')
+									}
+								</Button>
+							</div>
 						</div>
-					</div>
-				)}
-				<div className="playground-container">
-					<span className="screen-reader-text">
-						{
-							// translators: screen reader text noting beginning of the playground iframe
-							__('Beginning of Playground Preview')
-						}
-					</span>
-					<a
-						href="#"
-						className="screen-reader-text"
-						onClick={(event) => {
-							event.preventDefault();
-							if (afterPreviewRef.current) {
-								afterPreviewRef.current.focus();
+					)}
+					<div className="playground-container">
+						<span className="screen-reader-text">
+							{
+								// translators: screen reader text noting beginning of the playground iframe
+								__('Beginning of Playground Preview')
 							}
-						}}
-					>
-						{
-							// translators: verb: skip over the playground iframe
-							__('Skip Playground Preview')
-						}
-					</a>
-					{!isLivePreviewActivated && (
-						<div className="playground-activation-placeholder">
-							<Button
-								className="wordpress-playground-activate-button"
-								variant="primary"
+						</span>
+						<a
+							href="#"
+							className="screen-reader-text"
+							onClick={(event) => {
+								event.preventDefault();
+								if (afterPreviewRef.current) {
+									afterPreviewRef.current.focus();
+								}
+							}}
+						>
+							{
+								// translators: verb: skip over the playground iframe
+								__('Skip Playground Preview')
+							}
+						</a>
+						{!isLivePreviewActivated && (
+							<div className="playground-activation-placeholder">
+								<Button
+									className="wordpress-playground-activate-button"
+									variant="primary"
 									onClick={() =>
 										setLivePreviewActivated(true)
 									}
-								aria-description={
-									iframeCreationWarningForActivation
-								}
-							>
-								{__('Activate Live Preview')}
-							</Button>
-						</div>
-					)}
-					{transpilationFailures?.length > 0 && (
-						<div className="playground-transpilation-failures">
-							<h3>{__('Transpilation Error')}</h3>
-							<p>
-								{__(
-									'There were errors while transpiling the code. ' +
-										'Please fix the errors and try again.'
+									aria-description={
+										iframeCreationWarningForActivation
+									}
+								>
+									{__('Activate Live Preview')}
+								</Button>
+							</div>
+						)}
+						{transpilationFailures?.length > 0 && (
+							<div className="playground-transpilation-failures">
+								<h3>{__('Transpilation Error')}</h3>
+								<p>
+									{__(
+										'There were errors while transpiling the code. ' +
+											'Please fix the errors and try again.'
+									)}
+								</p>
+								<ul>
+									{transpilationFailures.map(
+										({ file, error }) => (
+											<li key={file.name}>
+												<b>{file.name}</b>
+												<p>{error.message}</p>
+											</li>
+										)
+									)}
+								</ul>
+							</div>
+						)}
+						{isLivePreviewActivated && (
+							<iframe
+								aria-label={__(
+									'Live Preview in WordPress Playground'
 								)}
-							</p>
-							<ul>
-								{transpilationFailures.map(
-									({ file, error }) => (
-										<li key={file.name}>
-											<b>{file.name}</b>
-											<p>{error.message}</p>
-										</li>
-									)
-								)}
-							</ul>
-						</div>
-					)}
-					{isLivePreviewActivated && (
-						<iframe
-							aria-label={__(
-								'Live Preview in WordPress Playground'
-							)}
-							key="playground-iframe"
-							ref={iframeRef}
-							className="playground-iframe"
-						></iframe>
-					)}
-					<span
-						className="screen-reader-text wordpress-playground-end-of-preview"
-						tabIndex={-1}
-						ref={afterPreviewRef}
-					>
-						{
-							// translators: screen reader text noting end of Playground preview
-							__('End of Playground Preview')
-						}
-					</span>
-				</div>
+								key="playground-iframe"
+								ref={iframeRef}
+								className="playground-iframe"
+							></iframe>
+						)}
+						<span
+							className="screen-reader-text wordpress-playground-end-of-preview"
+							tabIndex={-1}
+							ref={afterPreviewRef}
+						>
+							{
+								// translators: screen reader text noting end of Playground preview
+								__('End of Playground Preview')
+							}
+						</span>
+					</div>
 				</div>
 				<footer className="wordpress-playground-footer">
-				<a
-					href="https://w.org/playground"
+					<a
+						href="https://w.org/playground"
 						className="wordpress-playground-footer__link"
-					target="_blank"
-				>
-					{createInterpolateElement(
-						// translators: powered-by label with embedded icon. please leave markup tags intact, including numbering.
-						__(
-							'<span1>Powered by</span1> <Icon /> <span2>WordPress Playground</span2>'
-						),
-						{
-							span1: <span className="demo-footer__powered" />,
-							Icon: (
-								<Icon
-									className="demo-footer__icon"
-									icon={wordpress}
-								/>
+						target="_blank"
+					>
+						{createInterpolateElement(
+							// translators: powered-by label with embedded icon. please leave markup tags intact, including numbering.
+							__(
+								'<span1>Powered by</span1> <Icon /> <span2>WordPress Playground</span2>'
 							),
-							span2: <span className="demo-footer__link-text" />,
-						}
-					)}
-				</a>
-			</footer>
+							{
+								span1: (
+									<span className="wordpress-playground-footer__powered" />
+								),
+								Icon: (
+									<Icon
+										className="wordpress-playground-footer__icon"
+										icon={wordpress}
+									/>
+								),
+								span2: (
+									<span className="wordpress-playground-footer__link-text" />
+								),
+							}
+						)}
+					</a>
+				</footer>
 			</section>
 		</>
 	);
