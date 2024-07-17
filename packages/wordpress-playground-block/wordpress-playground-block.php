@@ -57,10 +57,10 @@ function playground_demo_maybe_render_full_page_block() {
 
 	wp_head();
 	$block = array(
-		'blockName' => 'wordpress-playground/playground',
+		'blockName'    => 'wordpress-playground/playground',
 		'attrs'        => array(),
-		'innerBlocks' => array(),
-		'innerHTML' => '',
+		'innerBlocks'  => array(),
+		'innerHTML'    => '',
 		'innerContent' => array(),
 	);
 	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
