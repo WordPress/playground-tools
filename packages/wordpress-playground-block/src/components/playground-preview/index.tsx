@@ -383,11 +383,19 @@ export default function PlaygroundPreview({
 		[handleReRunCode]
 	);
 
-	const mainContainerClass = classnames('demo-container', {
+	const mainContainerClass = classnames(
+		'wordpress-playground-main-container',
+		{
+			'is-full-page-view': inFullPageView,
+		}
+	);
+	const contentContainerClass = classnames(
+		'wordpress-playground-content-container',
+		{
 		'is-one-under-another': !codeEditorSideBySide,
 		'is-side-by-side': codeEditorSideBySide,
-	});
-	const maybeFullPageClass = inFullPageView ? 'is-full-page-view' : undefined;
+		}
+	);
 	const iframeCreationWarningForRunningCode = __(
 		'This button runs the code in the Preview iframe. ' +
 			'If the Preview iframe has not yet been activated, this ' +
@@ -403,23 +411,22 @@ export default function PlaygroundPreview({
 		<>
 			<section
 				aria-label={__('WordPress Playground')}
-				className={maybeFullPageClass}
+				className={mainContainerClass}
 			>
-				<header className="demo-header">
+				<header className="wordpress-playground-header">
 					{!inBlockEditor && !inFullPageView && (
 						<Button
 							variant="link"
-							className="demo-header__full-page-link"
+							className="wordpress-playground-header__full-page-link"
 							onClick={() => {
 								window.open(getFullPageUrl(), '_blank');
 							}}
 						>
-							Open in New Window
-							<span className="dashicons dashicons-external"></span>
+							Open in New Tab &#x2197;
 						</Button>
 					)}
 				</header>
-				<div className={mainContainerClass}>
+				<div className={contentContainerClass}>
 				{codeEditor && (
 					<div className="code-container">
 						<FileManagementModals
@@ -686,10 +693,10 @@ export default function PlaygroundPreview({
 					</span>
 				</div>
 				</div>
-			<footer className="demo-footer">
+				<footer className="wordpress-playground-footer">
 				<a
 					href="https://w.org/playground"
-					className="demo-footer__link"
+						className="wordpress-playground-footer__link"
 					target="_blank"
 				>
 					{createInterpolateElement(
