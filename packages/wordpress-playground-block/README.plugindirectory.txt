@@ -7,7 +7,7 @@ Stable tag: 0.2.10
 Requires PHP: 7.0
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-This WordPress block embeds WordPress Playground in your posts and pages. You can also include an interactive code editor to demonstrate and teach your readers how WordPress plugins are built.
+This WordPress block embeds WordPress Playground in your posts and pages. An optional interactive code editor allows readers to learn and explore.
 
 == Description ==
 
