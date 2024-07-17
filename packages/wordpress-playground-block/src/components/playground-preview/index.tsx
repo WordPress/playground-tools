@@ -40,7 +40,7 @@ import {
 	transpilePluginFiles,
 } from './transpile-plugin-files';
 import { __, _x, sprintf } from '../../i18n';
-import { base64EncodeBlockAttributes } from '../../base64';
+import { base64EncodeBlockAttributes, stringToBase64 } from '../../base64';
 
 export type PlaygroundDemoProps = Attributes & {
 	inBlockEditor: boolean;
@@ -299,7 +299,7 @@ export default function PlaygroundPreview({
 			files: files.filter((f) => !isErrorLogFile(f)),
 		};
 
-		const encodedFullPageAttributes = btoa(
+		const encodedFullPageAttributes = stringToBase64(
 			JSON.stringify(base64EncodeBlockAttributes(fullPageAttributes))
 		);
 		fullPageUrl.searchParams.append(

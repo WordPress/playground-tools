@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from '@wordpress/element';
 import PlaygroundPreview from './components/playground-preview';
-import { base64DecodeBlockAttributes } from './base64';
+import { base64DecodeBlockAttributes, base64ToString } from './base64';
 
 function renderPlaygroundPreview() {
 	const playgroundDemo = Array.from(
@@ -18,7 +18,7 @@ function renderPlaygroundPreview() {
 		const encodedAttributes = urlParams.get(
 			'playground-attributes'
 		) as string;
-		const attributeJson = atob(encodedAttributes);
+		const attributeJson = base64ToString(encodedAttributes);
 		const attributes = base64DecodeBlockAttributes(
 			JSON.parse(attributeJson)
 		) as any;
