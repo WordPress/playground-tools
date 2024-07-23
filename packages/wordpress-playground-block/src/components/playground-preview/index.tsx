@@ -420,6 +420,13 @@ export default function PlaygroundPreview({
 						onClick={() => {
 							window.open(getFullPageUrl(), '_blank');
 						}}
+						aria-label={
+							// Add dedicated aria-label for screen readers
+							// because an arrow is added to the main button
+							// label via CSS pseudo-element, and our users with
+							// screen readers do not need an arrow read to them.
+							__('Open in New Tab')
+						}
 					>
 						{__('Open in New Tab')}
 					</Button>
