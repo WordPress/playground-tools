@@ -608,28 +608,30 @@ export default function PlaygroundPreview({
 					</div>
 				)}
 				<div className="playground-container">
-					<span className="screen-reader-text">
-						{
-							// translators: screen reader text noting beginning of the playground iframe
-							__('Beginning of Playground Preview')
-						}
-					</span>
 					{!inFullPageView && (
-						<a
-							href="#"
-							className="screen-reader-text"
-							onClick={(event) => {
-								event.preventDefault();
-								if (afterPreviewRef.current) {
-									afterPreviewRef.current.focus();
+						<>
+							<span className="screen-reader-text">
+								{
+									// translators: screen reader text noting beginning of the playground iframe
+									__('Beginning of Playground Preview')
 								}
-							}}
-						>
-							{
-								// translators: verb: skip over the playground iframe
-								__('Skip Playground Preview')
-							}
-						</a>
+							</span>
+							<a
+								href="#"
+								className="screen-reader-text"
+								onClick={(event) => {
+									event.preventDefault();
+									if (afterPreviewRef.current) {
+										afterPreviewRef.current.focus();
+									}
+								}}
+							>
+								{
+									// translators: verb: skip over the playground iframe
+									__('Skip Playground Preview')
+								}
+							</a>
+						</>
 					)}
 					{!isLivePreviewActivated && (
 						<div className="playground-activation-placeholder">
@@ -676,16 +678,18 @@ export default function PlaygroundPreview({
 							className="playground-iframe"
 						></iframe>
 					)}
-					<span
-						className="screen-reader-text wordpress-playground-end-of-preview"
-						tabIndex={-1}
-						ref={afterPreviewRef}
-					>
-						{
-							// translators: screen reader text noting end of Playground preview
-							__('End of Playground Preview')
-						}
-					</span>
+					{!inFullPageView && (
+						<span
+							className="screen-reader-text wordpress-playground-end-of-preview"
+							tabIndex={-1}
+							ref={afterPreviewRef}
+						>
+							{
+								// translators: screen reader text noting end of Playground preview
+								__('End of Playground Preview')
+							}
+						</span>
+					)}
 				</div>
 			</div>
 			<footer className="wordpress-playground-footer">
