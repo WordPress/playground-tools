@@ -614,21 +614,23 @@ export default function PlaygroundPreview({
 							__('Beginning of Playground Preview')
 						}
 					</span>
-					<a
-						href="#"
-						className="screen-reader-text"
-						onClick={(event) => {
-							event.preventDefault();
-							if (afterPreviewRef.current) {
-								afterPreviewRef.current.focus();
+					{!inFullPageView && (
+						<a
+							href="#"
+							className="screen-reader-text"
+							onClick={(event) => {
+								event.preventDefault();
+								if (afterPreviewRef.current) {
+									afterPreviewRef.current.focus();
+								}
+							}}
+						>
+							{
+								// translators: verb: skip over the playground iframe
+								__('Skip Playground Preview')
 							}
-						}}
-					>
-						{
-							// translators: verb: skip over the playground iframe
-							__('Skip Playground Preview')
-						}
-					</a>
+						</a>
+					)}
 					{!isLivePreviewActivated && (
 						<div className="playground-activation-placeholder">
 							<Button
