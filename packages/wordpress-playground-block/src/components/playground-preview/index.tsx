@@ -458,6 +458,7 @@ export default function PlaygroundPreview({
 											'file-tab-active'
 										}`}
 										aria-label={
+											codeEditorReadOnly ||
 											isErrorLogFile(file)
 												? sprintf(
 														// translators: %s is a file name
@@ -538,7 +539,10 @@ export default function PlaygroundPreview({
 										currentFileExtension || 'js'
 									),
 								]}
-								readOnly={codeEditorReadOnly}
+								readOnly={
+									codeEditorReadOnly ||
+									isErrorLogFile(files[activeFileIndex])
+								}
 								onChange={(value) =>
 									updateFile((file) => ({
 										...file,
