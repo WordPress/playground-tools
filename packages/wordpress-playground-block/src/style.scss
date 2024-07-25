@@ -83,6 +83,21 @@
 				max-width: 100%;
 				border: 0;
 				position: relative;
+
+				.wordpress-playground-before-preview:focus {
+					// The before-preview element exists as a marker for
+					// a11y purposes. It is a meaningful place to move the
+					// focus before focus is lost as the clicked Activation
+					// button disappears. But we do not want the element to
+					// be shown when focused.
+					z-index: -1;
+				}
+				.playground-iframe {
+					// Set a non-transparent iframe color so the before-preview
+					// element behind the iframe is not rendered when the
+					// default iframe background is transparent.
+					background-color: white;
+				}
 			}
 		}
 

@@ -131,6 +131,7 @@ export default function PlaygroundPreview({
 	});
 
 	const iframeRef = useRef<HTMLIFrameElement>(null);
+	const beforePreviewRef = useRef<HTMLElement>(null);
 	const afterPreviewRef = useRef<HTMLSpanElement>(null);
 	const playgroundClientRef = useRef<PlaygroundClient | null>(null);
 	const fileMgrRef = useRef<FileManagerRef>(null);
@@ -621,7 +622,11 @@ export default function PlaygroundPreview({
 				<div className="playground-container">
 					{!inFullPageView && (
 						<>
-							<span className="screen-reader-text">
+							<span
+								className="screen-reader-text wordpress-playground-before-preview"
+								tabIndex={-1}
+								ref={beforePreviewRef}
+							>
 								{
 									// translators: screen reader text noting beginning of the playground iframe
 									__('Beginning of Playground Preview')
@@ -649,7 +654,16 @@ export default function PlaygroundPreview({
 							<Button
 								className="wordpress-playground-activate-button"
 								variant="primary"
-								onClick={() => setLivePreviewActivated(true)}
+								onClick={() => {
+									setLivePreviewActivated(true);
+									if (beforePreviewRef.current) {
+										// For a11y, move focus to meaningful
+										// "before preview" element before
+										// focus is simply lost as this button
+										// disappears.
+										beforePreviewRef.current.focus();
+									}
+								}}
 								aria-description={
 									iframeCreationWarningForActivation
 								}
