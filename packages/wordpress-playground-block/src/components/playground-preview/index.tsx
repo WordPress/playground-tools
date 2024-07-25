@@ -722,21 +722,39 @@ export default function PlaygroundPreview({
 					href="https://w.org/playground"
 					className="wordpress-playground-footer__link"
 					target="_blank"
+					aria-label={
+						// Provide dedicated ARIA label because NVDA does not
+						// always spell out spaces as expected in the powered-by
+						// HTML with the embedded icon.
+						// Conversely, macOS Voiceover appears to disregard this
+						// attribute when spelling out the link text.
+						__('Powered by WordPress Playground')
+					}
 				>
 					{createInterpolateElement(
 						// translators: powered-by label with embedded icon. please leave markup tags intact, including numbering.
 						__(
-							'<span1>Powered by</span1> <Icon /> <span2>WordPress Playground</span2>'
+							'<span1>Powered by</span1><WordPressIcon /><span2>WordPress Playground</span2>'
 						),
 						{
 							span1: (
 								<span className="wordpress-playground-footer__powered" />
 							),
-							Icon: (
-								<Icon
-									className="wordpress-playground-footer__icon"
-									icon={wordpress}
-								/>
+							WordPressIcon: (
+								<>
+									{
+										// a11y: Use non-breaking space because
+										// macOS Voiceover does not otherwise
+										// spell out the space in Safari.
+										<span className="wordpress-playground-footer__spacing">
+											&nbsp;
+										</span>
+									}
+									<Icon
+										icon={wordpress}
+										className="wordpress-playground-footer__icon"
+									/>
+								</>
 							),
 							span2: (
 								<span className="wordpress-playground-footer__link-text" />

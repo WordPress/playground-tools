@@ -223,8 +223,13 @@
 			opacity: 0.7;
 		}
 		.wordpress-playground-footer__link {
+			.wordpress-playground-footer__spacing {
+				display: inline-block;
+				width: 0;
+				height: 0;
+			}
 			.wordpress-playground-footer__icon {
-				margin-top: -4px;
+				margin: -4px 2px auto 2px;
 				fill: $color;
 				vertical-align: middle;
 			}
