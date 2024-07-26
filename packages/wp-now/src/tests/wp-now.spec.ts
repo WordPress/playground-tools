@@ -9,6 +9,7 @@ import {
 	isWpContentDirectory,
 	isWordPressDirectory,
 	isWordPressDevelopDirectory,
+	resolveWordPressVersion,
 } from '../wp-playground-wordpress';
 import {
 	downloadSqliteIntegrationPlugin,
@@ -202,8 +203,13 @@ describe('Test starting different modes', () => {
 	 */
 	beforeAll(async () => {
 		fs.rmSync(getWpNowTmpPath(), { recursive: true, force: true });
+		const { resolvedWordPressVersion } = await resolveWordPressVersion(
+			'latest'
+		);
 		await Promise.all([
-			downloadWithTimer('wordpress', downloadWordPress),
+			downloadWithTimer('wordpress', () =>
+				downloadWordPress(resolvedWordPressVersion)
+			),
 			downloadWithTimer('sqlite', downloadSqliteIntegrationPlugin),
 		]);
 	});
