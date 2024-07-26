@@ -38,7 +38,12 @@ async function readOfflineVersions(): Promise<Record<string, string>> {
 async function writeOfflineVersions(
 	offlineData: Record<string, string>
 ): Promise<void> {
-	await fs.writeJson(OFFLINE_FALLBACK_FILE, offlineData, { spaces: 2 });
+	try {
+		await fs.ensureFile(OFFLINE_FALLBACK_FILE);
+		await fs.writeJson(OFFLINE_FALLBACK_FILE, offlineData, { spaces: 2 });
+	} catch (error) {
+		console.error('Failed to create offline fallback file:', error);
+	}
 }
 
 async function getOfflineVersion(
