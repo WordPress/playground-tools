@@ -4,9 +4,9 @@ import getWpNowPath from '../get-wp-now-path';
 
 const VERSION_CHECKER_ENDPOINT =
 	'https://api.wordpress.org/core/version-check/1.7';
-const OFFLINE_FALLBACK_FILE = path.join(
+const OFFLINE_ALIAS_FILE = path.join(
 	getWpNowPath(),
-	'wp-version-offline.json'
+	'wp-version-offline-alias.json'
 );
 
 function isVersionAlias(requestedWordPressVersion: string): boolean {
@@ -27,29 +27,29 @@ async function fetchWordPressVersion(
 	return data?.offers?.[0]?.version ?? null;
 }
 
-async function readOfflineVersions(): Promise<Record<string, string>> {
+async function readOfflineAlias(): Promise<Record<string, string>> {
 	try {
-		return await fs.readJson(OFFLINE_FALLBACK_FILE);
+		return await fs.readJson(OFFLINE_ALIAS_FILE);
 	} catch (error) {
 		return {};
 	}
 }
 
-async function writeOfflineVersions(
+async function writeOfflineAlias(
 	offlineData: Record<string, string>
 ): Promise<void> {
 	try {
-		await fs.ensureFile(OFFLINE_FALLBACK_FILE);
-		await fs.writeJson(OFFLINE_FALLBACK_FILE, offlineData, { spaces: 2 });
+		await fs.ensureFile(OFFLINE_ALIAS_FILE);
+		await fs.writeJson(OFFLINE_ALIAS_FILE, offlineData, { spaces: 2 });
 	} catch (error) {
 		console.error('Failed to create offline fallback file:', error);
 	}
 }
 
-async function getOfflineVersion(
+async function getOfflineAlias(
 	wordPressVersion: string
 ): Promise<string | null> {
-	const offlineData = await readOfflineVersions();
+	const offlineData = await readOfflineAlias();
 	return offlineData[wordPressVersion] || null;
 }
 
@@ -67,9 +67,9 @@ export async function resolveWordPressVersion(wordPressVersion: string) {
 		const version = await fetchWordPressVersion(isDeveloperBuild);
 
 		if (version) {
-			const offlineData = await readOfflineVersions();
+			const offlineData = await readOfflineAlias();
 			offlineData[wordPressVersion] = version;
-			await writeOfflineVersions(offlineData);
+			await writeOfflineAlias(offlineData);
 
 			return {
 				resolvedWordPressVersion: version,
@@ -82,11 +82,11 @@ export async function resolveWordPressVersion(wordPressVersion: string) {
 		);
 	}
 
-	const offlineFallbackVersion = await getOfflineVersion(wordPressVersion);
+	const offlineAliasVersion = await getOfflineAlias(wordPressVersion);
 
-	if (offlineFallbackVersion) {
+	if (offlineAliasVersion) {
 		return {
-			resolvedWordPressVersion: offlineFallbackVersion,
+			resolvedWordPressVersion: offlineAliasVersion,
 			isDeveloperBuild,
 		};
 	}
