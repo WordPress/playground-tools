@@ -164,6 +164,26 @@ export default function PlaygroundPreview({
 	);
 	const [currentPostId, setCurrentPostId] = useState(0);
 
+	const dismissedExitWithKeyboardTipKey =
+		'playground-block-dismiss-exit-editor-tip';
+	const [dismissedExitWithKeyboardTip, setDismissedExitWithKeyboardTip] =
+		useState(localStorage[dismissedExitWithKeyboardTipKey] === 'true');
+	function dismissExitWithKeyboardTip() {
+		localStorage[dismissedExitWithKeyboardTipKey] = 'true';
+		setDismissedExitWithKeyboardTip(true);
+
+		// Shift focus to editor so focus is not lost as the tip disappears
+		if (codeMirrorRef?.current?.view?.dom) {
+			const contentEditableElement: HTMLElement =
+				codeMirrorRef.current.view.dom.querySelector(
+					'[contenteditable=true]'
+				);
+			if (contentEditableElement) {
+				contentEditableElement.focus();
+			}
+		}
+	}
+
 	/**
 	 * Let the parent component know when the state changes.
 	 */
@@ -529,6 +549,31 @@ export default function PlaygroundPreview({
 								<Icon icon={download} />
 							</Button>
 						</div>
+						{!dismissedExitWithKeyboardTip && (
+							<div>
+								<div
+									tabIndex={0}
+									className="playground-block-exit-editor-tip"
+									onClick={dismissExitWithKeyboardTip}
+								>
+									<span>
+										{createInterpolateElement(
+											// translators: This is a keyboard combination to exit the code editor.
+											__(
+												'Press <EscapeKey />, <TabKey /> to exit the editor.'
+											),
+											{
+												EscapeKey: <code>Esc</code>,
+												TabKey: <code>Tab</code>,
+											}
+										)}
+									</span>
+									<Button variant="link">
+										{__('Dismiss')}
+									</Button>
+								</div>
+							</div>
+						)}
 						<div className="code-editor-wrapper">
 							<ReactCodeMirror
 								ref={codeMirrorRef}

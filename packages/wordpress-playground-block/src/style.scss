@@ -383,4 +383,34 @@
 		background-color: #0c0224;
 		color: #fff;
 	}
+
+	.playground-block-exit-editor-tip {
+		cursor: pointer;
+		background: #fff7cc;
+		padding: 7px 13px;
+
+		&:focus {
+			// Avoid outline on click
+			outline: 0;
+		}
+		&:focus-visible {
+			outline: auto;
+			// Avoid completely clipped outline
+			outline-offset: -2px;
+		}
+
+		code {
+			// TODO: Is there a good WordPress CSS var for monospace font?
+			font-family: monospace;
+			border: 1px solid #00000077;
+			border-radius: 5px;
+			padding: 2px 4px;
+			margin: 0px 1px;
+		}
+
+		button {
+			margin-inline-start: 7px;
+			font-size: inherit;
+		}
+	}
 }
