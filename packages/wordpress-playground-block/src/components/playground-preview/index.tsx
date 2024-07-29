@@ -555,19 +555,23 @@ export default function PlaygroundPreview({
 									tabIndex={0}
 									className="playground-block-exit-editor-tip"
 									onClick={dismissExitWithKeyboardTip}
+									onKeyDown={(event) => {
+										if (event.key === 'Enter') {
+											event.preventDefault();
+											dismissExitWithKeyboardTip();
+										}
+									}}
 								>
-									<span>
-										{createInterpolateElement(
-											// translators: This is a keyboard combination to exit the code editor.
-											__(
-												'Press <EscapeKey />, <TabKey /> to exit the editor.'
-											),
-											{
-												EscapeKey: <code>Esc</code>,
-												TabKey: <code>Tab</code>,
-											}
-										)}
-									</span>
+									{createInterpolateElement(
+										// translators: This is a keyboard combination to exit the code editor.
+										__(
+											'Press <EscapeKey />, <TabKey /> to exit the editor.'
+										),
+										{
+											EscapeKey: <code>Esc</code>,
+											TabKey: <code>Tab</code>,
+										}
+									)}
 									<Button variant="link">
 										{__('Dismiss')}
 									</Button>
