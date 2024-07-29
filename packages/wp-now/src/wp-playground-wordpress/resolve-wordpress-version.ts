@@ -91,7 +91,8 @@ export async function resolveWordPressVersion(wordPressVersion: string) {
 		};
 	}
 
-	throw new Error(
+	console.error(
 		`Failed to resolve ${wordPressVersion} WordPress version. Please check your internet connection or try again later.`
 	);
+	process.exit(1);
 }
