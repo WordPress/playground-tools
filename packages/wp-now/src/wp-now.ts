@@ -26,6 +26,7 @@ import {
 	isWordPressDevelopDirectory,
 	getPluginFile,
 	readFileHead,
+	resolveWordPressVersion,
 } from './wp-playground-wordpress';
 import { output } from './output';
 import getWpNowPath from './get-wp-now-path';
@@ -75,12 +76,21 @@ export default async function startWPNow(
 		});
 		return { php, phpInstances, options };
 	}
-	if (options.wordPressVersion === 'trunk') {
-		options.wordPressVersion = 'nightly';
+
+	const { resolvedWordPressVersion, isDeveloperBuild } =
+		await resolveWordPressVersion(options.wordPressVersion);
+
+	let wpVersionOutput = resolvedWordPressVersion;
+
+	if (resolvedWordPressVersion !== options.wordPressVersion) {
+		const originalWordPressVersion = options.wordPressVersion;
+		options.wordPressVersion = resolvedWordPressVersion;
+		wpVersionOutput += ` (resolved from alias: ${originalWordPressVersion})`;
 	}
-	output?.log(`wp: ${options.wordPressVersion}`);
+
+	output?.log(`wp: ${wpVersionOutput}`);
 	await Promise.all([
-		downloadWordPress(options.wordPressVersion),
+		downloadWordPress(options.wordPressVersion, { isDeveloperBuild }),
 		downloadMuPlugins(),
 		downloadSqliteIntegrationPlugin(),
 	]);
