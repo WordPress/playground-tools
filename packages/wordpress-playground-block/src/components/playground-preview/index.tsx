@@ -553,6 +553,7 @@ export default function PlaygroundPreview({
 							<div>
 								<div
 									tabIndex={0}
+									role="button"
 									className="playground-block-exit-editor-tip"
 									onClick={dismissExitWithKeyboardTip}
 									onKeyDown={(event) => {
