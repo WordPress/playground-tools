@@ -550,9 +550,8 @@ export default function PlaygroundPreview({
 							</Button>
 						</div>
 						{!dismissedExitWithKeyboardTip && (
-							<div
-								tabIndex={0}
-								role="button"
+							<button
+								type="button"
 								className="playground-block-exit-editor-tip"
 								onClick={dismissExitWithKeyboardTip}
 								onKeyDown={(event) => {
@@ -572,8 +571,10 @@ export default function PlaygroundPreview({
 										TabKey: <code>Tab</code>,
 									}
 								)}
-								<Button variant="link">{__('Dismiss')}</Button>
-							</div>
+								<a className="playground-block-exit-editor-tip-dismiss-link">
+									{__('Dismiss')}
+								</a>
+							</button>
 						)}
 						<div className="code-editor-wrapper">
 							<ReactCodeMirror

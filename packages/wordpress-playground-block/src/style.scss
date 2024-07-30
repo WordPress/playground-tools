@@ -386,8 +386,11 @@
 
 	.playground-block-exit-editor-tip {
 		cursor: pointer;
+		border: 0;
 		background: #fff7cc;
-		padding: 7px 13px;
+		padding: 11px;
+		font-size: inherit;
+		text-align: left;
 
 		&:focus {
 			// Avoid outline on click
@@ -408,9 +411,8 @@
 			margin: 0px 1px;
 		}
 
-		button {
+		.playground-block-exit-editor-tip-dismiss-link {
 			margin-inline-start: 7px;
-			font-size: inherit;
 		}
 	}
 }
