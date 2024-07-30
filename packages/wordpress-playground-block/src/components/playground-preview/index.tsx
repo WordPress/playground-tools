@@ -564,16 +564,38 @@ export default function PlaygroundPreview({
 								{createInterpolateElement(
 									// translators: This is a keyboard combination to exit the code editor.
 									__(
-										'Press <EscapeKey />, <TabKey /> to exit the editor.'
+										'Press <EscapeKey />, <TabKey /> to exit the editor. <DismissNotice />'
 									),
 									{
-										EscapeKey: <code>Esc</code>,
-										TabKey: <code>Tab</code>,
+										EscapeKey: (
+											<code
+												aria-label={
+													// translators: The keyboard's Escape key
+													__('Escape key')
+												}
+											>
+												Esc
+											</code>
+										),
+										TabKey: (
+											<code
+												aria-label={
+													// translators: The keyboard's Tab key
+													__('Tab key')
+												}
+											>
+												Tab
+											</code>
+										),
+										DismissNotice: (
+											<span className="playground-block-exit-editor-tip-dismiss-notice">
+												{__(
+													'(Click to dismiss this notice.)'
+												)}
+											</span>
+										),
 									}
 								)}
-								<a className="playground-block-exit-editor-tip-dismiss-link">
-									{__('Dismiss')}
-								</a>
 							</button>
 						)}
 						<div className="code-editor-wrapper">
