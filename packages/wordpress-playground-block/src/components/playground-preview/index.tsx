@@ -550,33 +550,29 @@ export default function PlaygroundPreview({
 							</Button>
 						</div>
 						{!dismissedExitWithKeyboardTip && (
-							<div>
-								<div
-									tabIndex={0}
-									role="button"
-									className="playground-block-exit-editor-tip"
-									onClick={dismissExitWithKeyboardTip}
-									onKeyDown={(event) => {
-										if (event.key === 'Enter') {
-											event.preventDefault();
-											dismissExitWithKeyboardTip();
-										}
-									}}
-								>
-									{createInterpolateElement(
-										// translators: This is a keyboard combination to exit the code editor.
-										__(
-											'Press <EscapeKey />, <TabKey /> to exit the editor.'
-										),
-										{
-											EscapeKey: <code>Esc</code>,
-											TabKey: <code>Tab</code>,
-										}
-									)}
-									<Button variant="link">
-										{__('Dismiss')}
-									</Button>
-								</div>
+							<div
+								tabIndex={0}
+								role="button"
+								className="playground-block-exit-editor-tip"
+								onClick={dismissExitWithKeyboardTip}
+								onKeyDown={(event) => {
+									if (event.key === 'Enter') {
+										event.preventDefault();
+										dismissExitWithKeyboardTip();
+									}
+								}}
+							>
+								{createInterpolateElement(
+									// translators: This is a keyboard combination to exit the code editor.
+									__(
+										'Press <EscapeKey />, <TabKey /> to exit the editor.'
+									),
+									{
+										EscapeKey: <code>Esc</code>,
+										TabKey: <code>Tab</code>,
+									}
+								)}
+								<Button variant="link">{__('Dismiss')}</Button>
 							</div>
 						)}
 						<div className="code-editor-wrapper">
