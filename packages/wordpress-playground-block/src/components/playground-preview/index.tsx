@@ -541,7 +541,7 @@ export default function PlaygroundPreview({
 									),
 								]}
 								readOnly={
-									codeEditorReadOnly ||
+									(codeEditorReadOnly && !inBlockEditor) ||
 									isErrorLogFile(files[activeFileIndex])
 								}
 								onChange={(value) =>
