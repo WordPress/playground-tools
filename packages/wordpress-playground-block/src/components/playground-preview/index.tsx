@@ -164,6 +164,26 @@ export default function PlaygroundPreview({
 	);
 	const [currentPostId, setCurrentPostId] = useState(0);
 
+	const dismissedExitWithKeyboardTipKey =
+		'playground-block-dismiss-exit-editor-tip';
+	const [dismissedExitWithKeyboardTip, setDismissedExitWithKeyboardTip] =
+		useState(localStorage[dismissedExitWithKeyboardTipKey] === 'true');
+	function dismissExitWithKeyboardTip() {
+		localStorage[dismissedExitWithKeyboardTipKey] = 'true';
+		setDismissedExitWithKeyboardTip(true);
+
+		// Shift focus to editor so focus is not lost as the tip disappears
+		if (codeMirrorRef?.current?.view?.dom) {
+			const contentEditableElement: HTMLElement =
+				codeMirrorRef.current.view.dom.querySelector(
+					'[contenteditable=true]'
+				);
+			if (contentEditableElement) {
+				contentEditableElement.focus();
+			}
+		}
+	}
+
 	/**
 	 * Let the parent component know when the state changes.
 	 */
@@ -529,6 +549,55 @@ export default function PlaygroundPreview({
 								<Icon icon={download} />
 							</Button>
 						</div>
+						{!dismissedExitWithKeyboardTip && (
+							<button
+								type="button"
+								className="playground-block-exit-editor-tip"
+								onClick={dismissExitWithKeyboardTip}
+								onKeyDown={(event) => {
+									if (event.key === 'Enter') {
+										event.preventDefault();
+										dismissExitWithKeyboardTip();
+									}
+								}}
+							>
+								{createInterpolateElement(
+									// translators: This is a keyboard combination to exit the code editor.
+									__(
+										'Press <EscapeKey />, <TabKey /> to exit the editor. <DismissNotice />'
+									),
+									{
+										EscapeKey: (
+											<code
+												aria-label={
+													// translators: The keyboard's Escape key
+													__('Escape key')
+												}
+											>
+												Esc
+											</code>
+										),
+										TabKey: (
+											<code
+												aria-label={
+													// translators: The keyboard's Tab key
+													__('Tab key')
+												}
+											>
+												Tab
+											</code>
+										),
+										DismissNotice: (
+											<span className="playground-block-exit-editor-tip-dismiss-notice">
+												{__(
+													'(Click to dismiss this notice.)'
+												)}
+											</span>
+										),
+									}
+								)}
+							</button>
+						)}
 						<div className="code-editor-wrapper">
 							<ReactCodeMirror
 								ref={codeMirrorRef}
