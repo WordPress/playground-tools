@@ -433,26 +433,6 @@ export default function PlaygroundPreview({
 			aria-label={__('WordPress Playground')}
 			className={mainContainerClass}
 		>
-			<header className="wordpress-playground-header">
-				{!inBlockEditor && !inFullPageView && (
-					<Button
-						variant="link"
-						className="wordpress-playground-header__full-page-link"
-						onClick={() => {
-							window.open(getFullPageUrl(), '_blank');
-						}}
-						aria-label={
-							// Add dedicated aria-label for screen readers
-							// because an arrow is added to the main button
-							// label via CSS pseudo-element, and our users with
-							// screen readers do not need an arrow read to them.
-							__('Open in New Tab')
-						}
-					>
-						{__('Open in New Tab')}
-					</Button>
-				)}
-			</header>
 			<div className={contentContainerClass}>
 				{codeEditor && (
 					<div className="code-container">
@@ -789,7 +769,7 @@ export default function PlaygroundPreview({
 			<footer className="wordpress-playground-footer">
 				<a
 					href="https://w.org/playground"
-					className="wordpress-playground-footer__link"
+					className="wordpress-playground-footer__powered_by_link"
 					target="_blank"
 					aria-label={
 						// Provide dedicated ARIA label because NVDA does not
@@ -807,7 +787,7 @@ export default function PlaygroundPreview({
 						),
 						{
 							span1: (
-								<span className="wordpress-playground-footer__powered" />
+								<span className="wordpress-playground-footer__powered_text" />
 							),
 							WordPressIcon: (
 								<>
@@ -826,11 +806,29 @@ export default function PlaygroundPreview({
 								</>
 							),
 							span2: (
-								<span className="wordpress-playground-footer__link-text" />
+								<span className="wordpress-playground-footer__powered_by_link-text" />
 							),
 						}
 					)}
 				</a>
+				{!inBlockEditor && !inFullPageView && (
+					<Button
+						variant="link"
+						className="wordpress-playground-footer__full-page-link"
+						onClick={() => {
+							window.open(getFullPageUrl(), '_blank');
+						}}
+						aria-label={
+							// Add dedicated aria-label for screen readers
+							// because an arrow is added to the main button
+							// label via CSS pseudo-element, and our users with
+							// screen readers do not need an arrow read to them.
+							__('Open in New Tab')
+						}
+					>
+						{__('Open in New Tab')}
+					</Button>
+				)}
 			</footer>
 		</section>
 	);
