@@ -184,11 +184,15 @@
 	}
 
 	.wordpress-playground-footer {
-		$link-spacing: 4px;
+		margin: 4px;
 
 		.wordpress-playground-footer__powered_by_link,
 		.wordpress-playground-footer__full-page-link {
-			padding: $link-spacing 2 * $link-spacing;
+			margin: 0 8px;
+		}
+
+		.wordpress-playground-footer__full-page-link {
+			margin-inline-start: 19px;
 		}
 
 		$color: var(--wp--preset--color--contrast);
