@@ -19,7 +19,7 @@ import {
 	useState,
 	createInterpolateElement,
 } from '@wordpress/element';
-import { Button, Spinner } from '@wordpress/components';
+import { Button, Spinner, withSpokenMessages } from '@wordpress/components';
 import {
 	Icon,
 	plus,
@@ -49,6 +49,7 @@ export type PlaygroundDemoProps = Attributes & {
 	inFullPageView?: boolean;
 	baseAttributesForFullPageView?: object;
 	onStateChange?: (state: any) => void;
+	speak: (message: string, ariaLive?: string) => void;
 };
 
 const languages: Record<string, LanguageSupport> = {
@@ -83,7 +84,7 @@ function getRefreshPath(lastPath: string) {
 	return url.pathname + url.search;
 }
 
-export default function PlaygroundPreview({
+function PlaygroundPreview({
 	inBlockEditor,
 	blueprint,
 	blueprintUrl,
@@ -112,6 +113,7 @@ export default function PlaygroundPreview({
 	inFullPageView = false,
 	baseAttributesForFullPageView = {},
 	onStateChange,
+	speak,
 }: PlaygroundDemoProps) {
 	const {
 		files,
@@ -135,6 +137,7 @@ export default function PlaygroundPreview({
 	const afterPreviewRef = useRef<HTMLSpanElement>(null);
 	const playgroundClientRef = useRef<PlaygroundClient | null>(null);
 	const fileMgrRef = useRef<FileManagerRef>(null);
+	const downloadButtonRef = useRef<HTMLAnchorElement>(null);
 	const codeMirrorRef = useRef<any>(null);
 
 	/**
@@ -169,19 +172,19 @@ export default function PlaygroundPreview({
 	const [dismissedExitWithKeyboardTip, setDismissedExitWithKeyboardTip] =
 		useState(localStorage[dismissedExitWithKeyboardTipKey] === 'true');
 	function dismissExitWithKeyboardTip() {
+		// Shift focus to previous focusable control
+		// so focus is not lost as the tip disappears
+		if (downloadButtonRef?.current) {
+			downloadButtonRef.current.focus();
+		}
+
 		localStorage[dismissedExitWithKeyboardTipKey] = 'true';
 		setDismissedExitWithKeyboardTip(true);
-
-		// Shift focus to editor so focus is not lost as the tip disappears
-		if (codeMirrorRef?.current?.view?.dom) {
-			const contentEditableElement: HTMLElement =
-				codeMirrorRef.current.view.dom.querySelector(
-					'[contenteditable=true]'
-				);
-			if (contentEditableElement) {
-				contentEditableElement.focus();
-			}
-		}
+		speak(
+			// translators: This describes a UI notice that has been dismissed by the user.
+			__('Notice dismissed.'),
+			'polite'
+		);
 	}
 
 	/**
@@ -515,6 +518,7 @@ export default function PlaygroundPreview({
 								</Button>
 							)}
 							<Button
+								ref={downloadButtonRef}
 								aria-label={__('Download Code as a Zip file')}
 								variant="secondary"
 								className="file-tab file-tab-extra"
@@ -833,3 +837,5 @@ export default function PlaygroundPreview({
 		</section>
 	);
 }
+
+export default withSpokenMessages(PlaygroundPreview);
