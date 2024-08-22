@@ -1,3 +1,4 @@
+import { useHostFilesystem } from '@php-wasm/node';
 import startWPNow from './wp-now';
 import { WPNowOptions } from './config';
 import { disableOutput } from './output';
@@ -27,10 +28,10 @@ export async function executePHP(
 		...options,
 		numberOfPhpInstances: 2,
 	});
-	const [, php] = phpInstances;
+	const [php] = phpInstances;
 
 	try {
-		php.useHostFilesystem();
+		useHostFilesystem(php);
 		if (!path.isAbsolute(phpArgs[1])) {
 			const maybePhpFile = path.join(
 				wpNowOptions.projectPath,
