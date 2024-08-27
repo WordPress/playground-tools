@@ -77,7 +77,7 @@ export async function startServer(
 				data.headers['origin'] = options.absoluteUrl;
 			}
 
-			const resp = await php.request(data);
+			const resp = await php.requestHandler.request(data);
 			res.statusCode = resp.httpStatusCode;
 			Object.keys(resp.headers).forEach((key) => {
 				res.setHeader(key, resp.headers[key]);

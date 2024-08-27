@@ -753,7 +753,7 @@ describe('Test starting different modes', () => {
 				`${php.documentRoot}/print-constants.php`,
 				`<?php echo WP_DEBUG_LOG;`
 			);
-			const result = await php.request({
+			const result = await php.requestHandler.request({
 				method: 'GET',
 				url: '/print-constants.php',
 			});
@@ -774,7 +774,7 @@ describe('Test starting different modes', () => {
 				`${php.documentRoot}/print-constants.php`,
 				`<?php echo WP_SITEURL;`
 			);
-			const result = await php.request({
+			const result = await php.requestHandler.request({
 				method: 'GET',
 				url: '/print-constants.php',
 			});

@@ -1,7 +1,13 @@
-import fs from 'fs-extra';
+import fs, { copySync } from 'fs-extra';
 import path from 'path';
 import { createNodeFsMountHandler, loadNodeRuntime } from '@php-wasm/node';
-import { PHP, PHPRequestHandler, UnmountFunction } from '@php-wasm/universal';
+import {
+	PHP,
+	PHPRequestHandler,
+	proxyFileSystem,
+	rotatePHPRuntime,
+	UnmountFunction,
+} from '@php-wasm/universal';
 import { SQLITE_FILENAME } from './constants';
 import {
 	downloadMuPlugins,
@@ -34,49 +40,71 @@ import getWpNowPath from './get-wp-now-path';
 import getWordpressVersionsPath from './get-wordpress-versions-path';
 import getSqlitePath, { getSqliteDbCopyPath } from './get-sqlite-path';
 
-async function applyToInstances(phpInstances: PHP[], callback: Function) {
-	for (let i = 0; i < phpInstances.length; i++) {
-		await callback(phpInstances[i]);
-	}
-}
-
 function mountWithHandler(
 	php: PHP,
-	src: string,
-	dest: string
+	virtualFSPath: string,
+	hostPath: string
 ): Promise<UnmountFunction> {
-	return php.mount(src, createNodeFsMountHandler(dest));
+	// Must ensure target exists for both folder *and* file
+	php.mkdir(virtualFSPath);
+	return php.mount(virtualFSPath, createNodeFsMountHandler(hostPath));
 }
 
 export default async function startWPNow(
 	options: Partial<WPNowOptions> = {}
-): Promise<{ php: PHP; phpInstances: PHP[]; options: WPNowOptions }> {
+): Promise<{ php: PHP; options: WPNowOptions }> {
 	const { documentRoot } = options;
 
+	// Similar logic as bootWordPress() in @wp-playground/wordpess
+
+	const createPhpRuntime = async () =>
+		await loadNodeRuntime(options.phpVersion);
 	const requestHandler = new PHPRequestHandler({
+		phpFactory: async ({ isPrimary }) => {
+			const php = new PHP(await createPhpRuntime());
+
+			if (requestHandler) {
+				php.requestHandler = requestHandler;
+			}
+			if (isPrimary) {
+				// @TODO: Mount /internal/shared/mu-plugins
+			} else {
+				// Proxy the filesystem for all secondary PHP instances
+				proxyFileSystem(await requestHandler.getPrimaryPhp(), php, [
+					'/tmp',
+					requestHandler.documentRoot,
+					'/internal/shared',
+				]);
+			}
+
+			rotatePHPRuntime({
+				php,
+				cwd: requestHandler.documentRoot,
+				recreateRuntime: createPhpRuntime,
+				maxRequests: 400,
+			});
+
+			return php;
+		},
 		documentRoot,
 		absoluteUrl: options.absoluteUrl,
-		phpFactory: async () =>
-			new PHP(await loadNodeRuntime(options.phpVersion)),
 		maxPhpInstances: options.numberOfPhpInstances,
+		// rewriteRules,
+		// getFileNotFoundAction,
 	});
+
 	const php = await requestHandler.getPrimaryPhp();
 
 	php.mkdir(documentRoot);
 	php.chdir(documentRoot);
 	php.writeFile(`${documentRoot}/index.php`, `<?php echo 'Hello wp-now!';`);
 
-	// @TODO: requestHandler.processManager.allInstances is private
-	const phpInstances = [php];
-
 	output?.log(`directory: ${options.projectPath}`);
 	output?.log(`mode: ${options.mode}`);
 	output?.log(`php: ${options.phpVersion}`);
 	if (options.mode === WPNowMode.INDEX) {
-		await applyToInstances(phpInstances, async (_php) => {
-			runIndexMode(_php, options);
-		});
-		return { php, phpInstances, options };
+		runIndexMode(php, options);
+		return { php, options };
 	}
 
 	const { resolvedWordPressVersion, isDeveloperBuild } =
@@ -105,28 +133,26 @@ export default async function startWPNow(
 	}
 
 	const isFirstTimeProject = !fs.existsSync(options.wpContentPath);
-	await applyToInstances(phpInstances, async (_php) => {
-		switch (options.mode) {
-			case WPNowMode.WP_CONTENT:
-				await runWpContentMode(_php, options);
-				break;
-			case WPNowMode.WORDPRESS_DEVELOP:
-				await runWordPressDevelopMode(_php, options);
-				break;
-			case WPNowMode.WORDPRESS:
-				await runWordPressMode(_php, options);
-				break;
-			case WPNowMode.PLUGIN:
-				await runPluginOrThemeMode(_php, options);
-				break;
-			case WPNowMode.THEME:
-				await runPluginOrThemeMode(_php, options);
-				break;
-			case WPNowMode.PLAYGROUND:
-				await runWpPlaygroundMode(_php, options);
-				break;
-		}
-	});
+	switch (options.mode) {
+		case WPNowMode.WP_CONTENT:
+			await runWpContentMode(php, options);
+			break;
+		case WPNowMode.WORDPRESS_DEVELOP:
+			await runWordPressDevelopMode(php, options);
+			break;
+		case WPNowMode.WORDPRESS:
+			await runWordPressMode(php, options);
+			break;
+		case WPNowMode.PLUGIN:
+			await runPluginOrThemeMode(php, options);
+			break;
+		case WPNowMode.THEME:
+			await runPluginOrThemeMode(php, options);
+			break;
+		case WPNowMode.PLAYGROUND:
+			await runWpPlaygroundMode(php, options);
+			break;
+	}
 
 	if (options.blueprintObject) {
 		output?.log(`blueprint steps: ${options.blueprintObject.steps.length}`);
@@ -159,7 +185,6 @@ export default async function startWPNow(
 
 	return {
 		php,
-		phpInstances,
 		options,
 	};
 }
@@ -168,7 +193,7 @@ async function runIndexMode(
 	php: PHP,
 	{ documentRoot, projectPath }: WPNowOptions
 ) {
-	await mountWithHandler(php, projectPath, documentRoot);
+	await mountWithHandler(php, documentRoot, projectPath);
 }
 
 async function runWpContentMode(
@@ -185,11 +210,11 @@ async function runWpContentMode(
 		getWordpressVersionsPath(),
 		wordPressVersion
 	);
-	await mountWithHandler(php, wordPressPath, documentRoot);
+	await mountWithHandler(php, documentRoot, wordPressPath);
 	await initWordPress(php, wordPressVersion, documentRoot, absoluteUrl);
 	fs.ensureDirSync(wpContentPath);
 
-	await mountWithHandler(php, projectPath, `${documentRoot}/wp-content`);
+	await mountWithHandler(php, `${documentRoot}/wp-content`, projectPath);
 
 	await mountSqlitePlugin(php, documentRoot);
 	await mountSqliteDatabaseDirectory(php, documentRoot, wpContentPath);
@@ -211,7 +236,7 @@ async function runWordPressMode(
 	php: PHP,
 	{ documentRoot, wpContentPath, projectPath, absoluteUrl }: WPNowOptions
 ) {
-	await mountWithHandler(php, projectPath, documentRoot);
+	await mountWithHandler(php, documentRoot, projectPath);
 
 	const { initializeDefaultDatabase } = await initWordPress(
 		php,
@@ -246,7 +271,7 @@ async function runPluginOrThemeMode(
 		getWordpressVersionsPath(),
 		wordPressVersion
 	);
-	await mountWithHandler(php, wordPressPath, documentRoot);
+	await mountWithHandler(php, documentRoot, wordPressPath);
 	await initWordPress(php, wordPressVersion, documentRoot, absoluteUrl);
 
 	fs.ensureDirSync(wpContentPath);
@@ -254,14 +279,14 @@ async function runPluginOrThemeMode(
 		path.join(getWordpressVersionsPath(), wordPressVersion, 'wp-content'),
 		wpContentPath
 	);
-	await mountWithHandler(php, wpContentPath, `${documentRoot}/wp-content`);
+	await mountWithHandler(php, `${documentRoot}/wp-content`, wpContentPath);
 
 	const pluginName = path.basename(projectPath);
 	const directoryName = mode === WPNowMode.PLUGIN ? 'plugins' : 'themes';
 	await mountWithHandler(
 		php,
-		projectPath,
-		`${documentRoot}/wp-content/${directoryName}/${pluginName}`
+		`${documentRoot}/wp-content/${directoryName}/${pluginName}`,
+		projectPath
 	);
 	if (mode === WPNowMode.THEME) {
 		const templateName = getThemeTemplate(projectPath);
@@ -271,8 +296,8 @@ async function runPluginOrThemeMode(
 			if (fs.existsSync(templatePath)) {
 				await mountWithHandler(
 					php,
-					templatePath,
-					`${documentRoot}/wp-content/${directoryName}/${templateName}`
+					`${documentRoot}/wp-content/${directoryName}/${templateName}`,
+					templatePath
 				);
 			} else {
 				output?.error(
@@ -293,7 +318,7 @@ async function runWpPlaygroundMode(
 		getWordpressVersionsPath(),
 		wordPressVersion
 	);
-	await mountWithHandler(php, wordPressPath, documentRoot);
+	await mountWithHandler(php, documentRoot, wordPressPath);
 	await initWordPress(php, wordPressVersion, documentRoot, absoluteUrl);
 
 	fs.ensureDirSync(wpContentPath);
@@ -301,7 +326,7 @@ async function runWpPlaygroundMode(
 		path.join(getWordpressVersionsPath(), wordPressVersion, 'wp-content'),
 		wpContentPath
 	);
-	await mountWithHandler(php, wpContentPath, `${documentRoot}/wp-content`);
+	await mountWithHandler(php, `${documentRoot}/wp-content`, wpContentPath);
 
 	await mountSqlitePlugin(php, documentRoot);
 	await mountMuPlugins(php, documentRoot);
@@ -346,7 +371,6 @@ async function initWordPress(
 		consts: wpConfigConsts,
 		method: 'define-before-run',
 	});
-
 	return { initializeDefaultDatabase };
 }
 
@@ -375,10 +399,10 @@ export function getThemeTemplate(projectPath: string) {
 async function mountMuPlugins(php: PHP, vfsDocumentRoot: string) {
 	await mountWithHandler(
 		php,
-		path.join(getWpNowPath(), 'mu-plugins'),
 		// VFS paths always use forward / slashes so
 		// we can't use path.join() for them
-		`${vfsDocumentRoot}/wp-content/mu-plugins`
+		`${vfsDocumentRoot}/wp-content/mu-plugins`,
+		path.join(getWpNowPath(), 'mu-plugins')
 	);
 }
 
@@ -389,11 +413,11 @@ function getSqlitePluginPath(vfsDocumentRoot: string) {
 async function mountSqlitePlugin(php: PHP, vfsDocumentRoot: string) {
 	const sqlitePluginPath = getSqlitePluginPath(vfsDocumentRoot);
 	if (php.listFiles(sqlitePluginPath).length === 0) {
-		await mountWithHandler(php, getSqlitePath(), sqlitePluginPath);
+		await mountWithHandler(php, sqlitePluginPath, getSqlitePath());
 		await mountWithHandler(
 			php,
-			getSqliteDbCopyPath(),
-			`${vfsDocumentRoot}/wp-content/db.php`
+			`${vfsDocumentRoot}/wp-content/db.php`,
+			getSqliteDbCopyPath()
 		);
 	}
 }
@@ -413,8 +437,8 @@ async function mountSqliteDatabaseDirectory(
 	fs.ensureDirSync(path.join(wpContentPath, 'database'));
 	await mountWithHandler(
 		php,
-		path.join(wpContentPath, 'database'),
-		`${vfsDocumentRoot}/wp-content/database`
+		`${vfsDocumentRoot}/wp-content/database`,
+		path.join(wpContentPath, 'database')
 	);
 }
 
@@ -438,7 +462,7 @@ export function inferMode(
 }
 
 async function installationStep2(php: PHP) {
-	return php.request({
+	return await php.requestHandler.request({
 		url: '/wp-admin/install.php?step=2',
 		method: 'POST',
 		body: {

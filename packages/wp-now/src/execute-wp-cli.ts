@@ -1,3 +1,4 @@
+import { createNodeFsMountHandler } from '@php-wasm/node';
 import startWPNow from './wp-now';
 import { downloadWPCLI } from './download';
 import { disableOutput } from './output';
@@ -18,15 +19,14 @@ export async function executeWPCli(args: string[]) {
 		wp: DEFAULT_WORDPRESS_VERSION,
 		path: process.env.WP_NOW_PROJECT_PATH || process.cwd(),
 	});
-	const { phpInstances, options: wpNowOptions } = await startWPNow({
-		...options,
-		numberOfPhpInstances: 2,
-	});
-	const [, php] = phpInstances;
+	const { php, options: wpNowOptions } = await startWPNow(options);
 
 	try {
 		const vfsWpCliPath = '/wp-cli/wp-cli.phar';
-		php.mount(dirname(getWpCliPath()), dirname(vfsWpCliPath));
+		php.mount(
+			dirname(vfsWpCliPath),
+			createNodeFsMountHandler(dirname(getWpCliPath()))
+		);
 		await php.cli([
 			'php',
 			vfsWpCliPath,

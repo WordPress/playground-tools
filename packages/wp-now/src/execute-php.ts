@@ -24,11 +24,7 @@ export async function executePHP(
 		);
 	}
 	disableOutput();
-	const { phpInstances, options: wpNowOptions } = await startWPNow({
-		...options,
-		numberOfPhpInstances: 2,
-	});
-	const [php] = phpInstances;
+	const { php, options: wpNowOptions } = await startWPNow(options);
 
 	try {
 		useHostFilesystem(php);
