@@ -272,7 +272,7 @@ export default withBase64Attrs(function Edit({
 								@see https://github.com/WordPress/playground-tools/issues/196
 								@todo Before re-enabling, add i18n support.
 								*/}
-								<div style={{ display: 'none' }}>
+								<div>
 									<SelectControl
 										help={
 											<div>
@@ -290,6 +290,18 @@ export default withBase64Attrs(function Edit({
 														the Playground.
 													</li>
 													<li>
+														<strong>Theme</strong>:
+														all the files will be
+														placed in a separate
+														theme which will be
+														automatically enabled in
+														the Playground.
+													</li>
+													<li
+														style={{
+															display: 'none',
+														}}
+													>
 														<strong>
 															Editor script
 														</strong>
@@ -320,12 +332,12 @@ export default withBase64Attrs(function Edit({
 												value: '',
 											},
 											{
-												label: 'Editor script',
-												value: 'editor-script',
-											},
-											{
 												label: 'Plugin',
 												value: 'plugin',
+											},
+											{
+												label: 'Theme',
+												value: 'theme',
 											},
 										]}
 										value={codeEditorMode}
