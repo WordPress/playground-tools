@@ -32,6 +32,7 @@ import {
 import useEditorFiles, { isErrorLogFile } from './use-editor-files';
 import { LanguageSupport } from '@codemirror/language';
 import { writePluginFiles } from './write-plugin-files';
+import { writeThemeFiles } from './write-theme-files';
 import downloadZippedPlugin from './download-zipped-plugin';
 import classnames from 'classnames';
 import FileManagementModals, { FileManagerRef } from './file-management-modals';
@@ -90,6 +91,7 @@ function PlaygroundPreview({
 	blueprintUrl,
 	configurationSource,
 	codeEditor,
+	codeEditorMode,
 	codeEditorSideBySide,
 	codeEditorReadOnly,
 	codeEditorTranspileJsx,
@@ -357,23 +359,30 @@ function PlaygroundPreview({
 
 		const client = playgroundClientRef.current;
 		let finalFiles = files;
-		if (codeEditorTranspileJsx) {
-			const { failures, transpiledFiles } = await transpilePluginFiles(
-				finalFiles
-			);
-			if (failures.length) {
-				for (const failure of failures) {
-					console.error(
-						`Failed to transpile ${failure.file.name}:`,
-						failure.error
-					);
+
+		console.log('codeEditorMode', codeEditorMode);
+
+		if (codeEditorMode === 'theme') {
+			await writeThemeFiles(client, finalFiles);
+		} else {
+			if (codeEditorTranspileJsx) {
+				const { failures, transpiledFiles } =
+					await transpilePluginFiles(finalFiles);
+				if (failures.length) {
+					for (const failure of failures) {
+						console.error(
+							`Failed to transpile ${failure.file.name}:`,
+							failure.error
+						);
+					}
+					setTranspilationFailures(failures);
+					return;
 				}
-				setTranspilationFailures(failures);
-				return;
+				finalFiles = transpiledFiles;
 			}
-			finalFiles = transpiledFiles;
+
+			await writePluginFiles(client, finalFiles);
 		}
-		await writePluginFiles(client, finalFiles);
 	}
 
 	const handleReRunCode = useCallback(() => {
