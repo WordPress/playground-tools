@@ -64,6 +64,7 @@ In order to contribute to `wordpress-playground-block`, you'll need to first ins
 
 -   Make sure you have `nvm` installed. If you need to install it first,
     [follow these installation instructions](https://github.com/nvm-sh/nvm#installation).
+-   Install wp-now globally to power the local development environment by running `npm install -g @wp-now/wp-now`    
 -   Install `nx` by running `npm install -g nx`.
 
 Once the global dependencies are installed, you can start using the repo:
