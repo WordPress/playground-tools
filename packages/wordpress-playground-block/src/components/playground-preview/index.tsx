@@ -198,6 +198,10 @@ function PlaygroundPreview({
 		});
 	}, [playgroundClientRef.current, currentPostId, files]);
 
+	useEffect(() => {
+		speak('WordPress Playground loaded.', 'polite');
+	}, [playgroundClientRef.current]);
+
 	const currentFileExtension = activeFile?.name.split('.').pop();
 
 	useEffect(() => {
