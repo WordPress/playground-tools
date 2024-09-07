@@ -435,6 +435,19 @@ function PlaygroundPreview({
 			'WordPress website which may be a challenge for screen readers.'
 	);
 
+	const activeStatusLabel = playgroundClientRef.current
+		? // translators: State of the playground iframe after it has loaded.
+		  __('Loaded')
+		: // translators: State of the playground iframe while it is loading.
+		  __('Loading');
+	// translators: State of the playground iframe before the user activates it.
+	const inactivateStatusLabel = __('Not Activated');
+	const beforePlaygroundPreviewLabel = sprintf(
+		// translators: %s: status of the Playground preview
+		__('Beginning of Playground Preview - %s'),
+		isLivePreviewActivated ? activeStatusLabel : inactivateStatusLabel
+	);
+
 	return (
 		<section
 			aria-label={__('WordPress Playground')}
@@ -684,10 +697,7 @@ function PlaygroundPreview({
 								tabIndex={-1}
 								ref={beforePreviewRef}
 							>
-								{
-									// translators: screen reader text noting beginning of the playground iframe
-									__('Beginning of Playground Preview')
-								}
+								{beforePlaygroundPreviewLabel}
 							</span>
 							<a
 								href="#"
