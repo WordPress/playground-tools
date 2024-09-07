@@ -199,7 +199,11 @@ function PlaygroundPreview({
 	}, [playgroundClientRef.current, currentPostId, files]);
 
 	useEffect(() => {
-		speak('WordPress Playground loaded.', 'polite');
+		speak(
+			// translators: This says that the Playground preview has loaded.
+			__('WordPress Playground loaded.'),
+			'polite'
+		);
 	}, [playgroundClientRef.current]);
 
 	const currentFileExtension = activeFile?.name.split('.').pop();
