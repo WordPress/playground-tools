@@ -198,14 +198,6 @@ function PlaygroundPreview({
 		});
 	}, [playgroundClientRef.current, currentPostId, files]);
 
-	useEffect(() => {
-		speak(
-			// translators: This says that the Playground preview has loaded.
-			__('WordPress Playground loaded.'),
-			'polite'
-		);
-	}, [playgroundClientRef.current]);
-
 	const currentFileExtension = activeFile?.name.split('.').pop();
 
 	useEffect(() => {
@@ -269,6 +261,21 @@ function PlaygroundPreview({
 
 			await client.isReady();
 			playgroundClientRef.current = client;
+
+			// Hack: Delay the announcement to give iframe loading percentage
+			// announcements for the iframe a chance to be queued before this
+			// "loading complete" announcement. Without this, macOS VoiceOver
+			// often speaks "WordPress Playground loaded. 10% loaded" which
+			// is a miscommunication because Playground has already loaded.
+			setTimeout(
+				() =>
+					speak(
+						// translators: This says that the Playground preview has loaded.
+						__('WordPress Playground loaded.'),
+						'polite'
+					),
+				500
+			);
 
 			await reinstallEditedPlugin();
 
