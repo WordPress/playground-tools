@@ -10,10 +10,10 @@ export const writeThemeFiles = async (
 	files: EditorFile[]
 ) => {
 	const docroot = await client.documentRoot;
-	const themeSlug = 'demo-theme';
-	console.log('themeSlug', themeSlug);
+	const themeFolderName = 'demo-theme';
+	console.log('themeSlug', themeFolderName);
 
-	const themePath = docroot + '/wp-content/themes/' + themeSlug;
+	const themePath = docroot + '/wp-content/themes/' + themeFolderName;
 	if (await client.fileExists(themePath)) {
 		await client.rmdir(themePath, {
 			recursive: true,
@@ -30,7 +30,7 @@ export const writeThemeFiles = async (
 
 	try {
 		await activateTheme(client, {
-			themeSlug,
+			themeFolderName,
 		});
 	} catch (e) {
 		console.error(e);
