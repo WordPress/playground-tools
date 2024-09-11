@@ -1,6 +1,6 @@
 import { useHostFilesystem } from '@php-wasm/node';
 import startWPNow from './wp-now';
-import { WPNowOptions } from './config';
+import { WPNowOptions, WPNowMode } from './config';
 import { disableOutput } from './output';
 import * as path from 'path';
 import fs from 'fs-extra';
@@ -24,7 +24,10 @@ export async function executePHP(
 		);
 	}
 	disableOutput();
-	const { php, options: wpNowOptions } = await startWPNow(options);
+	const { php, options: wpNowOptions } = await startWPNow({
+		...options,
+		mode: WPNowMode.INDEX,
+	});
 
 	try {
 		useHostFilesystem(php);
