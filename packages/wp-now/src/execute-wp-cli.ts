@@ -24,7 +24,7 @@ export async function executeWPCli(
 	args: string[]
 ): Promise<{ stdout: string; stderr: string; exitCode: number }> {
 	await downloadWPCLI();
-	let options = await getWpNowConfig({
+	const options = await getWpNowConfig({
 		php: DEFAULT_PHP_VERSION,
 		wp: DEFAULT_WORDPRESS_VERSION,
 	});
