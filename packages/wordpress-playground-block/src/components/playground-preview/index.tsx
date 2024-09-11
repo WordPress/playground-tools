@@ -264,6 +264,21 @@ function PlaygroundPreview({
 			await client.isReady();
 			playgroundClientRef.current = client;
 
+			// Hack: Delay the announcement to give iframe loading percentage
+			// announcements for the iframe a chance to be queued before this
+			// "loading complete" announcement. Without this, macOS VoiceOver
+			// often speaks "WordPress Playground loaded. 10% loaded" which
+			// is a miscommunication because Playground has already loaded.
+			setTimeout(
+				() =>
+					speak(
+						// translators: This says that the Playground preview has loaded.
+						__('WordPress Playground loaded.'),
+						'polite'
+					),
+				500
+			);
+
 			await reinstallEditedPlugin();
 
 			if (configurationSource === 'block-attributes') {
@@ -438,6 +453,19 @@ function PlaygroundPreview({
 	const iframeCreationWarningForActivation = __(
 		'This button creates the Preview iframe containing a full ' +
 			'WordPress website which may be a challenge for screen readers.'
+	);
+
+	const activeStatusLabel = playgroundClientRef.current
+		? // translators: State of the playground iframe after it has loaded.
+		  __('Loaded')
+		: // translators: State of the playground iframe while it is loading.
+		  __('Loading');
+	// translators: State of the playground iframe before the user activates it.
+	const inactivateStatusLabel = __('Not Activated');
+	const beforePlaygroundPreviewLabel = sprintf(
+		// translators: %s: status of the Playground preview
+		__('Beginning of Playground Preview - %s'),
+		isLivePreviewActivated ? activeStatusLabel : inactivateStatusLabel
 	);
 
 	return (
@@ -689,10 +717,7 @@ function PlaygroundPreview({
 								tabIndex={-1}
 								ref={beforePreviewRef}
 							>
-								{
-									// translators: screen reader text noting beginning of the playground iframe
-									__('Beginning of Playground Preview')
-								}
+								{beforePlaygroundPreviewLabel}
 							</span>
 							<a
 								href="#"
