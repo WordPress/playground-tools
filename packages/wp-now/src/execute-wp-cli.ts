@@ -28,7 +28,7 @@ export async function executeWPCli(
 	}: { phpVersion?: string; projectPath?: string } = {}
 ): Promise<{ stdout: string; stderr: string; exitCode: number }> {
 	await downloadWPCLI();
-	let options = await getWpNowConfig({
+	const options = await getWpNowConfig({
 		php: phpVersion || DEFAULT_PHP_VERSION,
 		wp: DEFAULT_WORDPRESS_VERSION,
 		path: projectPath,
