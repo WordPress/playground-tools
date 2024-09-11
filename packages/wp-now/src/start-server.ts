@@ -1,11 +1,10 @@
 import fs from 'fs';
 import { WPNowOptions } from './config';
-import { HTTPMethod } from '@php-wasm/universal';
+import { HTTPMethod, PHP } from '@php-wasm/universal';
 import express from 'express';
 import compression from 'compression';
 import compressible from 'compressible';
 import { portFinder } from './port-finder';
-import { NodePHP } from '@php-wasm/node';
 import { isWebContainer } from '@webcontainer/env';
 import startWPNow from './wp-now';
 import { output } from './output';
@@ -24,7 +23,7 @@ const requestBodyToBytes = async (req): Promise<Uint8Array> =>
 
 export interface WPNowServer {
 	url: string;
-	php: NodePHP;
+	php: PHP;
 	options: WPNowOptions;
 	stopServer: () => Promise<void>;
 }
