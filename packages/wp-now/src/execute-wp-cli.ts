@@ -21,15 +21,19 @@ const isWindows = process.platform === 'win32';
  * This is an unstable API. Multiple wp-cli commands may not work due to a current limitation on php-wasm and pthreads.
  */
 export async function executeWPCli(
-	args: string[]
+	args: string[],
+	{
+		phpVersion,
+		projectPath,
+	}: { phpVersion?: string; projectPath?: string } = {}
 ): Promise<{ stdout: string; stderr: string; exitCode: number }> {
 	await downloadWPCLI();
-	const options = await getWpNowConfig({
-		php: DEFAULT_PHP_VERSION,
+	let options = await getWpNowConfig({
+		php: phpVersion || DEFAULT_PHP_VERSION,
 		wp: DEFAULT_WORDPRESS_VERSION,
+		path: projectPath,
 	});
 
-	const projectPath = options.projectPath;
 	const id = await loadNodeRuntime(options.phpVersion);
 	const php = new PHP(id);
 	php.mkdir(options.documentRoot);
@@ -95,11 +99,16 @@ export async function executeWPCli(
 	await setPhpIniEntries(php, {
 		'openssl.cafile': '/internal/shared/ca-bundle.crt',
 	});
-	// try{
+	// try {
 	// 	php.mkdir(sqliteCommandPath);
-	// 	await php.mount(sqliteCommandPath, createNodeFsMountHandler(getSqliteCommandPath()) as unknown as MountHandler)
-	// }catch(e){
-	// 	console.log(e)
+	// 	await php.mount(
+	// 		sqliteCommandPath,
+	// 		createNodeFsMountHandler(
+	// 			getSqliteCommandPath()
+	// 		) as unknown as MountHandler
+	// 	);
+	// } catch (e) {
+	// 	console.log(e);
 	// }
 
 	try {
