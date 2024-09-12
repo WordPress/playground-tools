@@ -1,13 +1,19 @@
-import fs, { copySync } from 'fs-extra';
 import path from 'path';
+import { rootCertificates } from 'tls';
+import fs, { copySync } from 'fs-extra';
 import { createNodeFsMountHandler, loadNodeRuntime } from '@php-wasm/node';
 import {
 	PHP,
 	PHPRequestHandler,
 	proxyFileSystem,
 	rotatePHPRuntime,
+	setPhpIniEntries,
 	UnmountFunction,
 } from '@php-wasm/universal';
+import {
+	wordPressRewriteRules,
+	getFileNotFoundActionForWordPress,
+} from '@wp-playground/wordpress';
 import { SQLITE_FILENAME } from './constants';
 import {
 	downloadMuPlugins,
@@ -60,14 +66,22 @@ export default async function startWPNow(
 	const createPhpRuntime = async () =>
 		await loadNodeRuntime(options.phpVersion);
 	const requestHandler = new PHPRequestHandler({
-		phpFactory: async ({ isPrimary }) => {
-			const php = new PHP(await createPhpRuntime());
+		phpFactory: async ({ isPrimary, requestHandler }) => {
+			const { php, runtimeId } = await getPHPInstance(
+				options,
+				isPrimary,
+				requestHandler
+			);
 
 			if (requestHandler) {
 				php.requestHandler = requestHandler;
 			}
 			if (isPrimary) {
-				// @TODO: Mount /internal/shared/mu-plugins
+				/**
+				 * @TODO: Mount /internal/shared/mu-plugins instead of altering
+				 * the installed WordPress site. Refer to @wp-playground/wordpress.
+				 * https://github.com/WordPress/wordpress-playground/blob/19e64f5782631e94ffeb6dd2e552c3868c6dc29d/packages/playground/wordpress/src/boot.ts#L127-L143
+				 */
 			} else {
 				// Proxy the filesystem for all secondary PHP instances
 				proxyFileSystem(await requestHandler.getPrimaryPhp(), php, [
@@ -76,28 +90,18 @@ export default async function startWPNow(
 					'/internal/shared',
 				]);
 			}
-
-			rotatePHPRuntime({
-				php,
-				cwd: requestHandler.documentRoot,
-				recreateRuntime: createPhpRuntime,
-				maxRequests: 400,
-			});
-
 			return php;
 		},
 		documentRoot,
 		absoluteUrl: options.absoluteUrl,
 		maxPhpInstances: options.numberOfPhpInstances,
-		// rewriteRules,
-		// getFileNotFoundAction,
+		rewriteRules: wordPressRewriteRules,
+		getFileNotFoundAction: getFileNotFoundActionForWordPress,
 	});
 
 	const php = await requestHandler.getPrimaryPhp();
 
-	php.mkdir(documentRoot);
-	php.chdir(documentRoot);
-	php.writeFile(`${documentRoot}/index.php`, `<?php echo 'Hello wp-now!';`);
+	prepareDocumentRoot(php, options);
 
 	output?.log(`directory: ${options.projectPath}`);
 	output?.log(`mode: ${options.mode}`);
@@ -133,26 +137,8 @@ export default async function startWPNow(
 	}
 
 	const isFirstTimeProject = !fs.existsSync(options.wpContentPath);
-	switch (options.mode) {
-		case WPNowMode.WP_CONTENT:
-			await runWpContentMode(php, options);
-			break;
-		case WPNowMode.WORDPRESS_DEVELOP:
-			await runWordPressDevelopMode(php, options);
-			break;
-		case WPNowMode.WORDPRESS:
-			await runWordPressMode(php, options);
-			break;
-		case WPNowMode.PLUGIN:
-			await runPluginOrThemeMode(php, options);
-			break;
-		case WPNowMode.THEME:
-			await runPluginOrThemeMode(php, options);
-			break;
-		case WPNowMode.PLAYGROUND:
-			await runWpPlaygroundMode(php, options);
-			break;
-	}
+
+	await prepareWordPress(php, options);
 
 	if (options.blueprintObject) {
 		output?.log(`blueprint steps: ${options.blueprintObject.steps.length}`);
@@ -183,10 +169,81 @@ export default async function startWPNow(
 		await activatePluginOrTheme(php, options);
 	}
 
+	rotatePHPRuntime({
+		php,
+		cwd: requestHandler.documentRoot,
+		recreateRuntime: async () => {
+			output?.log('Recreating and rotating PHP runtime');
+			const { php, runtimeId } = await getPHPInstance(
+				options,
+				true,
+				requestHandler
+			);
+			prepareDocumentRoot(php, options);
+			await prepareWordPress(php, options);
+			return runtimeId;
+		},
+		maxRequests: 400,
+	});
+
 	return {
 		php,
 		options,
 	};
+}
+
+async function getPHPInstance(
+	options: WPNowOptions,
+	isPrimary: boolean,
+	requestHandler: PHPRequestHandler
+): Promise<{ php: PHP; runtimeId: number }> {
+	const id = await loadNodeRuntime(options.phpVersion);
+	const php = new PHP(id);
+
+	await setPhpIniEntries(php, {
+		memory_limit: '256M',
+		disable_functions: '',
+		allow_url_fopen: '1',
+		'openssl.cafile': '/internal/shared/ca-bundle.crt',
+	});
+
+	return { php, runtimeId: id };
+}
+
+function prepareDocumentRoot(php: PHP, options: WPNowOptions) {
+	php.mkdir(options.documentRoot);
+	php.chdir(options.documentRoot);
+	php.writeFile(
+		`${options.documentRoot}/index.php`,
+		`<?php echo 'Hello wp-now!';`
+	);
+	php.writeFile(
+		'/internal/shared/ca-bundle.crt',
+		rootCertificates.join('\n')
+	);
+}
+
+async function prepareWordPress(php: PHP, options: WPNowOptions) {
+	switch (options.mode) {
+		case WPNowMode.WP_CONTENT:
+			await runWpContentMode(php, options);
+			break;
+		case WPNowMode.WORDPRESS_DEVELOP:
+			await runWordPressDevelopMode(php, options);
+			break;
+		case WPNowMode.WORDPRESS:
+			await runWordPressMode(php, options);
+			break;
+		case WPNowMode.PLUGIN:
+			await runPluginOrThemeMode(php, options);
+			break;
+		case WPNowMode.THEME:
+			await runPluginOrThemeMode(php, options);
+			break;
+		case WPNowMode.PLAYGROUND:
+			await runWpPlaygroundMode(php, options);
+			break;
+	}
 }
 
 async function runIndexMode(
