@@ -1,6 +1,6 @@
 import path from 'path';
 import { rootCertificates } from 'tls';
-import fs, { copySync } from 'fs-extra';
+import fs from 'fs-extra';
 import { createNodeFsMountHandler, loadNodeRuntime } from '@php-wasm/node';
 import {
 	PHP,
@@ -61,17 +61,9 @@ export default async function startWPNow(
 ): Promise<{ php: PHP; options: WPNowOptions }> {
 	const { documentRoot } = options;
 
-	// Similar logic as bootWordPress() in @wp-playground/wordpess
-
-	const createPhpRuntime = async () =>
-		await loadNodeRuntime(options.phpVersion);
 	const requestHandler = new PHPRequestHandler({
 		phpFactory: async ({ isPrimary, requestHandler }) => {
-			const { php, runtimeId } = await getPHPInstance(
-				options,
-				isPrimary,
-				requestHandler
-			);
+			const { php } = await getPHPInstance(options);
 
 			if (requestHandler) {
 				php.requestHandler = requestHandler;
@@ -193,9 +185,7 @@ export default async function startWPNow(
 }
 
 async function getPHPInstance(
-	options: WPNowOptions,
-	isPrimary: boolean,
-	requestHandler: PHPRequestHandler
+	options: WPNowOptions
 ): Promise<{ php: PHP; runtimeId: number }> {
 	const id = await loadNodeRuntime(options.phpVersion);
 	const php = new PHP(id);

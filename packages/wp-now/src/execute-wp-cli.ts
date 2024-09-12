@@ -5,13 +5,11 @@ import getWpNowConfig from './config';
 import { DEFAULT_PHP_VERSION, DEFAULT_WORDPRESS_VERSION } from './constants';
 import { phpVar } from '@php-wasm/util';
 import { createNodeFsMountHandler, loadNodeRuntime } from '@php-wasm/node';
-// import { getSqliteCommandPath } from '../../../src/lib/sqlite-command-versions';
 import {
 	PHP,
 	MountHandler,
 	writeFiles,
 	setPhpIniEntries,
-	loadPHPRuntime,
 } from '@php-wasm/universal';
 import { readFileSync } from 'fs';
 
@@ -21,11 +19,9 @@ const isWindows = process.platform === 'win32';
  * This is an unstable API. Multiple wp-cli commands may not work due to a current limitation on php-wasm and pthreads.
  */
 export async function executeWPCli(
+	projectPath: string,
 	args: string[],
-	{
-		phpVersion,
-		projectPath,
-	}: { phpVersion?: string; projectPath?: string } = {}
+	{ phpVersion }: { phpVersion?: string } = {}
 ): Promise<{ stdout: string; stderr: string; exitCode: number }> {
 	await downloadWPCLI();
 	const options = await getWpNowConfig({
@@ -49,7 +45,6 @@ export async function executeWPCli(
 
 	const wpCliPath = '/tmp/wp-cli.phar';
 	const stderrPath = '/tmp/stderr';
-	const sqliteCommandPath = '/tmp/sqlite-command';
 	const runCliPath = '/tmp/run-cli.php';
 	const createFiles = {
 		[wpCliPath]: readFileSync(getWpCliPath()),
@@ -99,17 +94,6 @@ export async function executeWPCli(
 	await setPhpIniEntries(php, {
 		'openssl.cafile': '/internal/shared/ca-bundle.crt',
 	});
-	// try {
-	// 	php.mkdir(sqliteCommandPath);
-	// 	await php.mount(
-	// 		sqliteCommandPath,
-	// 		createNodeFsMountHandler(
-	// 			getSqliteCommandPath()
-	// 		) as unknown as MountHandler
-	// 	);
-	// } catch (e) {
-	// 	console.log(e);
-	// }
 
 	try {
 		php.chdir(options.documentRoot);
