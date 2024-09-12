@@ -832,9 +832,7 @@ describe('wp-cli command', () => {
 	 * We don't need the WordPress context for this test.
 	 */
 	test('wp-cli displays the version', async () => {
-		const { stdout } = await executeWPCli(['--version'], {
-			projectPath: '.',
-		});
+		const { stdout } = await executeWPCli('.', ['--version']);
 		expect(stdout).toMatch(/WP-CLI (\d\.?)+/i);
 	});
 });
