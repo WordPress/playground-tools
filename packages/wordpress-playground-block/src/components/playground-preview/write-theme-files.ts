@@ -11,8 +11,6 @@ export const writeThemeFiles = async (
 ) => {
 	const docroot = await client.documentRoot;
 	const themeFolderName = 'demo-theme';
-	console.log('themeSlug', themeFolderName);
-
 	const themePath = docroot + '/wp-content/themes/' + themeFolderName;
 	if (await client.fileExists(themePath)) {
 		await client.rmdir(themePath, {
