@@ -4,7 +4,10 @@ import {
 	// @ts-ignore
 } from 'https://playground.wordpress.net/client/index.js';
 
-export default async function downloadZippedPackage(client: PlaygroundClient, codeEditorMode) {
+export default async function downloadZippedPackage(
+	client: PlaygroundClient,
+	codeEditorMode
+) {
 	const docroot = await client.documentRoot;
 
 	let pluginPath = docroot + '/wp-content/plugins/demo-plugin';
