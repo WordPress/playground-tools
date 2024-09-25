@@ -4,12 +4,23 @@ import {
 	// @ts-ignore
 } from 'https://playground.wordpress.net/client/index.js';
 
-export default async function downloadZippedPlugin(client: PlaygroundClient) {
+export default async function downloadZippedPackage(
+	client: PlaygroundClient,
+	codeEditorMode
+) {
 	const docroot = await client.documentRoot;
-	const pluginPath = docroot + '/wp-content/plugins/demo-plugin';
+
+	let pluginPath = docroot + '/wp-content/plugins/demo-plugin';
+	let fileName = 'wordpress-playground-plugin.zip';
+
+	if (codeEditorMode == 'theme') {
+		pluginPath = docroot + '/wp-content/themes/demo-theme';
+		fileName = 'wordpress-playground-theme.zip';
+	}
+
 	const zipFile = new File(
 		[await zipPlaygroundFiles(client, pluginPath)],
-		'wordpress-playground-plugin.zip',
+		fileName,
 		{
 			type: 'application/zip',
 		}

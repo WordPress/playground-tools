@@ -6,6 +6,7 @@ import { useState, useRef } from '@wordpress/element';
 import {
 	ToggleControl,
 	SelectControl,
+	RadioControl,
 	TextareaControl,
 	Panel,
 	PanelBody,
@@ -143,6 +144,8 @@ export default withBase64Attrs(function Edit({
 		requireLivePreviewActivation,
 	} = attributes;
 
+	const showJSXTranspileOption = codeEditorMode === 'plugin';
+
 	return (
 		<div {...useBlockProps()}>
 			<PlaygroundPreview
@@ -222,21 +225,43 @@ export default withBase64Attrs(function Edit({
 										});
 									}}
 								/>
-								<ToggleControl
-									label={__('Transpile JSX to JS')}
-									help={__(
-										`Transpiles JSX syntax to JS using esbuild. Only the JSX tags are ` +
-											`transpiled. Imports and other advanced ES module syntax features are ` +
-											`preserved.`
-									)}
-									checked={codeEditorTranspileJsx}
-									onChange={() => {
-										setAttributes({
-											codeEditorTranspileJsx:
-												!codeEditorTranspileJsx,
-										});
+								<RadioControl
+									label="Code editor mode"
+									selected={codeEditorMode}
+									options={[
+										{ label: 'Plugin', value: 'plugin' },
+										{ label: 'Theme', value: 'theme' },
+									]}
+									onChange={(value) => {
+										if (value === 'theme') {
+											setAttributes({
+												codeEditorMode: value,
+												codeEditorTranspileJsx: false,
+											});
+										} else {
+											setAttributes({
+												codeEditorMode: value,
+											});
+										}
 									}}
 								/>
+								{showJSXTranspileOption && (
+									<ToggleControl
+										label={__('Transpile JSX to JS')}
+										help={__(
+											`Transpiles JSX syntax to JS using esbuild. Only the JSX tags are ` +
+												`transpiled. Imports and other advanced ES module syntax features are ` +
+												`preserved.`
+										)}
+										checked={codeEditorTranspileJsx}
+										onChange={() => {
+											setAttributes({
+												codeEditorTranspileJsx:
+													!codeEditorTranspileJsx,
+											});
+										}}
+									/>
+								)}
 								<ToggleControl
 									label={__('Multiple files')}
 									help={

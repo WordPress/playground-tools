@@ -32,7 +32,8 @@ import {
 import useEditorFiles, { isErrorLogFile } from './use-editor-files';
 import { LanguageSupport } from '@codemirror/language';
 import { writePluginFiles } from './write-plugin-files';
-import downloadZippedPlugin from './download-zipped-plugin';
+import { writeThemeFiles } from './write-theme-files';
+import downloadZippedPackage from './download-zipped-package';
 import classnames from 'classnames';
 import FileManagementModals, { FileManagerRef } from './file-management-modals';
 import {
@@ -90,6 +91,7 @@ function PlaygroundPreview({
 	blueprintUrl,
 	configurationSource,
 	codeEditor,
+	codeEditorMode,
 	codeEditorSideBySide,
 	codeEditorReadOnly,
 	codeEditorTranspileJsx,
@@ -277,7 +279,7 @@ function PlaygroundPreview({
 				500
 			);
 
-			await reinstallEditedPlugin();
+			await reinstallEditedCode();
 
 			if (configurationSource === 'block-attributes') {
 				let postId = 0;
@@ -363,7 +365,7 @@ function PlaygroundPreview({
 	const [transpilationFailures, setTranspilationFailures] = useState<
 		TranspilationFailure[]
 	>([]);
-	async function reinstallEditedPlugin() {
+	async function reinstallEditedCode() {
 		if (!playgroundClientRef.current || !codeEditor) {
 			return;
 		}
@@ -372,6 +374,7 @@ function PlaygroundPreview({
 
 		const client = playgroundClientRef.current;
 		let finalFiles = files;
+
 		if (codeEditorTranspileJsx) {
 			const { failures, transpiledFiles } = await transpilePluginFiles(
 				finalFiles
@@ -388,12 +391,17 @@ function PlaygroundPreview({
 			}
 			finalFiles = transpiledFiles;
 		}
-		await writePluginFiles(client, finalFiles);
+
+		if (codeEditorMode === 'theme') {
+			await writeThemeFiles(client, finalFiles);
+		} else {
+			await writePluginFiles(client, finalFiles);
+		}
 	}
 
 	const handleReRunCode = useCallback(() => {
 		async function doHandleRun() {
-			await reinstallEditedPlugin();
+			await reinstallEditedCode();
 
 			// Refresh Playground iframe
 			const lastPath = await playgroundClientRef.current!.getCurrentURL();
@@ -406,7 +414,7 @@ function PlaygroundPreview({
 		} else {
 			doHandleRun();
 		}
-	}, [reinstallEditedPlugin]);
+	}, [reinstallEditedCode]);
 
 	const keymapExtension = useMemo(
 		() =>
@@ -552,8 +560,9 @@ function PlaygroundPreview({
 								className="file-tab file-tab-extra"
 								onClick={() => {
 									if (playgroundClientRef.current) {
-										downloadZippedPlugin(
-											playgroundClientRef.current
+										downloadZippedPackage(
+											playgroundClientRef.current,
+											codeEditorMode
 										);
 									}
 								}}
