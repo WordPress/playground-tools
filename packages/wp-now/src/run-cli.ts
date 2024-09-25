@@ -8,6 +8,7 @@ import { spawn, SpawnOptionsWithoutStdio } from 'child_process';
 import { executePHP } from './execute-php';
 import { output } from './output';
 import { isGitHubCodespace } from './github-codespaces';
+import { executeWPCli } from './execute-wp-cli';
 
 function startSpinner(message: string) {
 	process.stdout.write(`${message}...\n`);
@@ -155,6 +156,23 @@ export async function runCli() {
 					process.exit(0);
 				} catch (error) {
 					console.error(error);
+					process.exit(error.status || -1);
+				}
+			}
+		)
+		.command(
+			'wp',
+			'Run the wp command passing the arguments for wp cli',
+			(yargs) => {
+				return yargs.strict(false);
+			},
+			async () => {
+				// 0: node, 1: wp-now, 2: wp, 3: [wp-cli options...]
+				const args = process.argv.slice(3);
+				try {
+					await executeWPCli(args);
+					process.exit(0);
+				} catch (error) {
 					process.exit(error.status || -1);
 				}
 			}
