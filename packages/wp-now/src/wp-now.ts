@@ -22,6 +22,7 @@ import {
 	isPluginDirectory,
 	isThemeDirectory,
 	isWpContentDirectory,
+	isWpPRDirectory,
 	isWordPressDirectory,
 	isWordPressDevelopDirectory,
 	getPluginFile,
@@ -108,6 +109,9 @@ export default async function startWPNow(
 			case WPNowMode.WP_CONTENT:
 				await runWpContentMode(_php, options);
 				break;
+			case WPNowMode.WP_PR:
+				await runWpPrMode(_php, options);
+				break;
 			case WPNowMode.WORDPRESS_DEVELOP:
 				await runWordPressDevelopMode(_php, options);
 				break;
@@ -191,6 +195,46 @@ async function runWpContentMode(
 
 	mountSqlitePlugin(php, documentRoot);
 	mountSqliteDatabaseDirectory(php, documentRoot, wpContentPath);
+	mountMuPlugins(php, documentRoot);
+}
+
+async function runWpPrMode(
+	php: NodePHP,
+	{
+		documentRoot,
+		wordPressVersion,
+		wpContentPath,
+		projectPath,
+		absoluteUrl,
+	}: WPNowOptions
+) {
+	const wordPressPath = path.join(
+		getWordpressVersionsPath(),
+		wordPressVersion
+	);
+	php.mount(wordPressPath, documentRoot);
+	await initWordPress(php, wordPressVersion, documentRoot, absoluteUrl);
+	fs.ensureDirSync(wpContentPath);
+
+	php.mount(`${projectPath}/wp-content`, `${documentRoot}/wp-content`);
+
+	if (!fs.existsSync(`${projectPath}/wp-content/db.php`)) {
+		await fs.promises.copyFile(
+			`${getSqlitePath()}/db.copy`,
+			`${projectPath}/wp-content/db.php`
+		);
+	}
+	// need a dist folder for output
+	if (!fs.existsSync(`${projectPath}/dist`)) {
+		await fs.promises.mkdir('dist');
+	}
+	php.mount(`${projectPath}/dist`, `${documentRoot}/dist`);
+
+	mountSqliteDatabaseDirectory(
+		php,
+		documentRoot,
+		`${projectPath}/wp-content`
+	);
 	mountMuPlugins(php, documentRoot);
 }
 
@@ -420,6 +464,8 @@ export function inferMode(
 		return WPNowMode.WORDPRESS;
 	} else if (isWpContentDirectory(projectPath)) {
 		return WPNowMode.WP_CONTENT;
+	} else if (isWpPRDirectory(projectPath)) {
+		return WPNowMode.WP_PR;
 	} else if (isPluginDirectory(projectPath)) {
 		return WPNowMode.PLUGIN;
 	} else if (isThemeDirectory(projectPath)) {
