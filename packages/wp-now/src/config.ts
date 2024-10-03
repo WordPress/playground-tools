@@ -13,6 +13,7 @@ import { isValidWordPressVersion } from './wp-playground-wordpress';
 import getWpNowPath from './get-wp-now-path';
 import { DEFAULT_PHP_VERSION, DEFAULT_WORDPRESS_VERSION } from './constants';
 import { isWebContainer, HostURL } from '@webcontainer/env';
+import express from 'express';
 
 export interface CliOptions {
 	php?: string;
@@ -47,6 +48,7 @@ export interface WPNowOptions {
 	blueprintObject?: Blueprint;
 	reset?: boolean;
 	landingPage?: string;
+	app?: express.Express
 }
 
 export const DEFAULT_OPTIONS: WPNowOptions = {
