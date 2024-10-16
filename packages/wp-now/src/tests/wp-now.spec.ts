@@ -707,7 +707,7 @@ describe('Test starting different modes', () => {
 		 * Test that startServer compresses the text files correctly.
 		 */
 		test.each([
-			['html', ''],
+			['html', '/wp-content/themes/theme-with-assets/page.html'],
 			['css', '/wp-content/themes/theme-with-assets/style.css'],
 			[
 				'javascript',
