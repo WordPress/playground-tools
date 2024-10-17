@@ -1,11 +1,10 @@
 import fs from 'fs';
 import { WPNowOptions } from './config';
-import { HTTPMethod } from '@php-wasm/universal';
+import { HTTPMethod, PHP } from '@php-wasm/universal';
 import express from 'express';
 import compression from 'compression';
 import compressible from 'compressible';
 import { portFinder } from './port-finder';
-import { NodePHP } from '@php-wasm/node';
 import { isWebContainer } from '@webcontainer/env';
 import startWPNow from './wp-now';
 import { output } from './output';
@@ -24,7 +23,7 @@ const requestBodyToBytes = async (req): Promise<Uint8Array> =>
 
 export interface WPNowServer {
 	url: string;
-	php: NodePHP;
+	php: PHP;
 	options: WPNowOptions;
 	stopServer: () => Promise<void>;
 }
@@ -44,7 +43,7 @@ export async function startServer(
 		);
 	}
 	const app = express();
-	app.use(compression({ filter: shouldCompress }));
+	app.use(compression({ filter: shouldCompress, threshold: 0 }));
 	app.use(addTrailingSlash('/wp-admin'));
 	const port = await portFinder.getOpenPort();
 	const { php, options: wpNowOptions } = await startWPNow(options);
@@ -77,7 +76,7 @@ export async function startServer(
 				data.headers['origin'] = options.absoluteUrl;
 			}
 
-			const resp = await php.request(data);
+			const resp = await php.requestHandler.request(data);
 			res.statusCode = resp.httpStatusCode;
 			Object.keys(resp.headers).forEach((key) => {
 				res.setHeader(key, resp.headers[key]);
