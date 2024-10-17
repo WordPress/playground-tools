@@ -22,16 +22,9 @@ import getWpNowTmpPath from '../get-wp-now-tmp-path';
 import getWpCliTmpPath from '../get-wp-cli-tmp-path';
 import { executeWPCli } from '../execute-wp-cli';
 import { runCli } from '../run-cli';
+import { downloadWithTimer } from './download-with-timer';
 
 const exampleDir = __dirname + '/mode-examples';
-
-async function downloadWithTimer(name, fn) {
-	console.log(`Downloading ${name}...`);
-	console.time(name);
-	await fn();
-	console.log(`${name} downloaded.`);
-	console.timeEnd(name);
-}
 
 // Options
 test('getWpNowConfig with default options', async () => {
