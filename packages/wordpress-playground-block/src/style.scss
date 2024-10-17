@@ -41,27 +41,8 @@
 		justify-content: center;
 		align-items: center;
 
-		// Let's be explicit about flex item order
-		.wordpress-playground-content-container {
-			order: 0;
-		}
-		.wordpress-playground-footer {
-			order: 1;
-		}
-		.wordpress-playground-header {
-			// For accessibility purposes, we want the header to contain
-			// the open-in-new-tab button, but for layout, we want the
-			// button to appear next to the powered-by footer. So we use
-			// flexbox item ordering to achieve this.
-			order: 2;
-		}
-
 		.wordpress-playground-content-container {
 			width: 100%;
-		}
-		.wordpress-playground-header {
-			text-align: start;
-			margin-inline-start: 11px;
 		}
 		.wordpress-playground-footer {
 			text-align: end;
@@ -140,7 +121,7 @@
 			}
 			.playground-container {
 				width: 100%;
-				height: 400px;
+				height: 500px;
 				flex-basis: 500px;
 			}
 
@@ -158,7 +139,7 @@
 		flex-direction: column;
 		flex-wrap: nowrap;
 
-		.wordpress-playground-header {
+		.wordpress-playground-footer__full-page-link {
 			display: none;
 		}
 
@@ -184,16 +165,10 @@
 		}
 	}
 
-	$header-footer-spacing: 4px;
-
-	.wordpress-playground-header,
-	.wordpress-playground-footer {
-		padding: $header-footer-spacing 2 * $header-footer-spacing;
-	}
-
-	.wordpress-playground-header__full-page-link {
+	.wordpress-playground-footer__full-page-link {
 		text-decoration: none;
 		font-size: 13px;
+		margin-inline-start: 11px;
 
 		$northeast-arrow: '\002197';
 		$northwest-arrow: '\002196';
@@ -209,20 +184,32 @@
 	}
 
 	.wordpress-playground-footer {
+		margin: 4px;
+
+		.wordpress-playground-footer__powered_by_link,
+		.wordpress-playground-footer__full-page-link {
+			margin: 0 8px;
+		}
+
+		.wordpress-playground-footer__full-page-link {
+			margin-inline-start: 19px;
+		}
+
 		$color: var(--wp--preset--color--contrast);
 		$hover-color: var(--wp--preset--color--vivid-cyan-blue);
-		.wordpress-playground-footer__link,
-		.wordpress-playground-footer__powered,
-		.wordpress-playground-footer__link-text {
+
+		.wordpress-playground-footer__powered_by_link,
+		.wordpress-playground-footer__powered_text,
+		.wordpress-playground-footer__powered_by_link-text {
 			color: $color;
 			text-decoration: none;
 			font-size: 13px;
 			display: inline-block;
 		}
-		.wordpress-playground-footer__powered {
+		.wordpress-playground-footer__powered_text {
 			opacity: 0.7;
 		}
-		.wordpress-playground-footer__link {
+		.wordpress-playground-footer__powered_by_link {
 			.wordpress-playground-footer__spacing {
 				display: inline-block;
 				width: 0;
@@ -234,8 +221,8 @@
 				vertical-align: middle;
 			}
 			&:hover {
-				.wordpress-playground-footer__link-text,
-				.wordpress-playground-footer__powered {
+				.wordpress-playground-footer__powered_by_link-text,
+				.wordpress-playground-footer__powered_text {
 					color: $hover-color;
 					opacity: 1;
 				}

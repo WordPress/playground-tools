@@ -19,7 +19,7 @@ import {
 	useState,
 	createInterpolateElement,
 } from '@wordpress/element';
-import { Button, Spinner } from '@wordpress/components';
+import { Button, Spinner, withSpokenMessages } from '@wordpress/components';
 import {
 	Icon,
 	plus,
@@ -32,7 +32,8 @@ import {
 import useEditorFiles, { isErrorLogFile } from './use-editor-files';
 import { LanguageSupport } from '@codemirror/language';
 import { writePluginFiles } from './write-plugin-files';
-import downloadZippedPlugin from './download-zipped-plugin';
+import { writeThemeFiles } from './write-theme-files';
+import downloadZippedPackage from './download-zipped-package';
 import classnames from 'classnames';
 import FileManagementModals, { FileManagerRef } from './file-management-modals';
 import {
@@ -49,6 +50,7 @@ export type PlaygroundDemoProps = Attributes & {
 	inFullPageView?: boolean;
 	baseAttributesForFullPageView?: object;
 	onStateChange?: (state: any) => void;
+	speak: (message: string, ariaLive?: string) => void;
 };
 
 const languages: Record<string, LanguageSupport> = {
@@ -83,12 +85,13 @@ function getRefreshPath(lastPath: string) {
 	return url.pathname + url.search;
 }
 
-export default function PlaygroundPreview({
+function PlaygroundPreview({
 	inBlockEditor,
 	blueprint,
 	blueprintUrl,
 	configurationSource,
 	codeEditor,
+	codeEditorMode,
 	codeEditorSideBySide,
 	codeEditorReadOnly,
 	codeEditorTranspileJsx,
@@ -112,6 +115,7 @@ export default function PlaygroundPreview({
 	inFullPageView = false,
 	baseAttributesForFullPageView = {},
 	onStateChange,
+	speak,
 }: PlaygroundDemoProps) {
 	const {
 		files,
@@ -135,6 +139,7 @@ export default function PlaygroundPreview({
 	const afterPreviewRef = useRef<HTMLSpanElement>(null);
 	const playgroundClientRef = useRef<PlaygroundClient | null>(null);
 	const fileMgrRef = useRef<FileManagerRef>(null);
+	const downloadButtonRef = useRef<HTMLAnchorElement>(null);
 	const codeMirrorRef = useRef<any>(null);
 
 	/**
@@ -169,19 +174,19 @@ export default function PlaygroundPreview({
 	const [dismissedExitWithKeyboardTip, setDismissedExitWithKeyboardTip] =
 		useState(localStorage[dismissedExitWithKeyboardTipKey] === 'true');
 	function dismissExitWithKeyboardTip() {
+		// Shift focus to previous focusable control
+		// so focus is not lost as the tip disappears
+		if (downloadButtonRef?.current) {
+			downloadButtonRef.current.focus();
+		}
+
 		localStorage[dismissedExitWithKeyboardTipKey] = 'true';
 		setDismissedExitWithKeyboardTip(true);
-
-		// Shift focus to editor so focus is not lost as the tip disappears
-		if (codeMirrorRef?.current?.view?.dom) {
-			const contentEditableElement: HTMLElement =
-				codeMirrorRef.current.view.dom.querySelector(
-					'[contenteditable=true]'
-				);
-			if (contentEditableElement) {
-				contentEditableElement.focus();
-			}
-		}
+		speak(
+			// translators: This describes a UI notice that has been dismissed by the user.
+			__('Notice dismissed.'),
+			'polite'
+		);
 	}
 
 	/**
@@ -259,7 +264,22 @@ export default function PlaygroundPreview({
 			await client.isReady();
 			playgroundClientRef.current = client;
 
-			await reinstallEditedPlugin();
+			// Hack: Delay the announcement to give iframe loading percentage
+			// announcements for the iframe a chance to be queued before this
+			// "loading complete" announcement. Without this, macOS VoiceOver
+			// often speaks "WordPress Playground loaded. 10% loaded" which
+			// is a miscommunication because Playground has already loaded.
+			setTimeout(
+				() =>
+					speak(
+						// translators: This says that the Playground preview has loaded.
+						__('WordPress Playground loaded.'),
+						'polite'
+					),
+				500
+			);
+
+			await reinstallEditedCode();
 
 			if (configurationSource === 'block-attributes') {
 				let postId = 0;
@@ -345,7 +365,7 @@ export default function PlaygroundPreview({
 	const [transpilationFailures, setTranspilationFailures] = useState<
 		TranspilationFailure[]
 	>([]);
-	async function reinstallEditedPlugin() {
+	async function reinstallEditedCode() {
 		if (!playgroundClientRef.current || !codeEditor) {
 			return;
 		}
@@ -354,6 +374,7 @@ export default function PlaygroundPreview({
 
 		const client = playgroundClientRef.current;
 		let finalFiles = files;
+
 		if (codeEditorTranspileJsx) {
 			const { failures, transpiledFiles } = await transpilePluginFiles(
 				finalFiles
@@ -370,12 +391,17 @@ export default function PlaygroundPreview({
 			}
 			finalFiles = transpiledFiles;
 		}
-		await writePluginFiles(client, finalFiles);
+
+		if (codeEditorMode === 'theme') {
+			await writeThemeFiles(client, finalFiles);
+		} else {
+			await writePluginFiles(client, finalFiles);
+		}
 	}
 
 	const handleReRunCode = useCallback(() => {
 		async function doHandleRun() {
-			await reinstallEditedPlugin();
+			await reinstallEditedCode();
 
 			// Refresh Playground iframe
 			const lastPath = await playgroundClientRef.current!.getCurrentURL();
@@ -388,7 +414,7 @@ export default function PlaygroundPreview({
 		} else {
 			doHandleRun();
 		}
-	}, [reinstallEditedPlugin]);
+	}, [reinstallEditedCode]);
 
 	const keymapExtension = useMemo(
 		() =>
@@ -428,31 +454,24 @@ export default function PlaygroundPreview({
 			'WordPress website which may be a challenge for screen readers.'
 	);
 
+	const activeStatusLabel = playgroundClientRef.current
+		? // translators: State of the playground iframe after it has loaded.
+		  __('Loaded')
+		: // translators: State of the playground iframe while it is loading.
+		  __('Loading');
+	// translators: State of the playground iframe before the user activates it.
+	const inactivateStatusLabel = __('Not Activated');
+	const beforePlaygroundPreviewLabel = sprintf(
+		// translators: %s: status of the Playground preview
+		__('Beginning of Playground Preview - %s'),
+		isLivePreviewActivated ? activeStatusLabel : inactivateStatusLabel
+	);
+
 	return (
 		<section
 			aria-label={__('WordPress Playground')}
 			className={mainContainerClass}
 		>
-			<header className="wordpress-playground-header">
-				{!inBlockEditor && !inFullPageView && (
-					<Button
-						variant="link"
-						className="wordpress-playground-header__full-page-link"
-						onClick={() => {
-							window.open(getFullPageUrl(), '_blank');
-						}}
-						aria-label={
-							// Add dedicated aria-label for screen readers
-							// because an arrow is added to the main button
-							// label via CSS pseudo-element, and our users with
-							// screen readers do not need an arrow read to them.
-							__('Open in New Tab')
-						}
-					>
-						{__('Open in New Tab')}
-					</Button>
-				)}
-			</header>
 			<div className={contentContainerClass}>
 				{codeEditor && (
 					<div className="code-container">
@@ -535,13 +554,15 @@ export default function PlaygroundPreview({
 								</Button>
 							)}
 							<Button
+								ref={downloadButtonRef}
 								aria-label={__('Download Code as a Zip file')}
 								variant="secondary"
 								className="file-tab file-tab-extra"
 								onClick={() => {
 									if (playgroundClientRef.current) {
-										downloadZippedPlugin(
-											playgroundClientRef.current
+										downloadZippedPackage(
+											playgroundClientRef.current,
+											codeEditorMode
 										);
 									}
 								}}
@@ -696,10 +717,7 @@ export default function PlaygroundPreview({
 								tabIndex={-1}
 								ref={beforePreviewRef}
 							>
-								{
-									// translators: screen reader text noting beginning of the playground iframe
-									__('Beginning of Playground Preview')
-								}
+								{beforePlaygroundPreviewLabel}
 							</span>
 							<a
 								href="#"
@@ -789,7 +807,7 @@ export default function PlaygroundPreview({
 			<footer className="wordpress-playground-footer">
 				<a
 					href="https://w.org/playground"
-					className="wordpress-playground-footer__link"
+					className="wordpress-playground-footer__powered_by_link"
 					target="_blank"
 					aria-label={
 						// Provide dedicated ARIA label because NVDA does not
@@ -807,7 +825,7 @@ export default function PlaygroundPreview({
 						),
 						{
 							span1: (
-								<span className="wordpress-playground-footer__powered" />
+								<span className="wordpress-playground-footer__powered_text" />
 							),
 							WordPressIcon: (
 								<>
@@ -826,12 +844,32 @@ export default function PlaygroundPreview({
 								</>
 							),
 							span2: (
-								<span className="wordpress-playground-footer__link-text" />
+								<span className="wordpress-playground-footer__powered_by_link-text" />
 							),
 						}
 					)}
 				</a>
+				{!inBlockEditor && !inFullPageView && (
+					<Button
+						variant="link"
+						className="wordpress-playground-footer__full-page-link"
+						onClick={() => {
+							window.open(getFullPageUrl(), '_blank');
+						}}
+						aria-label={
+							// Add dedicated aria-label for screen readers
+							// because an arrow is added to the main button
+							// label via CSS pseudo-element, and our users with
+							// screen readers do not need an arrow read to them.
+							__('Open in New Tab')
+						}
+					>
+						{__('Open in New Tab')}
+					</Button>
+				)}
 			</footer>
 		</section>
 	);
 }
+
+export default withSpokenMessages(PlaygroundPreview);
