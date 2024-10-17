@@ -6,7 +6,7 @@ import {
 
 export default async function downloadZippedPackage(
 	client: PlaygroundClient,
-	codeEditorMode
+	codeEditorMode: string
 ) {
 	const docroot = await client.documentRoot;
 
