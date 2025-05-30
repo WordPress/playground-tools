@@ -35,6 +35,34 @@ function commonParameters(yargs) {
 }
 
 export async function runCli() {
+	// INSERT_YOUR_CODE
+	const chalk = await import('chalk');
+	const warning = `
+${chalk.default.bgYellow.black(' '.repeat(78))}
+${chalk.default.bgYellow.black(
+	' '.repeat(2) + '[WARNING]'.padEnd(74) + ' '.repeat(2)
+)}
+${chalk.default.bgYellow.black(
+	' '.repeat(2) +
+		'wp-now is DEPRECATED and NO LONGER MAINTAINED.'.padEnd(74) +
+		' '.repeat(2)
+)}
+${chalk.default.bgYellow.black(' '.repeat(2) + ''.padEnd(74) + ' '.repeat(2))}
+${chalk.default.bgYellow.black(
+	' '.repeat(2) + 'Use @wp-playground/cli instead.'.padEnd(74) + ' '.repeat(2)
+)}
+${chalk.default.bgYellow.black(
+	' '.repeat(2) + 'Run: npx @wp-playground/cli'.padEnd(74) + ' '.repeat(2)
+)}
+${chalk.default.bgYellow.black(' '.repeat(2) + ''.padEnd(74) + ' '.repeat(2))}
+${chalk.default.bgYellow.black(
+	' '.repeat(2) +
+		'See: https://www.npmjs.com/package/@wp-playground/cli'.padEnd(74) +
+		' '.repeat(2)
+)}
+${chalk.default.bgYellow.black(' '.repeat(78))}
+`;
+	console.error(warning);
 	return yargs(hideBin(process.argv))
 		.scriptName('wp-now')
 		.usage('$0 <cmd> [args]')
