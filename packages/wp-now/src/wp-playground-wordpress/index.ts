@@ -7,3 +7,4 @@ export * from './is-wordpress-directory';
 export * from './is-wordpress-develop-directory';
 export * from './get-plugin-file';
 export * from './read-file-head';
+export * from './resolve-wordpress-version';

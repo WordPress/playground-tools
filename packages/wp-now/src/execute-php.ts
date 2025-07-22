@@ -1,5 +1,6 @@
+import { useHostFilesystem } from '@php-wasm/node';
 import startWPNow from './wp-now';
-import { WPNowOptions } from './config';
+import { WPNowMode, WPNowOptions } from './config';
 import { disableOutput } from './output';
 import * as path from 'path';
 import fs from 'fs-extra';
@@ -23,14 +24,13 @@ export async function executePHP(
 		);
 	}
 	disableOutput();
-	const { phpInstances, options: wpNowOptions } = await startWPNow({
+	const { php, options: wpNowOptions } = await startWPNow({
 		...options,
-		numberOfPhpInstances: 2,
+		mode: WPNowMode.INDEX,
 	});
-	const [, php] = phpInstances;
 
 	try {
-		php.useHostFilesystem();
+		useHostFilesystem(php);
 		if (!path.isAbsolute(phpArgs[1])) {
 			const maybePhpFile = path.join(
 				wpNowOptions.projectPath,

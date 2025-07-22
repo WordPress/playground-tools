@@ -27,7 +27,29 @@
 		cursor: pointer;
 	}
 
-	.demo-container {
+	.screen-reader-text.wordpress-playground-end-of-preview,
+	.screen-reader-text.wordpress-playground-end-of-preview:focus {
+		top: initial;
+		bottom: 5px;
+	}
+
+	.wordpress-playground-main-container {
+		width: 100%;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: center;
+		align-items: center;
+
+		.wordpress-playground-content-container {
+			width: 100%;
+		}
+		.wordpress-playground-footer {
+			text-align: end;
+		}
+	}
+
+	.wordpress-playground-content-container {
 		display: flex;
 		box-shadow: #03254b47 0px 12px 50px 0px;
 		overflow: hidden;
@@ -42,6 +64,21 @@
 				max-width: 100%;
 				border: 0;
 				position: relative;
+
+				.wordpress-playground-before-preview:focus {
+					// The before-preview element exists as a marker for
+					// a11y purposes. It is a meaningful place to move the
+					// focus before focus is lost as the clicked Activation
+					// button disappears. But we do not want the element to
+					// be shown when focused.
+					z-index: -1;
+				}
+				.playground-iframe {
+					// Set a non-transparent iframe color so the before-preview
+					// element behind the iframe is not rendered when the
+					// default iframe background is transparent.
+					background-color: white;
+				}
 			}
 		}
 
@@ -59,7 +96,6 @@
 			.playground-container {
 				flex: 1;
 				flex-basis: 50%;
-				// Set width to height so the iframe is square
 				height: $playground-height;
 				max-height: 100%;
 			}
@@ -85,51 +121,112 @@
 			}
 			.playground-container {
 				width: 100%;
-				height: 400px;
+				height: 500px;
 				flex-basis: 500px;
 			}
 
 			.cm-editor {
 				width: 100%;
-				height: 100%;
+				height: auto;
 				max-height: min(450px, 80vh);
 			}
 		}
 	}
 
-	.demo-footer {
-		$spacing: 4px;
+	.is-full-page-view {
+		height: 100vh;
+		display: flex;
+		flex-direction: column;
+		flex-wrap: nowrap;
+
+		.wordpress-playground-footer__full-page-link {
+			display: none;
+		}
+
+		.wordpress-playground-content-container {
+			flex-grow: 1;
+
+			&.is-side-by-side {
+				.code-container,
+				.playground-container {
+					min-height: auto;
+					height: auto;
+				}
+			}
+
+			&.is-one-under-another {
+				overflow: auto;
+
+				.playground-container {
+					flex-basis: 300px;
+					flex-grow: 1;
+				}
+			}
+		}
+	}
+
+	.wordpress-playground-footer__full-page-link {
+		text-decoration: none;
+		font-size: 13px;
+		margin-inline-start: 11px;
+
+		$northeast-arrow: '\002197';
+		$northwest-arrow: '\002196';
+
+		&:after {
+			margin-inline-start: 3px;
+			content: $northeast-arrow;
+		}
+
+		&:dir(rtl):after {
+			content: $northwest-arrow;
+		}
+	}
+
+	.wordpress-playground-footer {
+		margin: 4px;
+
+		.wordpress-playground-footer__powered_by_link,
+		.wordpress-playground-footer__full-page-link {
+			margin: 0 8px;
+		}
+
+		.wordpress-playground-footer__full-page-link {
+			margin-inline-start: 19px;
+		}
+
 		$color: var(--wp--preset--color--contrast);
 		$hover-color: var(--wp--preset--color--vivid-cyan-blue);
 
-		padding: $spacing 2 * $spacing;
-		text-align: center;
-		.demo-footer__link,
-		.demo-footer__powered,
-		.demo-footer__link-text {
+		.wordpress-playground-footer__powered_by_link,
+		.wordpress-playground-footer__powered_text,
+		.wordpress-playground-footer__powered_by_link-text {
 			color: $color;
 			text-decoration: none;
 			font-size: 13px;
-			line-height: 1;
 			display: inline-block;
-			vertical-align: middle;
 		}
-		.demo-footer__powered {
+		.wordpress-playground-footer__powered_text {
 			opacity: 0.7;
 		}
-		.demo-footer__link {
-			.demo-footer__icon {
-				margin: 0 $spacing/2;
+		.wordpress-playground-footer__powered_by_link {
+			.wordpress-playground-footer__spacing {
+				display: inline-block;
+				width: 0;
+				height: 0;
+			}
+			.wordpress-playground-footer__icon {
+				margin: -4px 2px auto 2px;
 				fill: $color;
 				vertical-align: middle;
 			}
 			&:hover {
-				.demo-footer__link-text,
-				.demo-footer__powered {
+				.wordpress-playground-footer__powered_by_link-text,
+				.wordpress-playground-footer__powered_text {
 					color: $hover-color;
 					opacity: 1;
 				}
-				.demo-footer__icon {
+				.wordpress-playground-footer__icon {
 					fill: $hover-color;
 				}
 			}
@@ -272,5 +369,33 @@
 		padding: 10px;
 		background-color: #0c0224;
 		color: #fff;
+	}
+
+	.playground-block-exit-editor-tip {
+		cursor: pointer;
+		border: 0;
+		background: #fff7cc;
+		padding: 11px;
+		font-size: inherit;
+		text-align: left;
+
+		&:focus {
+			// Avoid outline on click
+			outline: 0;
+		}
+		&:focus-visible {
+			outline: auto;
+			// Avoid completely clipped outline
+			outline-offset: -2px;
+		}
+
+		code {
+			// TODO: Is there a good WordPress CSS var for monospace font?
+			font-family: monospace;
+			border: 1px solid #00000077;
+			border-radius: 5px;
+			padding: 2px 4px;
+			margin: 0px 1px;
+		}
 	}
 }

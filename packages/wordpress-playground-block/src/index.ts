@@ -5,6 +5,7 @@ import {
 	useEffect,
 	useState,
 } from '@wordpress/element';
+import { __ } from './i18n';
 
 import metadata from './block.json';
 import './style.scss';
@@ -67,7 +68,7 @@ registerBlockType<Attributes>(metadata.name, {
 		}, []);
 		if (!isLoaded) {
 			return createElement('span', {}, [
-				'Loading the WordPress Playground Block...',
+				__('Loading the WordPress Playground Block...'),
 			]);
 		}
 		return createElement(EditComponent as any, props);

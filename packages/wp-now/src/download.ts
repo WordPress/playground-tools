@@ -5,18 +5,12 @@ import { IncomingMessage } from 'http';
 import os from 'os';
 import path from 'path';
 import unzipper from 'unzipper';
-import {
-	DEFAULT_WORDPRESS_VERSION,
-	SQLITE_FILENAME,
-	SQLITE_URL,
-	WP_CLI_URL,
-} from './constants';
+import { SQLITE_FILENAME, SQLITE_URL, WP_CLI_URL } from './constants';
 import getSqlitePath, { getSqliteDbCopyPath } from './get-sqlite-path';
 import getWordpressVersionsPath from './get-wordpress-versions-path';
 import getWpCliPath from './get-wp-cli-path';
 import getWpNowPath from './get-wp-now-path';
 import { output } from './output';
-import { isValidWordPressVersion } from './wp-playground-wordpress';
 
 function httpsGet(url: string, callback: Function) {
 	const proxy =
@@ -37,15 +31,11 @@ function httpsGet(url: string, callback: Function) {
 	https.get(url, { agent }, callback);
 }
 
-function getWordPressVersionUrl(version = DEFAULT_WORDPRESS_VERSION) {
-	if (!isValidWordPressVersion(version)) {
-		throw new Error(
-			'Unrecognized WordPress version. Please use "latest", "trunk", "nightly", or numeric versions such as "6.2", "6.0.1", "6.2-beta1", or "6.2-RC1"'
-		);
-	}
-	if (version === 'trunk' || version === 'nightly') {
+function getWordPressVersionUrl(version: string) {
+	if (version === 'nightly') {
 		return 'https://wordpress.org/nightly-builds/wordpress-latest.zip';
 	}
+
 	return `https://wordpress.org/wordpress-${version}.zip`;
 }
 
@@ -178,12 +168,15 @@ async function downloadFileAndUnzip({
 }
 
 export async function downloadWordPress(
-	wordPressVersion = DEFAULT_WORDPRESS_VERSION
+	wordPressVersion: string,
+	{ isDeveloperBuild = false } = {}
 ) {
 	const finalFolder = path.join(getWordpressVersionsPath(), wordPressVersion);
 	const tempFolder = os.tmpdir();
 	const { downloaded, statusCode } = await downloadFileAndUnzip({
-		url: getWordPressVersionUrl(wordPressVersion),
+		url: getWordPressVersionUrl(
+			isDeveloperBuild ? 'nightly' : wordPressVersion
+		),
 		destinationFolder: tempFolder,
 		checkFinalPath: finalFolder,
 		itemName: `WordPress ${wordPressVersion}`,

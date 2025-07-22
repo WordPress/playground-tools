@@ -9,6 +9,7 @@ import {
 	isWpContentDirectory,
 	isWordPressDirectory,
 	isWordPressDevelopDirectory,
+	resolveWordPressVersion,
 } from '../wp-playground-wordpress';
 import {
 	downloadSqliteIntegrationPlugin,
@@ -202,8 +203,13 @@ describe('Test starting different modes', () => {
 	 */
 	beforeAll(async () => {
 		fs.rmSync(getWpNowTmpPath(), { recursive: true, force: true });
+		const { resolvedWordPressVersion } = await resolveWordPressVersion(
+			'latest'
+		);
 		await Promise.all([
-			downloadWithTimer('wordpress', downloadWordPress),
+			downloadWithTimer('wordpress', () =>
+				downloadWordPress(resolvedWordPressVersion)
+			),
 			downloadWithTimer('sqlite', downloadSqliteIntegrationPlugin),
 		]);
 	});
@@ -701,7 +707,7 @@ describe('Test starting different modes', () => {
 		 * Test that startServer compresses the text files correctly.
 		 */
 		test.each([
-			['html', ''],
+			['html', '/wp-content/themes/theme-with-assets/page.html'],
 			['css', '/wp-content/themes/theme-with-assets/style.css'],
 			[
 				'javascript',
@@ -747,7 +753,7 @@ describe('Test starting different modes', () => {
 				`${php.documentRoot}/print-constants.php`,
 				`<?php echo WP_DEBUG_LOG;`
 			);
-			const result = await php.request({
+			const result = await php.requestHandler.request({
 				method: 'GET',
 				url: '/print-constants.php',
 			});
@@ -768,7 +774,7 @@ describe('Test starting different modes', () => {
 				`${php.documentRoot}/print-constants.php`,
 				`<?php echo WP_SITEURL;`
 			);
-			const result = await php.request({
+			const result = await php.requestHandler.request({
 				method: 'GET',
 				url: '/print-constants.php',
 			});
@@ -813,22 +819,6 @@ describe('Test starting different modes', () => {
  * Test wp-cli command.
  */
 describe('wp-cli command', () => {
-	let consoleSpy;
-	let output = '';
-
-	beforeEach(() => {
-		function onStdout(outputLine: string) {
-			output += outputLine;
-		}
-		consoleSpy = vi.spyOn(console, 'log');
-		consoleSpy.mockImplementation(onStdout);
-	});
-
-	afterEach(() => {
-		output = '';
-		consoleSpy.mockRestore();
-	});
-
 	beforeAll(async () => {
 		await downloadWithTimer('wp-cli', downloadWPCLI);
 	});
@@ -842,7 +832,7 @@ describe('wp-cli command', () => {
 	 * We don't need the WordPress context for this test.
 	 */
 	test('wp-cli displays the version', async () => {
-		await executeWPCli(['cli', 'version']);
-		expect(output).toMatch(/WP-CLI (\d\.?)+/i);
+		const { stdout } = await executeWPCli('.', ['--version']);
+		expect(stdout).toMatch(/WP-CLI (\d\.?)+/i);
 	});
 });

@@ -4,11 +4,11 @@
  * Description:       WordPress Playground as a Gutenberg block.
  * Requires at least: 6.1
  * Requires PHP:      7.0
- * Version:           0.2.9
+ * Version:           0.2.17
  * Author:            Dawid Urbański, Adam Zieliński
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       wordpress-playground-block
+ * Text Domain:       interactive-code-block
  *
  * @package WordPress/playground-block
  */
@@ -41,3 +41,31 @@ function playground_demo_block_init() {
 	);
 }
 add_action( 'init', 'playground_demo_block_init' );
+
+/**
+ * Conditionally render the Playground block as a full, dedicated page.
+ */
+function playground_demo_maybe_render_full_page_block() {
+	if (
+		// Skip nonce verification because full-page Playground block
+		// rendering does not require reading or writing server-side state.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		! isset( $_GET['playground-full-page'], $_GET['playground-attributes'] )
+	) {
+		return;
+	}
+
+	wp_head();
+	$block = array(
+		'blockName'    => 'wordpress-playground/playground',
+		'attrs'        => array(),
+		'innerBlocks'  => array(),
+		'innerHTML'    => '',
+		'innerContent' => array(),
+	);
+	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	echo render_block( $block );
+	wp_footer();
+	die();
+}
+add_action( 'init', 'playground_demo_maybe_render_full_page_block', 9999 );
