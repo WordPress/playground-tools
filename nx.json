@@ -1,71 +1,87 @@
 {
-	"$schema": "./node_modules/nx/schemas/nx-schema.json",
-	"tasksRunnerOptions": {
-		"default": {
-			"runner": "nx/tasks-runners/default",
-			"options": {
-				"cacheableOperations": ["build", "lint", "test", "e2e"]
-			}
-		}
-	},
-	"pluginsConfig": {
-		"@nx/js": {
-			"analyzeSourceFiles": true
-		}
-	},
-	"targetDefaults": {
-		"build": {
-			"dependsOn": ["^build"],
-			"inputs": ["production", "^production"]
-		},
-		"lint": {
-			"inputs": [
-				"default",
-				"{workspaceRoot}/.eslintrc.json",
-				"{workspaceRoot}/.eslintignore"
-			]
-		},
-		"test": {
-			"inputs": [
-				"default",
-				"^production",
-				"{workspaceRoot}/jest.preset.js"
-			]
-		},
-		"e2e": {
-			"inputs": ["default", "^production"]
-		}
-	},
-	"namedInputs": {
-		"default": ["{projectRoot}/**/*", "sharedGlobals"],
-		"production": [
-			"default",
-			"!{projectRoot}/.eslintrc.json",
-			"!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
-			"!{projectRoot}/tsconfig.spec.json",
-			"!{projectRoot}/jest.config.[jt]s"
-		],
-		"sharedGlobals": []
-	},
-	"workspaceLayout": {
-		"appsDir": "packages",
-		"libsDir": "packages"
-	},
-	"generators": {
-		"@nx/react": {
-			"application": {
-				"style": "css",
-				"linter": "eslint",
-				"bundler": "vite",
-				"babel": true
-			},
-			"component": {
-				"style": "css"
-			},
-			"library": {
-				"style": "css",
-				"linter": "eslint"
-			}
-		}
-	}
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "nx/tasks-runners/default",
+      "options": {
+        "cacheableOperations": ["build", "lint", "test", "e2e", "serve"]
+      }
+    }
+  },
+  "pluginsConfig": {
+    "@nx/js": {
+      "analyzeSourceFiles": true
+    }
+  },
+  "targetDefaults": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    },
+    "lint": {
+      "inputs": [
+        "default",
+        "{workspaceRoot}/.eslintrc.json",
+        "{workspaceRoot}/.eslintignore",
+        "{workspaceRoot}/packages/shared/.eslintrc.json"
+      ]
+    },
+    "test": {
+      "inputs": [
+        "default",
+        "^production",
+        "{workspaceRoot}/jest.preset.js",
+        "{workspaceRoot}/vitest.config.ts"
+      ]
+    },
+    "e2e": {
+      "inputs": ["default", "^production"]
+    },
+    "serve": {
+      "inputs": ["default"]
+    }
+  },
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "development": [
+      "default",
+      "!{projectRoot}/.eslintrc.json",
+      "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
+      "!{projectRoot}/tsconfig.spec.json",
+      "!{projectRoot}/jest.config.[jt]s"
+    ],
+    "production": [
+      "default",
+      "!{projectRoot}/.eslintrc.json",
+      "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
+      "!{projectRoot}/tsconfig.spec.json",
+      "!{projectRoot}/jest.config.[jt]s"
+    ],
+    "sharedGlobals": [
+      "{workspaceRoot}/tsconfig.base.json",
+      "{workspaceRoot}/.env"
+    ]
+  },
+  "workspaceLayout": {
+    "appsDir": "apps",
+    "libsDir": "packages"
+  },
+  "generators": {
+    "@nx/react": {
+      "application": {
+        "style": "css",
+        "linter": "eslint",
+        "bundler": "vite",
+        "babel": true,
+        "routing": true
+      },
+      "component": {
+        "style": "css"
+      },
+      "library": {
+        "style": "css",
+        "linter": "eslint"
+      }
+    }
+  }
 }
