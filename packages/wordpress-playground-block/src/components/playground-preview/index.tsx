@@ -324,7 +324,7 @@ function PlaygroundPreview({
 
 	function getFullPageUrl(): string {
 		// Use current URL as an easy-to-reach base URL
-		const fullPageUrl = new URL(location.href);
+		const fullPageUrl = new URL('https://playground.wordpress.net/playground-block-frame.html');
 		// But replace original query params so they cannot interfere
 		fullPageUrl.search = '?playground-full-page';
 
