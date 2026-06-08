@@ -43,6 +43,4 @@ jobs:
             # Version bump, release, tag a new version on GitHub
             - name: Release new version of NPM packages
               shell: bash
-              run: |
-                  npx nx build wp-now
-                  npm run release:wp-now
+              run: npm run release:wp-now

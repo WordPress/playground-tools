@@ -12,7 +12,7 @@
 		"lint": "nx run-many --all --target=lint",
 		"predeploy": "nx build docs-site",
 		"prepublishOnly": "npm run build",
-		"release:wp-now": "lerna version patch --yes --no-private --loglevel=verbose && cd dist/packages/wp-now && npm publish --access public",
+		"release:wp-now": "lerna version patch --yes --no-private --loglevel=verbose && npx nx build wp-now && cd dist/packages/wp-now && npm publish --access public",
 		"release:vscode": "nx publish vscode-extension",
 		"test": "nx run-many --all --target=test",
 		"fix-asyncify": "node packages/php-wasm/node/bin/rebuild-while-asyncify-functions-missing.mjs",
