@@ -17,6 +17,8 @@ jobs:
 
         # Specify runner + deployment step
         runs-on: ubuntu-latest
+        permissions:
+            contents: write
         environment:
             name: npm
         env:
@@ -24,19 +26,14 @@ jobs:
         steps:
             - uses: actions/checkout@v3
               with:
-                  ref: ${{ github.event.pull_request.head.ref }}
+                  ref: ${{ github.ref }}
                   clean: true
                   fetch-depth: 0
-                  persist-credentials: false
-            - name: Setup SSH Keys
-              uses: webfactory/ssh-agent@v0.5.3
-              with:
-                  ssh-private-key: ${{ secrets.GH_DEPLOY_KEY }}
+                  persist-credentials: true
             - name: Config git user
               run: |
                   git config --global user.name "deployment_bot"
                   git config --global user.email "deployment_bot@users.noreply.github.com"
-                  git remote set-url origin git@github.com:WordPress/playground-tools.git
             - name: Authenticate with Registry
               run: |
                   echo "@wp-now:registry=https://registry.npmjs.org/" >> ~/.npmrc
