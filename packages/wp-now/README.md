@@ -1,5 +1,17 @@
 # wp-now
 
+> **Deprecated:** `@wp-now/wp-now` is deprecated and no longer maintained. Use
+> [`@wp-playground/cli`](https://www.npmjs.com/package/@wp-playground/cli)
+> instead:
+>
+> ```bash
+> npx @wp-playground/cli@latest start
+> ```
+>
+> See the
+> [migration guide](https://wordpress.github.io/wordpress-playground/developers/local-development/wp-playground-cli#migrating-from-wp-now)
+> for command mappings and persistence differences.
+
 `wp-now` streamlines the process of setting up a local WordPress environment.
 
 It uses automatic mode detection to provide a fast setup process, regardless of whether you're working on a plugin or an entire site. You can easily switch between PHP and WordPress versions with a configuration flag. Under the hood, `wp-now` is powered by WordPress Playground and only requires Node.js.
@@ -301,7 +313,6 @@ Here's what you need to know if you're migrating from `wp-env`:
 -   `wp-now` supports non-WordPress projects.
 -   `wp-now` does not require Docker.
 -   `wp-now` does not include [lifecycle scripts](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-env/#node-lifecycle-script).
-
 
 ## Contributing
 

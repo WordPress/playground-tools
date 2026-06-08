@@ -35,6 +35,8 @@ function commonParameters(yargs) {
 }
 
 export async function runCli() {
+	printDeprecationNotice();
+
 	return yargs(hideBin(process.argv))
 		.scriptName('wp-now')
 		.usage('$0 <cmd> [args]')
@@ -163,6 +165,22 @@ export async function runCli() {
 		.help()
 		.alias('h', 'help')
 		.strict().argv;
+}
+
+function printDeprecationNotice() {
+	console.error(
+		[
+			'',
+			'wp-now is deprecated and no longer maintained.',
+			'Use @wp-playground/cli instead:',
+			'',
+			'  npx @wp-playground/cli@latest start',
+			'',
+			'Migration guide:',
+			'https://wordpress.github.io/wordpress-playground/developers/local-development/wp-playground-cli#migrating-from-wp-now',
+			'',
+		].join('\n')
+	);
 }
 
 function openInDefaultBrowser(url: string) {
