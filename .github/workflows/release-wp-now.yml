@@ -44,5 +44,5 @@ jobs:
             - name: Release new version of NPM packages
               shell: bash
               run: |
-                  npm run build
+                  npx nx build wp-now
                   npm run release:wp-now
