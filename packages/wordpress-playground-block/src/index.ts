@@ -49,11 +49,25 @@ export type Attributes = {
 // As a result, the editor sometimes displays a "Block is not available" error.
 // The dynamic import below is async and allows the registerBlockType()
 // call to be synchronous, which allows the block to reliably load.
-const EditComponentPromise = import('./edit');
+//
+// The import is started on first render rather than at module scope. `./edit`
+// pulls in the Playground client from playground.wordpress.net, so starting it
+// here would download the whole editor bundle on every page that merely
+// registers the block - including editors where no Playground block is ever
+// inserted. Deferring it keeps `registerBlockType()` synchronous, which is what
+// the note above is about, while only fetching when a block is actually edited.
+let EditComponentPromise: Promise<typeof import('./edit')> | undefined;
 let EditComponent: Component | undefined = undefined;
-EditComponentPromise.then((module) => {
-	EditComponent = module.default as any as Component;
-});
+
+function loadEditComponent() {
+	if (!EditComponentPromise) {
+		EditComponentPromise = import('./edit');
+		EditComponentPromise.then((module) => {
+			EditComponent = module.default as any as Component;
+		});
+	}
+	return EditComponentPromise;
+}
 
 // @ts-ignore
 registerBlockType<Attributes>(metadata.name, {
@@ -61,7 +75,7 @@ registerBlockType<Attributes>(metadata.name, {
 		const [isLoaded, setIsLoaded] = useState(!!EditComponent);
 		useEffect(() => {
 			if (!isLoaded) {
-				EditComponentPromise.then(() => {
+				loadEditComponent().then(() => {
 					setIsLoaded(true);
 				});
 			}
