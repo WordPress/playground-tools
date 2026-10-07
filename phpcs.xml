@@ -12,6 +12,7 @@
     <!-- File extensions to include in the analysis -->
     <arg name="extensions" value="php"/>
     <file>packages/wordpress-playground-block/</file>
+    <file>tests/</file>
 
     <!-- Additional rules or exclusions can be added here -->
 </ruleset>
