@@ -259,7 +259,9 @@ add_action('rest_api_init', function () {
     register_rest_route('wordpress-es-modules/v1', '/modules', [
         'methods' => 'POST',
         'callback' => 'wordpress_es_modules_rest_api_modules',
-        'permission_callback' => '__return_true'
+        'permission_callback' => function () {
+            return current_user_can('manage_options');
+        }
     ]);
 });
 
@@ -268,9 +270,17 @@ add_action('rest_api_init', function () {
  */
 function wordpress_es_modules_rest_api_modules()
 {
+    global $script_to_js_global;
     $json_string = file_get_contents('php://input');
     $modules = json_decode($json_string, true);
+    if (!is_array($modules)) {
+        return new WP_Error('invalid_modules', 'Expected a JSON object of modules.', ['status' => 400]);
+    }
     foreach ($modules as $module_name => $module_source) {
+        // Allowlist the advertised module names; this also rejects ../ and path separators.
+        if (!array_key_exists($module_name, $script_to_js_global)) {
+            continue;
+        }
         $module_path = __DIR__ . '/js/' . $module_name . '.js';
         // @TODO: Handle that in JavaScript as it will be much faster there
         //        ...or will it? I'm testing with the local OPFS sync mode which
