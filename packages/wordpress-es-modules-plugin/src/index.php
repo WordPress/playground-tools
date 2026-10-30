@@ -260,7 +260,9 @@ add_action('rest_api_init', function () {
         'methods' => 'POST',
         'callback' => 'wordpress_es_modules_rest_api_modules',
         'permission_callback' => function () {
-            return current_user_can('manage_options');
+            // Writing module files publishes arbitrary JavaScript, so require
+            // the same capability WordPress uses for unfiltered scripts.
+            return current_user_can('manage_options') && current_user_can('unfiltered_html');
         }
     ]);
 });
@@ -277,10 +279,19 @@ function wordpress_es_modules_rest_api_modules()
         return new WP_Error('invalid_modules', 'Expected a JSON object of modules.', ['status' => 400]);
     }
     foreach ($modules as $module_name => $module_source) {
-        // Allowlist the advertised module names; this also rejects ../ and path separators.
+        // Skip any name that isn't one of the modules this plugin supports,
+        // which are the keys of $script_to_js_global.
+        //
+        // This check does not decide who may create a supported module's file.
+        // Many supported modules have no file yet, and the site's pages load
+        // these files as trusted JavaScript. The permission_callback above is
+        // what stops untrusted users from creating them.
         if (!array_key_exists($module_name, $script_to_js_global)) {
             continue;
         }
+        // $module_name comes from the request, so it is only safe to put in a
+        // file path because the check above allows known names. Without that
+        // check, a name like "../../evil" would write a file outside js/.
         $module_path = __DIR__ . '/js/' . $module_name . '.js';
         // @TODO: Handle that in JavaScript as it will be much faster there
         //        ...or will it? I'm testing with the local OPFS sync mode which
