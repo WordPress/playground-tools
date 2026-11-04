@@ -33,6 +33,9 @@ jobs:
 
             - name: Run PHPCS
               run: vendor/bin/phpcs
+
+            - name: Test Playground SQL exports
+              run: php tests/playground-export.php
     test:
         runs-on: ubuntu-latest
         needs: [lint-and-typecheck]

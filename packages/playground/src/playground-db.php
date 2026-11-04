@@ -131,6 +131,6 @@ function dump_db_schema($table)
 	if (!isset($schema['Create Table'])) {
 		return '';
 	}
-	// A query needs to be on a single line
-	return preg_replace("/\r?\n/", "", $schema['Create Table']);
+	// Keep each statement on one line and terminate it for the SQL importer.
+	return rtrim(preg_replace("/\r?\n/", "", $schema['Create Table']), ';') . ';';
 }

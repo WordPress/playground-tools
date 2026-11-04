@@ -19,7 +19,8 @@ function zip_wp_content(ZipStreamWriter $writer)
 	$root_dir = WP_CONTENT_DIR;
 	$directory = new \RecursiveDirectoryIterator($root_dir, \FilesystemIterator::FOLLOW_SYMLINKS);
 	$iterator = new \RecursiveIteratorIterator($directory);
-	// @TODO - Allow a whitelist of files to be included like .htaccess and .ht.sqlite
+	// The database is exported as SQL, so hidden SQLite files are not needed.
+	// @TODO - Allow a whitelist of hidden files to be included, such as .htaccess.
 	// Exclude hidden files and directories (i.e. .git, .github, .gitignore), and parent directory (i.e. ..)
 	$regex = new \RegexIterator($iterator, '/^(?!.*\/\..*)^.+$/i', \RecursiveRegexIterator::GET_MATCH);
 	foreach ($regex as $file) {
@@ -29,6 +30,11 @@ function zip_wp_content(ZipStreamWriter $writer)
 		$file = $file[0];
 
 		if (is_dir($file)) {
+			continue;
+		}
+
+		// Keep Playground's database loader and storage path when importing the SQL dump.
+		if (in_array($file, array($root_dir . '/db.php', $root_dir . '/database/db-path.php'), true)) {
 			continue;
 		}
 
