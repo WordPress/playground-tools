@@ -1,4 +1,8 @@
-import startWPNow, { getThemeTemplate, inferMode } from '../wp-now';
+import startWPNow, {
+	getParentThemePath,
+	getThemeTemplate,
+	inferMode,
+} from '../wp-now';
 import { startServer } from '../';
 import getWpNowConfig, { CliOptions, WPNowMode } from '../config';
 import fs from 'fs-extra';
@@ -114,6 +118,37 @@ test('getThemeTemplate returns falsy value for themes without parent', () => {
 	const projectPath = exampleDir + '/theme';
 	expect(getThemeTemplate(projectPath)).toBe(undefined);
 	expect(inferMode(projectPath)).toBe(WPNowMode.THEME);
+});
+
+describe('getParentThemePath', () => {
+	const projectPath = path.resolve(exampleDir, 'child-theme/child');
+
+	test('resolves a parent theme next to the child theme', () => {
+		expect(getParentThemePath(projectPath, 'parent')).toBe(
+			path.resolve(exampleDir, 'child-theme/parent')
+		);
+	});
+
+	test.each([
+		'',
+		'.',
+		'..',
+		'../secret',
+		'../../secret',
+		'parent/../../secret',
+		'nested/parent',
+		'/etc',
+		'..\\secret',
+		'nested\\parent',
+		'C:\\secret',
+		'C:secret',
+		'c:/secret',
+		'\\\\server\\share',
+		'//server/share',
+		'parent\0',
+	])('rejects %j', (templateName) => {
+		expect(getParentThemePath(projectPath, templateName)).toBe(undefined);
+	});
 });
 
 test('isThemeDirectory returns false for non-theme directory', () => {
@@ -549,6 +584,33 @@ describe('Test starting different modes', () => {
 		});
 
 		expect(childThemeName.text).toContain('Child Theme');
+	});
+
+	/**
+	 * Test that a parent theme name pointing outside the themes directory is not mounted.
+	 */
+	test('startWPNow does not mount a parent theme outside the sibling directory.', async () => {
+		const workspacePath = path.join(tmpExampleDirectory, 'workspace');
+		const projectPath = path.join(workspacePath, 'themes', 'child');
+		const outsidePath = path.join(workspacePath, 'outside');
+		fs.ensureDirSync(projectPath);
+		fs.ensureDirSync(outsidePath);
+		fs.writeFileSync(path.join(outsidePath, 'marker.txt'), 'outside');
+		fs.writeFileSync(
+			path.join(projectPath, 'style.css'),
+			'/*\nTheme Name: Child Theme\nTemplate: ../outside\n*/\n'
+		);
+
+		const options = await getWpNowConfig({ path: projectPath });
+		const { php } = await startWPNow(options);
+
+		const result = await php.run({
+			code: `<?php
+			$themes = '${php.documentRoot}/wp-content/themes';
+			echo file_exists($themes . '/../outside/marker.txt') ? 'mounted' : 'absent';
+			`,
+		});
+		expect(result.text).toBe('absent');
 	});
 
 	/**
