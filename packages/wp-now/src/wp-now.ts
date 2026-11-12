@@ -335,8 +335,12 @@ async function runPluginOrThemeMode(
 		const templateName = getThemeTemplate(projectPath);
 		if (templateName) {
 			// We assume that the theme template is in the parent directory
-			const templatePath = path.join(projectPath, '..', templateName);
-			if (fs.existsSync(templatePath)) {
+			const templatePath = getParentThemePath(projectPath, templateName);
+			if (!templatePath) {
+				output?.warn(
+					`Ignoring invalid parent theme name in style.css: ${templateName}`
+				);
+			} else if (fs.existsSync(templatePath)) {
 				await mountWithHandler(
 					php,
 					`${documentRoot}/wp-content/${directoryName}/${templateName}`,
@@ -437,6 +441,34 @@ export function getThemeTemplate(projectPath: string) {
 		const themeName = themeTemplateRegex.exec(styleCSS)[1].trim();
 		return themeName;
 	}
+}
+
+/**
+ * Resolves the parent theme directory named by a child theme's `Template` header.
+ *
+ * The parent theme must be a sibling of the child theme, so the name must be a
+ * single path segment. Returns undefined for anything else.
+ */
+export function getParentThemePath(
+	projectPath: string,
+	templateName: string
+): string | undefined {
+	if (
+		templateName === '' ||
+		templateName === '.' ||
+		templateName === '..' ||
+		/[/\\\0]/.test(templateName) ||
+		// Separators cover absolute and UNC paths; this covers `C:name`.
+		/^[a-zA-Z]:/.test(templateName)
+	) {
+		return undefined;
+	}
+	const themesPath = path.resolve(projectPath, '..');
+	const parentThemePath = path.resolve(themesPath, templateName);
+	if (path.dirname(parentThemePath) !== themesPath) {
+		return undefined;
+	}
+	return parentThemePath;
 }
 
 async function mountMuPlugins(php: PHP, vfsDocumentRoot: string) {
